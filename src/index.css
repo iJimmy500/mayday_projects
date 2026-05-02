@@ -1,0 +1,185 @@
+:root {
+  --bg: #0a0a0a;
+  --fg: #ffffff;
+  --dim: #888888;
+  --border: #1a1a1a;
+  --hover: #111111;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Home / Redirect Page */
+.simple-center {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: radial-gradient(circle at center, #111 0%, #0a0a0a 100%);
+}
+
+.flower-container {
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+}
+
+.spinning-flower {
+  color: var(--fg);
+  opacity: 0.8;
+  animation: slowSpin 12s linear infinite;
+}
+
+@keyframes slowSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.home-logo {
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  font-size: 28px;
+  margin-bottom: 4px;
+  opacity: 0;
+  animation: fadeInText 1.5s ease-out forwards 0.5s;
+}
+
+@keyframes fadeInText {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 0.9; transform: translateY(0); }
+}
+
+.redirect-msg {
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeInText 1.5s ease-out forwards 1s;
+}
+
+/* Birthday Wishlist Page */
+.wishlist-page {
+  max-width: 480px;
+  margin: 120px auto;
+  padding: 0 24px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+header {
+  margin-bottom: 48px;
+}
+
+header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+header p.countdown-text {
+  font-size: 13px;
+  color: var(--dim);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.01em;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.item-row:hover {
+  background: var(--hover);
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+  border-radius: 8px;
+}
+
+.item-row.completed {
+  opacity: 0.3;
+}
+
+.item-row.completed .name {
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.item-row img {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: #151515;
+  margin-right: 16px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  transition: filter 0.3s ease;
+}
+
+.item-row.completed img {
+  filter: grayscale(1) contrast(0.8);
+}
+
+.name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.price {
+  font-size: 14px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.page-footer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+}
+
+.footer-link {
+  font-size: 13px;
+  color: var(--dim);
+  text-decoration: none;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-link:hover {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .page-footer {
+    position: relative;
+    margin-top: 60px;
+    bottom: auto;
+    right: auto;
+    text-align: center;
+    padding-bottom: 40px;
+  }
+}

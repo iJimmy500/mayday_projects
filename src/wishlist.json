@@ -1,0 +1,58 @@
+[
+  {
+    "id": "d7725059-8a0d-461f-8382-fda73412b232",
+    "name": "007 First Light",
+    "price": "$69.99",
+    "link": "https://www.playstation.com/en-us/games/007-first-light/",
+    "img": "https://gmedia.playstation.com/is/image/SIEPDC/007-first-light-hero-desktop-01-en-08jul25?$1600px$",
+    "completed": false
+  },
+  {
+    "id": "6acdcdd9-90b5-45da-acfa-b57b2110aeae",
+    "name": "Lego Batman",
+    "price": "$69.99",
+    "link": "https://www.playstation.com/en-us/games/lego-batman-legacy-of-the-dark-knight/",
+    "img": "https://gmedia.playstation.com/is/image/SIEPDC/lego-batman-legacy-dark-nights-hero-desktop-01-en-14aug25?$1600px$",
+    "completed": false
+  },
+  {
+    "id": "e2b03bb0-59bd-4495-b49a-190ca3118e58",
+    "name": "Claude Pro",
+    "price": "$200.00",
+    "link": "https://www.anthropic.com/news/claude-pro",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg",
+    "completed": false
+  },
+  {
+    "id": "992ea98b-d7e8-4fdf-916f-e5a53f97e21a",
+    "name": "Nothing Ear(a)",
+    "price": "$79",
+    "link": "https://us.nothing.tech/products/ear-a?Colour=White",
+    "img": "https://cdn.shopify.com/s/files/1/0579/8091/1768/files/0000s_0026_Ear-a-white.png?v=1753686836",
+    "completed": false
+  },
+  {
+    "id": "5a806d8b-aee0-4c01-bed9-d8363186d389",
+    "name": "cashapp",
+    "price": "$20 (its symbolic but you can send more)",
+    "link": "https://cash.app/$firstonmarz",
+    "img": "https://cash.app/qr/$firstonmarz?size=288&margin=0&bg=000000&logoColor=ffffff&format=svg",
+    "completed": false
+  },
+  {
+    "id": "8c3c177f-3930-4763-8f0e-f1e0b141a8c8",
+    "name": "zelle",
+    "price": "$20",
+    "link": "mailto:james@phushsia.com?subject=Zelle%20Request&body=Hi%20James,%20I'd%20like%20to%20send%20funds%20via%20Zelle.%20Please%20let%20me%20know%20the%20details!",
+    "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAgVBMVEVvH9RtG9R0KtWAO9l/NNhqENKshOPXw/LCp+tkANDIsOv////o4fd3ItXNte3Pue7+/f/59v15N9Z7PNZtGtT07/qMU9ihd92dcty/n+fl1/bEq+rZyfGBQte4muaPWdnRve3m2/Wwi+a4lOaZaN+dbuGXY+Dv5vpuHMl1LMuESNTozOBjAAAAx0lEQVR4AYySBRLDIAAEIY27u3vy/wf2MlIhujg7OOQxFJw67vXiz6wgSpIsnEypqJqmKwdTU8LzhglpoNwtZ9mOY2ua7QCXMlLSvng+I00n2NBA4LKrhhGIEzhHJCy+IAgKTbFqxtGj0wgWBuaFTw5QShtnqY5dHGDBSDhyQqVjwVI5cr6XY8H60FEug2uEjf2irQPZ9QMY2YFuAGdPALiUWVE7vts7CeZlmS3cwVZe/QRyhNCljaWQE5Z19Sg5w/cpeY8qAAALgw8n/1cNtwAAAABJRU5ErkJggg==",
+    "completed": false
+  },
+  {
+    "id": "54270f6c-5142-4545-a4c8-80a8080b5a6d",
+    "name": "Pixel 10",
+    "price": "$420(resale) - $799 (MSRP)",
+    "link": "https://store.google.com/product/pixel_10?hl=en-US",
+    "img": "https://static.swappa.com/images/cache/76/c1/76c1475da3fe8dc052d6cccfa1b2e327.png",
+    "completed": false
+  }
+]
