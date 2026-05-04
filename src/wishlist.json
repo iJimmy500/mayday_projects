@@ -54,5 +54,21 @@
     "link": "https://store.google.com/product/pixel_10?hl=en-US",
     "img": "https://static.swappa.com/images/cache/76/c1/76c1475da3fe8dc052d6cccfa1b2e327.png",
     "completed": false
+  },
+  {
+    "id": "c085bc4d-47a7-4a78-93e6-19c984c5b1a8",
+    "name": "Delightful 2-Pack Tung Tung Tung Sahur Plushies",
+    "price": "$42.99",
+    "link": "https://www.ebay.com/itm/389360385634",
+    "img": "https://i.ebayimg.com/images/g/MCwAAeSw4cVpOtXa/s-l1600.webp",
+    "completed": false
+  },
+  {
+    "id": "db24a79d-99a9-43e9-af83-3fcf97896e19",
+    "name": "ESP32-S3-EYE",
+    "price": "$45.00",
+    "link": "https://www.amazon.com/Espressif-ESP32-S3-EYE-Development-Board/dp/B09MS6PH7L/?_encoding=UTF8&content-id=amzn1.sym.9c7b99cf-e985-4bc9-a541-c9a74e21a3f8%3Aamzn1.symc.050ea944-f1cf-4610-b462-3b604f2f4082",
+    "img": "https://m.media-amazon.com/images/I/71TUAzG+8qL._AC_SY879_.jpg",
+    "completed": false
   }
 ]
