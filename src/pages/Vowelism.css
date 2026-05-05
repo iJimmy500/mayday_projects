@@ -1,0 +1,387 @@
+.vow-theme {
+  min-height: 100vh;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  color: #a0a0a0;
+}
+
+.vow-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px;
+  cursor: text;
+  gap: 40px;
+}
+
+/* ── Nav bar ── */
+.vow-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-family: ui-monospace, monospace;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vow-mode-group {
+  display: flex;
+  gap: 12px;
+}
+
+.vow-nav-btn {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.vow-nav-btn:hover,
+.vow-nav-btn.active {
+  color: #eee;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.vow-nav-btn span {
+  color: #999;
+}
+
+.vow-nav-btn svg {
+  transition: transform 0.2s;
+}
+
+.vow-nav-btn svg.rotated {
+  transform: rotate(180deg);
+}
+
+.vow-dropdown-wrap {
+  position: relative;
+}
+
+.vow-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 140px;
+  background: #222;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: vowDropdownIn 0.2s ease-out;
+}
+
+@keyframes vowDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vow-dropdown-item {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  color: #777;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.vow-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.vow-dropdown-item.selected {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.vow-divider {
+  width: 1px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Live stats row ── */
+.vow-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.vow-live-stats {
+  display: flex;
+  gap: 32px;
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  color: #777;
+}
+
+.vow-timer-val,
+.vow-count-val {
+  font-weight: 500;
+}
+
+/* ── Letter tiles ── */
+.vow-letters-area {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.vow-tile {
+  font-size: 32px;
+  font-weight: 400;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #444;
+  transition: all 0.3s;
+}
+
+.vow-tile.vowel {
+  color: #eee;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Typewriter input ── */
+.vow-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.vow-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 24px;
+  padding: 8px 0;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.3s;
+  caret-color: #777;
+}
+
+.vow-input:focus {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.vow-input::placeholder {
+  color: #333;
+}
+
+/* ── Feedback popup ── */
+.vow-message {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  z-index: 200;
+  pointer-events: none;
+  text-align: center;
+  animation: vowPopup 1.5s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vow-message.success {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.vow-message.error {
+  color: #888;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+@keyframes vowPopup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -30%);
+  }
+
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  85% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -70%);
+  }
+}
+
+/* ── Found words bank ── */
+.vow-found-area {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.vow-found-word {
+  font-size: 14px;
+  color: #666;
+  font-family: inherit;
+  animation: fadeIn 0.5s ease;
+  font-weight: 300;
+}
+
+.vow-found-empty {
+  font-size: 11px;
+  color: #333;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.05em;
+}
+
+/* ── Result overlay ── */
+.vow-result-overlay {
+  position: fixed;
+  inset: 0;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  animation: fadeIn 0.3s ease;
+}
+
+.vow-result-box {
+  text-align: center;
+}
+
+.vow-result-stats {
+  margin-bottom: 32px;
+}
+
+.vow-result-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: center;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 40px;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vow-result-words::-webkit-scrollbar {
+  width: 2px;
+}
+
+.vow-result-words::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vow-result-word {
+  font-size: 16px;
+  color: #ccc;
+  font-weight: 300;
+}
+
+.vow-result-item .label {
+  font-size: 11px;
+  color: #555;
+  font-family: ui-monospace, monospace;
+  display: block;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.vow-result-item .value {
+  font-size: 48px;
+  color: #fff;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.vow-retry-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #777;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.vow-retry-btn:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .vow-tile {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+}

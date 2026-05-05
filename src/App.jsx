@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Flower } from 'lucide-react';
 import Birthday from './pages/Birthday';
-
 import Randomizer from './pages/Randomizer';
+import Vowelism from './pages/Vowelism';
 
 export default function App() {
   const path = window.location.pathname;
@@ -17,6 +17,10 @@ export default function App() {
 
   if (path === '/random' || path === '/gen' || path === '/day3' || path === '/pro') {
     return <Randomizer />;
+  }
+
+  if (path === '/vowelism' || path === '/words' || path === '/day4') {
+    return <Vowelism />;
   }
 
   return <Redirect />;

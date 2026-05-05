@@ -32,3 +32,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary/Hidden Pages
+src/pages/Stuff.jsx
+src/pages/Stuff.css
+src/pages/Images.jsx
+src/pages/Images.css
+
+# Archives
+.day4_archive/
