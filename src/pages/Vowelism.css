@@ -20,16 +20,47 @@
   gap: 40px;
 }
 
-/* ── Nav bar ── */
+.vow-top-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: fit-content;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+.zen-active .vow-top-bar {
+  opacity: 0.15;
+}
+
+.zen-active .vow-top-bar:hover {
+  opacity: 1;
+}
+
 .vow-nav {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 6px 12px;
-  border-radius: 12px;
   font-family: ui-monospace, monospace;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.zen-active .vow-nav {
+  opacity: 0.15;
+}
+
+.zen-active .vow-nav:hover {
+  opacity: 1;
+}
+
+.vow-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .vow-mode-group {
@@ -46,16 +77,66 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   transition: all 0.2s;
-  padding: 6px 10px;
+  padding: 6px 8px;
   border-radius: 8px;
+}
+
+.vow-nav-value {
+  color: #999;
+}
+
+.vow-nav-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+
+.vow-tool-btn {
+  background: transparent;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.vow-tool-btn:hover,
+.vow-tool-btn.active {
+  color: #eee;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .vow-nav-btn:hover,
 .vow-nav-btn.active {
   color: #eee;
   background: rgba(255, 255, 255, 0.05);
+}
+
+.vow-lock-btn {
+  background: transparent;
+  border: none;
+  color: #444;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.vow-lock-btn.locked {
+  color: #fff;
+  opacity: 0.3;
+}
+
+.vow-lock-btn:hover {
+  color: #eee;
 }
 
 .vow-nav-btn span {
@@ -142,11 +223,25 @@
   font-family: ui-monospace, monospace;
   font-size: 14px;
   color: #777;
+  transition: opacity 0.3s ease;
+}
+
+.zen-active .vow-live-stats {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .vow-timer-val,
-.vow-count-val {
+.vow-count-val,
+.vow-level-val {
   font-weight: 500;
+}
+
+.vow-level-val {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 /* ── Letter tiles ── */
@@ -156,6 +251,12 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
+  transition: opacity 1s ease;
+}
+
+.vow-letters-area.fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .vow-tile {
@@ -177,6 +278,11 @@
   color: #eee;
   background: rgba(255, 255, 255, 0.02);
   border-color: rgba(255, 255, 255, 0.15);
+}
+
+.vow-tile.consonant {
+  color: #888;
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 /* ── Typewriter input ── */
@@ -304,6 +410,9 @@
 
 .vow-result-stats {
   margin-bottom: 32px;
+  display: flex;
+  gap: 32px;
+  justify-content: center;
 }
 
 .vow-result-words {
@@ -349,6 +458,19 @@
   line-height: 1;
 }
 
+.best-tag {
+  display: inline-block;
+  font-size: 9px;
+  background: #eee;
+  color: #1a1a1a;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: 800;
+  vertical-align: middle;
+  margin-left: 8px;
+  transform: translateY(-16px);
+}
+
 .vow-retry-btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -378,10 +500,89 @@
   }
 }
 
+.vow-theme .page-footer {
+  position: relative;
+  bottom: auto;
+  right: auto;
+  margin: 40px 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.vow-theme .footer-link {
+  opacity: 0.2;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+}
+
+.vow-theme .footer-link:hover {
+  opacity: 0.8;
+  color: #fff;
+}
+
 @media (max-width: 600px) {
+  .vow-main {
+    padding: 20px 12px;
+    gap: 32px;
+  }
+
+  .vow-top-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .vow-nav {
+    gap: 8px;
+    padding: 6px 12px;
+    width: auto;
+    margin: 0;
+  }
+
+  .vow-nav-tools {
+    position: static;
+    transform: none;
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    gap: 16px;
+  }
+
+  .vow-tool-btn {
+    padding: 8px;
+  }
+
+  .vow-divider {
+    display: none;
+  }
+
+  .vow-nav-label {
+    display: none;
+  }
+
+  .vow-nav-group {
+    gap: 4px;
+  }
+
   .vow-tile {
-    width: 44px;
-    height: 44px;
-    font-size: 24px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .vow-input {
+    font-size: 18px;
+  }
+
+  .vow-result-item .value {
+    font-size: 32px;
+  }
+
+  .vow-live-stats {
+    gap: 12px;
+    font-size: 12px;
   }
 }

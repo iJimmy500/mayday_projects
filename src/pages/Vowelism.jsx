@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Flower, RefreshCw, Timer, AlignLeft, ChevronDown, Check } from 'lucide-react';
+import { Flower, RefreshCw, Timer, AlignLeft, ChevronDown, Check, Skull, Ghost, Trophy, Zap, Hash, Layers } from 'lucide-react';
 import './Vowelism.css';
 
 const VOWELS = [
@@ -32,13 +32,60 @@ export default function Vowelism() {
   const [loading, setLoading] = useState(true);
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [zenMode, setZenMode] = useState(false);
+  const [isRandomVowels, setIsRandomVowels] = useState(false);
+  const [isRandomLength, setIsRandomLength] = useState(false);
+  const [isGhost, setIsGhost] = useState(false);
+  const [isSuddenDeath, setIsSuddenDeath] = useState(false);
+  const [isProgressive, setIsProgressive] = useState(false);
+  const [level, setLevel] = useState(1);
+  const [wordsToLevel, setWordsToLevel] = useState(3);
+  const [lettersVisible, setLettersVisible] = useState(true);
+  const [requiredLength, setRequiredLength] = useState(0); 
+  const [pb, setPb] = useState({ wpm: 0, words: 0 });
 
   // Dropdown States
   const [activeMenu, setActiveMenu] = useState(null); // 'mode', 'vowels', 'time'
 
+  const audioCtx = useRef(null);
   const inputRef = useRef(null);
 
+  const playSound = (type) => {
+    if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.current.createOscillator();
+    const gain = audioCtx.current.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.current.destination);
+
+    if (type === 'success') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, audioCtx.current.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.current.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.1, audioCtx.current.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.current.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.current.currentTime + 0.1);
+    } else if (type === 'error') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(150, audioCtx.current.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.current.currentTime);
+      gain.gain.linearRampToValueAtTime(0, audioCtx.current.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.current.currentTime + 0.1);
+    } else if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, audioCtx.current.currentTime);
+      gain.gain.setValueAtTime(0.02, audioCtx.current.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.current.currentTime + 0.05);
+      osc.start();
+      osc.stop(audioCtx.current.currentTime + 0.05);
+    }
+  };
+
   useEffect(() => {
+    const saved = localStorage.getItem('vowelism_pb');
+    if (saved) setPb(JSON.parse(saved));
+
     fetch('/txtFiles/words.txt')
       .then(r => r.text())
       .then(text => {
@@ -47,9 +94,19 @@ export default function Vowelism() {
         setLoading(false);
       });
 
+    const handleKeyDown = (e) => {
+      if (e.key.toLowerCase() === 's' && e.altKey) {
+        newGame();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     const handleClickOutside = () => setActiveMenu(null);
     window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -57,11 +114,23 @@ export default function Vowelism() {
   }, [mode, vowelCount, loading]);
 
   useEffect(() => {
-    if (!timedMode || !started || finished) return;
-    if (timeLeft <= 0) { setFinished(true); return; }
+    if ((!timedMode && !isSuddenDeath) || !started || finished) return;
+    if (timeLeft <= 0) { 
+      setFinished(true); 
+      return; 
+    }
     const t = setInterval(() => setTimeLeft(p => p - 1), 1000);
     return () => clearInterval(t);
   }, [timedMode, started, finished, timeLeft]);
+
+  useEffect(() => {
+    if (isGhost && started && !finished) {
+      const t = setTimeout(() => setLettersVisible(false), 10000);
+      return () => clearTimeout(t);
+    } else {
+      setLettersVisible(true);
+    }
+  }, [isGhost, started, finished, vowels, consonants]);
 
   const weightedPick = (items, count) => {
     const pool = [...items];
@@ -78,15 +147,46 @@ export default function Vowelism() {
   };
 
   const newGame = () => {
-    setVowels(weightedPick(VOWELS, vowelCount));
-    setConsonants(mode === 'anagrams' ? weightedPick(CONSONANTS, 4) : []);
+    const actualVowelCount = isRandomVowels ? Math.floor(Math.random() * 4) + 1 : vowelCount;
+    setVowels(weightedPick(VOWELS, actualVowelCount));
+    
+    if (isRandomLength) {
+      setRequiredLength(Math.floor(Math.random() * 5) + 3); // 3-7
+    }
+
+    if (mode === 'anagrams') {
+      setConsonants(weightedPick(CONSONANTS, 4));
+    } else if (mode === 'consonants') {
+      setConsonants(weightedPick(CONSONANTS, 3));
+      setVowels([]);
+    } else {
+      setConsonants([]);
+    }
+
     setFoundWords([]);
     setInputValue('');
     setMessage({ text: '', type: '' });
     setStarted(false);
     setFinished(false);
-    setTimeLeft(timeLimit);
+    setLettersVisible(true);
+    if (isProgressive) {
+      setLevel(1);
+      setWordsToLevel(3);
+      setVowelCount(1);
+      setRequiredLength(0);
+    }
+    setTimeLeft(isSuddenDeath ? 15 : timeLimit);
     inputRef.current?.focus();
+    playSound('click');
+  };
+
+  const updatePb = (currentWords, currentWpm) => {
+    const newPb = {
+      words: Math.max(pb.words, currentWords),
+      wpm: Math.max(pb.wpm, currentWpm)
+    };
+    setPb(newPb);
+    localStorage.setItem('vowelism_pb', JSON.stringify(newPb));
   };
 
   const showMessage = (text, type) => {
@@ -96,7 +196,11 @@ export default function Vowelism() {
 
   const validate = (word) => {
     const up = word.toUpperCase();
+    if (requiredLength > 0 && word.length !== requiredLength) return false;
+    
     if (mode === 'vowels') return vowels.every(v => up.includes(v));
+    if (mode === 'consonants') return consonants.every(c => up.includes(c));
+    
     const pool = [...vowels, ...consonants];
     for (const ch of up.split('')) {
       const idx = pool.indexOf(ch);
@@ -111,27 +215,71 @@ export default function Vowelism() {
     const word = inputValue.trim().toLowerCase();
     if (!word || finished) return;
     if (!started) setStarted(true);
-    if (foundWords.includes(word)) { showMessage('already found', 'error'); return; }
-    if (!validate(word)) { showMessage(mode === 'vowels' ? 'missing required vowels' : 'invalid letters', 'error'); return; }
+    
+    if (foundWords.includes(word)) { 
+      showMessage('already found', 'error'); 
+      playSound('error');
+      return; 
+    }
+    
+    if (!validate(word)) { 
+      let msg = 'invalid letters';
+      if (requiredLength > 0 && word.length !== requiredLength) msg = `must be ${requiredLength} letters`;
+      else if (mode === 'vowels') msg = 'missing required vowels';
+      else if (mode === 'consonants') msg = 'missing required consonants';
+      
+      showMessage(msg, 'error'); 
+      playSound('error');
+      return; 
+    }
+
     if (dictionary.has(word)) {
       setFoundWords(p => [word, ...p]);
       setInputValue('');
-      showMessage('found!', 'success');
+      playSound('success');
+
+      if (isSuddenDeath) {
+        setTimeLeft(p => Math.min(p + 5, 30));
+        showMessage('+5s!', 'success');
+      } else {
+        showMessage('found!', 'success');
+      }
+
+      if (isProgressive) {
+        const nextWords = foundWords.length + 1;
+        if (nextWords >= wordsToLevel) {
+          // Level Up Logic
+          if (vowelCount < 5) {
+            setVowelCount(p => p + 1);
+          } else {
+            setRequiredLength(p => (p === 0 ? 4 : p + 1));
+          }
+          setWordsToLevel(p => p + 2);
+          setLevel(p => p + 1);
+          showMessage(`LEVEL ${level + 1}!`, 'success');
+          // Regenerate letters for next level
+          setVowels(weightedPick(VOWELS, Math.min(vowelCount + (vowelCount < 5 ? 1 : 0), 5)));
+          setLettersVisible(true);
+        }
+      }
     } else {
       showMessage('not a word', 'error');
+      playSound('error');
     }
   };
 
-  const Dropdown = ({ id, label, value, options, onSelect }) => (
+  const Dropdown = ({ id, label, value, options, onSelect, icon: Icon }) => (
     <div className="vow-dropdown-wrap" onClick={e => e.stopPropagation()}>
       <button className={`vow-nav-btn ${activeMenu === id ? 'active' : ''}`} onClick={() => setActiveMenu(activeMenu === id ? null : id)}>
-        {label}: <span>{value}</span> <ChevronDown size={12} className={activeMenu === id ? 'rotated' : ''} />
+        {Icon && <Icon size={14} />}
+        <span className="vow-nav-value">{value}</span> 
+        <ChevronDown size={10} className={activeMenu === id ? 'rotated' : ''} />
       </button>
       {activeMenu === id && (
         <div className="vow-dropdown-menu">
           {options.map(opt => (
-            <div key={opt.val} className={`vow-dropdown-item ${value === opt.label ? 'selected' : ''}`} onClick={() => { onSelect(opt.val); setActiveMenu(null); }}>
-              {opt.label} {value === opt.label && <Check size={12} />}
+            <div key={opt.val} className={`vow-dropdown-item ${value === (opt.label || opt.val) ? 'selected' : ''}`} onClick={() => { onSelect(opt.val); setActiveMenu(null); }}>
+              {opt.label || opt.val} {(value === (opt.label || opt.val)) && <Check size={10} />}
             </div>
           ))}
         </div>
@@ -139,55 +287,128 @@ export default function Vowelism() {
     </div>
   );
 
+  useEffect(() => {
+    if (finished) {
+      const finalWpm = Math.round((foundWords.join('').length / 5) / (Math.max(timeLimit, 15) / 60));
+      updatePb(foundWords.length, finalWpm);
+    }
+  }, [finished]);
+
   return (
-    <div className="vow-theme">
+    <div className={`vow-theme ${zenMode ? 'zen-active' : ''} ${!lettersVisible ? 'ghost-hidden' : ''}`}>
       <main className="vow-main" onClick={() => inputRef.current?.focus()}>
 
-        <div className="vow-nav">
-          <Dropdown 
-            id="mode" 
-            label="mode" 
-            value={mode} 
-            options={[{val: 'vowels', label: 'vowels'}, {val: 'anagrams', label: 'anagrams'}]} 
-            onSelect={setMode} 
-          />
-          <div className="vow-divider" />
-          <Dropdown 
-            id="vowels" 
-            label="difficulty" 
-            value={`${vowelCount}v`} 
-            options={[1,2,3,4,5].map(v => ({val: v, label: `${v}v`}))} 
-            onSelect={setVowelCount} 
-          />
-          <div className="vow-divider" />
-          <Dropdown 
-            id="time" 
-            label="timer" 
-            value={timedMode ? `${timeLimit}s` : 'off'} 
-            options={[
-              {val: 0, label: 'off'},
-              {val: 15, label: '15s'},
-              {val: 30, label: '30s'},
-              {val: 60, label: '60s'},
-              {val: 120, label: '120s'}
-            ]} 
-            onSelect={val => {
-              if (val === 0) setTimedMode(false);
-              else { setTimedMode(true); setTimeLimit(val); setTimeLeft(val); }
-            }} 
-          />
-          <div className="vow-divider" />
-          <button className="vow-nav-btn" onClick={newGame}><RefreshCw size={14} /></button>
+        <div className="vow-top-bar">
+          <div className="vow-nav">
+            <div className="vow-nav-group">
+              <Dropdown 
+                id="mode" 
+                label="mode" 
+                value={mode} 
+                icon={AlignLeft}
+                options={[
+                  {val: 'vowels', label: 'vowels'}, 
+                  {val: 'anagrams', label: 'anagrams'},
+                  {val: 'consonants', label: 'consonants'}
+                ]} 
+                onSelect={setMode} 
+              />
+              <Dropdown 
+                id="vowels" 
+                label="difficulty" 
+                icon={Layers}
+                value={isRandomVowels ? '?' : `${vowelCount}v`} 
+                options={[
+                  {val: 1, label: '1v'}, {val: 2, label: '2v'}, {val: 3, label: '3v'}, 
+                  {val: 4, label: '4v'}, {val: 5, label: '5v'}
+                ]} 
+                onSelect={(val) => { setIsRandomVowels(false); setVowelCount(val); }} 
+              />
+              <button 
+                className={`vow-lock-btn ${isRandomVowels ? '' : 'locked'}`} 
+                onClick={() => setIsRandomVowels(!isRandomVowels)}
+                title={isRandomVowels ? "Unlock Vowel Count" : "Lock Vowel Count"}
+              >
+                {isRandomVowels ? <RefreshCw size={10} /> : <Check size={10} />}
+              </button>
+              <Dropdown 
+                id="length" 
+                label="length" 
+                icon={Hash}
+                value={isRandomLength ? '?' : (requiredLength === 0 ? 'any' : `${requiredLength}L`)} 
+                options={[
+                  {val: 0, label: 'any'},
+                  {val: 'random', label: 'random'},
+                  ...[3,4,5,6,7,8].map(l => ({val: l, label: `${l}L`}))
+                ]} 
+                onSelect={(val) => {
+                  if (val === 'random') setIsRandomLength(true);
+                  else { setIsRandomLength(false); setRequiredLength(val); }
+                }} 
+              />
+              <Dropdown 
+                id="time" 
+                label="timer" 
+                icon={Timer}
+                value={zenMode ? 'zen' : (timedMode ? `${timeLimit}s` : 'off')} 
+                options={[
+                  {val: 'zen', label: 'zen'},
+                  {val: 0, label: 'off'},
+                  {val: 15, label: '15s'},
+                  {val: 30, label: '30s'},
+                  {val: 60, label: '60s'}
+                ]} 
+                onSelect={val => {
+                  if (val === 'zen') { setZenMode(true); setTimedMode(false); }
+                  else if (val === 0) { setZenMode(false); setTimedMode(false); }
+                  else { setZenMode(false); setTimedMode(true); setTimeLimit(val); setTimeLeft(val); }
+                }} 
+              />
+            </div>
+          </div>
+
+          <div className="vow-nav-tools">
+            <button 
+              className={`vow-tool-btn ${isProgressive ? 'active' : ''}`} 
+              onClick={() => { setIsProgressive(!isProgressive); setIsRandomVowels(false); }}
+              title="Progressive Mode"
+            >
+              <Trophy size={14} />
+            </button>
+            <button 
+              className={`vow-tool-btn ${isGhost ? 'active' : ''}`} 
+              onClick={() => setIsGhost(!isGhost)}
+              title="Ghost Mode"
+            >
+              <Ghost size={14} />
+            </button>
+            <button 
+              className={`vow-tool-btn ${isSuddenDeath ? 'active' : ''}`} 
+              onClick={() => { setIsSuddenDeath(!isSuddenDeath); setTimedMode(!isSuddenDeath); }}
+              title="Sudden Death"
+            >
+              <Skull size={14} />
+            </button>
+            <button className="vow-tool-btn" onClick={newGame} title="New Game (Alt+S)">
+              <RefreshCw size={14} />
+            </button>
+          </div>
         </div>
 
         <div className="vow-header">
           <div className="vow-live-stats">
-            {timedMode && <span className="vow-timer-val">{timeLeft}s</span>}
+            {isProgressive && <span className="vow-level-val">LVL {level}</span>}
+            {(timedMode || isSuddenDeath) && <span className="vow-timer-val">{timeLeft}s</span>}
             <span className="vow-count-val">{foundWords.length} words</span>
+            {(timedMode || isSuddenDeath) && started && !finished && (
+              <span className="vow-wpm-val">
+                {timeLimit - timeLeft > 0 ? Math.round((foundWords.join('').length / 5) / ((timeLimit - timeLeft) / 60)) : 0} wpm
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="vow-letters-area">
+        <div className={`vow-letters-area ${!lettersVisible ? 'fade-out' : ''}`}>
           {[...vowels, ...consonants].map((l, i) => (
             <span key={i} className={`vow-tile ${vowels.includes(l) ? 'vowel' : 'consonant'}`}>{l}</span>
           ))}
@@ -228,7 +449,15 @@ export default function Vowelism() {
                 <div className="vow-result-item">
                   <span className="label">words</span>
                   <span className="value">{foundWords.length}</span>
+                  {pb.words === foundWords.length && foundWords.length > 0 && <span className="best-tag">PB</span>}
                 </div>
+                {(timedMode || isSuddenDeath) && (
+                  <div className="vow-result-item">
+                    <span className="label">wpm</span>
+                    <span className="value">{Math.round((foundWords.join('').length / 5) / (Math.max(timeLimit, 15) / 60))}</span>
+                    {pb.wpm === Math.round((foundWords.join('').length / 5) / (Math.max(timeLimit, 15) / 60)) && pb.wpm > 0 && <span className="best-tag">PB</span>}
+                  </div>
+                )}
               </div>
 
               <div className="vow-result-words">
