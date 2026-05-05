@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Flower, RefreshCw, Timer, AlignLeft, ChevronDown, Check, Skull, Ghost, Trophy, Zap, Hash, Layers } from 'lucide-react';
+import { Flower, RefreshCw, Timer, AlignLeft, ChevronDown, Check, Skull, Ghost, Trophy, Zap, Hash, Layers, Flame } from 'lucide-react';
 import './Vowelism.css';
 
 const VOWELS = [
@@ -38,6 +38,7 @@ export default function Vowelism() {
   const [isGhost, setIsGhost] = useState(false);
   const [isSuddenDeath, setIsSuddenDeath] = useState(false);
   const [isProgressive, setIsProgressive] = useState(false);
+  const [isHardcore, setIsHardcore] = useState(false);
   const [level, setLevel] = useState(1);
   const [wordsToLevel, setWordsToLevel] = useState(3);
   const [lettersVisible, setLettersVisible] = useState(true);
@@ -111,7 +112,7 @@ export default function Vowelism() {
 
   useEffect(() => {
     if (!loading) newGame();
-  }, [mode, vowelCount, loading]);
+  }, [mode, loading]);
 
   useEffect(() => {
     if ((!timedMode && !isSuddenDeath) || !started || finished) return;
@@ -146,15 +147,26 @@ export default function Vowelism() {
     return result;
   };
 
-  const newGame = () => {
-    const actualVowelCount = isRandomVowels ? Math.floor(Math.random() * 4) + 1 : vowelCount;
-    setVowels(weightedPick(VOWELS, actualVowelCount));
+  const newGame = (countOverride) => {
+    const activeVowelCount = countOverride !== undefined ? countOverride : (isRandomVowels ? Math.floor(Math.random() * 4) + 1 : vowelCount);
+    setVowels(weightedPick(VOWELS, activeVowelCount));
     
     if (isRandomLength) {
       setRequiredLength(Math.floor(Math.random() * 5) + 3); // 3-7
     }
 
-    if (mode === 'anagrams') {
+    if (mode === 'avoidance') {
+      const common = ['E', 'A', 'T', 'O', 'I', 'N', 'S', 'R', 'H', 'L'];
+      const picked = [];
+      const pool = [...common];
+      for (let i = 0; i < 3; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        picked.push(pool[idx]);
+        pool.splice(idx, 1);
+      }
+      setConsonants(picked);
+      setVowels([]);
+    } else if (mode === 'anagrams') {
       setConsonants(weightedPick(CONSONANTS, 4));
     } else if (mode === 'consonants') {
       setConsonants(weightedPick(CONSONANTS, 3));
@@ -169,15 +181,39 @@ export default function Vowelism() {
     setStarted(false);
     setFinished(false);
     setLettersVisible(true);
-    if (isProgressive) {
-      setLevel(1);
-      setWordsToLevel(3);
-      setVowelCount(1);
-      setRequiredLength(0);
-    }
-    setTimeLeft(isSuddenDeath ? 15 : timeLimit);
+    setTimeLeft(isSuddenDeath ? (timeLimit || 15) : timeLimit);
     inputRef.current?.focus();
     playSound('click');
+  };
+
+  const validate = (word) => {
+    const up = word.toUpperCase();
+    
+    if (mode === 'avoidance') {
+      return !consonants.some(c => up.includes(c));
+    }
+
+    if (requiredLength > 0 && word.length !== requiredLength) return false;
+    
+    if (mode === 'vowels') return vowels.every(v => up.includes(v));
+    if (mode === 'consonants') return consonants.every(c => up.includes(c));
+    
+    const pool = [...vowels, ...consonants];
+    for (const ch of up.split('')) {
+      const idx = pool.indexOf(ch);
+      if (idx === -1) return false;
+      pool.splice(idx, 1);
+    }
+    return true;
+  };
+
+  const startProgressive = () => {
+    setLevel(1);
+    setWordsToLevel(3);
+    setVowelCount(1);
+    setRequiredLength(0);
+    setIsRandomVowels(false);
+    newGame(1);
   };
 
   const updatePb = (currentWords, currentWpm) => {
@@ -194,42 +230,51 @@ export default function Vowelism() {
     setTimeout(() => setMessage({ text: '', type: '' }), 1800);
   };
 
-  const validate = (word) => {
-    const up = word.toUpperCase();
-    if (requiredLength > 0 && word.length !== requiredLength) return false;
-    
-    if (mode === 'vowels') return vowels.every(v => up.includes(v));
-    if (mode === 'consonants') return consonants.every(c => up.includes(c));
-    
-    const pool = [...vowels, ...consonants];
-    for (const ch of up.split('')) {
-      const idx = pool.indexOf(ch);
-      if (idx === -1) return false;
-      pool.splice(idx, 1);
+  const handlePenalty = () => {
+    if (isSuddenDeath) {
+      setTimeLeft(p => Math.max(0, p - 3));
+      showMessage('-3s!', 'error');
     }
-    return true;
+    if (isHardcore) {
+      if (isProgressive) {
+        startProgressive();
+        showMessage('PROGRESS RESET!', 'error');
+      } else {
+        setFoundWords([]);
+        showMessage('RESET!', 'error');
+      }
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const word = inputValue.trim().toLowerCase();
     if (!word || finished) return;
+    
+    if (word === 'debug') {
+      setFinished(true);
+      return;
+    }
+
     if (!started) setStarted(true);
     
     if (foundWords.includes(word)) { 
       showMessage('already found', 'error'); 
       playSound('error');
+      handlePenalty();
       return; 
     }
     
     if (!validate(word)) { 
       let msg = 'invalid letters';
-      if (requiredLength > 0 && word.length !== requiredLength) msg = `must be ${requiredLength} letters`;
+      if (mode === 'avoidance') msg = 'used forbidden letter';
+      else if (requiredLength > 0 && word.length !== requiredLength) msg = `must be ${requiredLength} letters`;
       else if (mode === 'vowels') msg = 'missing required vowels';
       else if (mode === 'consonants') msg = 'missing required consonants';
       
       showMessage(msg, 'error'); 
       playSound('error');
+      handlePenalty();
       return; 
     }
 
@@ -237,6 +282,7 @@ export default function Vowelism() {
       setFoundWords(p => [word, ...p]);
       setInputValue('');
       playSound('success');
+      triggerPop();
 
       if (isSuddenDeath) {
         setTimeLeft(p => Math.min(p + 5, 30));
@@ -265,6 +311,7 @@ export default function Vowelism() {
     } else {
       showMessage('not a word', 'error');
       playSound('error');
+      handlePenalty();
     }
   };
 
@@ -309,7 +356,8 @@ export default function Vowelism() {
                 options={[
                   {val: 'vowels', label: 'vowels'}, 
                   {val: 'anagrams', label: 'anagrams'},
-                  {val: 'consonants', label: 'consonants'}
+                  {val: 'consonants', label: 'consonants'},
+                  {val: 'avoidance', label: 'avoidance'}
                 ]} 
                 onSelect={setMode} 
               />
@@ -322,7 +370,7 @@ export default function Vowelism() {
                   {val: 1, label: '1v'}, {val: 2, label: '2v'}, {val: 3, label: '3v'}, 
                   {val: 4, label: '4v'}, {val: 5, label: '5v'}
                 ]} 
-                onSelect={(val) => { setIsRandomVowels(false); setVowelCount(val); }} 
+                onSelect={(val) => { setIsRandomVowels(false); setVowelCount(val); newGame(val); }} 
               />
               <button 
                 className={`vow-lock-btn ${isRandomVowels ? '' : 'locked'}`} 
@@ -368,27 +416,50 @@ export default function Vowelism() {
           </div>
 
           <div className="vow-nav-tools">
-            <button 
-              className={`vow-tool-btn ${isProgressive ? 'active' : ''}`} 
-              onClick={() => { setIsProgressive(!isProgressive); setIsRandomVowels(false); }}
-              title="Progressive Mode"
-            >
-              <Trophy size={14} />
-            </button>
-            <button 
-              className={`vow-tool-btn ${isGhost ? 'active' : ''}`} 
-              onClick={() => setIsGhost(!isGhost)}
-              title="Ghost Mode"
-            >
-              <Ghost size={14} />
-            </button>
-            <button 
-              className={`vow-tool-btn ${isSuddenDeath ? 'active' : ''}`} 
-              onClick={() => { setIsSuddenDeath(!isSuddenDeath); setTimedMode(!isSuddenDeath); }}
-              title="Sudden Death"
-            >
-              <Skull size={14} />
-            </button>
+            <div className="vow-challenge-group">
+              <button 
+                className={`vow-tool-btn ${isProgressive ? 'active' : ''}`} 
+                onClick={() => { 
+                  if (!isProgressive) {
+                    setIsProgressive(true);
+                    startProgressive();
+                  } else {
+                    setIsProgressive(false);
+                    newGame();
+                  }
+                }}
+                title="Progressive Mode"
+              >
+                <Trophy size={14} />
+              </button>
+              <button 
+                className={`vow-tool-btn ${isHardcore ? 'active' : ''}`} 
+                onClick={() => {
+                  setIsHardcore(!isHardcore);
+                  if (!isHardcore) {
+                    if (isProgressive) startProgressive();
+                    else setFoundWords([]);
+                  }
+                }}
+                title="Hardcore Mode"
+              >
+                <Flame size={14} />
+              </button>
+              <button 
+                className={`vow-tool-btn ${isGhost ? 'active' : ''}`} 
+                onClick={() => setIsGhost(!isGhost)}
+                title="Ghost Mode"
+              >
+                <Ghost size={14} />
+              </button>
+              <button 
+                className={`vow-tool-btn ${isSuddenDeath ? 'active' : ''}`} 
+                onClick={() => { setIsSuddenDeath(!isSuddenDeath); setTimedMode(!isSuddenDeath); }}
+                title="Sudden Death"
+              >
+                <Skull size={14} />
+              </button>
+            </div>
             <button className="vow-tool-btn" onClick={newGame} title="New Game (Alt+S)">
               <RefreshCw size={14} />
             </button>
@@ -398,7 +469,11 @@ export default function Vowelism() {
         <div className="vow-header">
           <div className="vow-live-stats">
             {isProgressive && <span className="vow-level-val">LVL {level}</span>}
-            {(timedMode || isSuddenDeath) && <span className="vow-timer-val">{timeLeft}s</span>}
+            {(timedMode || isSuddenDeath) && (
+              <span className={`vow-timer-val ${timeLeft < 10 ? 'urgent' : ''}`}>
+                {timeLeft}s
+              </span>
+            )}
             <span className="vow-count-val">{foundWords.length} words</span>
             {(timedMode || isSuddenDeath) && started && !finished && (
               <span className="vow-wpm-val">
@@ -410,7 +485,13 @@ export default function Vowelism() {
 
         <div className={`vow-letters-area ${!lettersVisible ? 'fade-out' : ''}`}>
           {[...vowels, ...consonants].map((l, i) => (
-            <span key={i} className={`vow-tile ${vowels.includes(l) ? 'vowel' : 'consonant'}`}>{l}</span>
+            <span 
+              key={`${l}-${i}`} 
+              className={`vow-tile ${vowels.includes(l) ? 'vowel' : 'consonant'} ${mode === 'avoidance' ? 'forbidden' : ''}`}
+              style={{ animationDelay: `${i * 0.05}s` }}
+            >
+              {l}
+            </span>
           ))}
         </div>
 

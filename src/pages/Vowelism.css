@@ -94,6 +94,30 @@
   justify-content: center;
 }
 
+.vow-challenge-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
+  max-width: 300px;
+  overflow: hidden;
+}
+
+.zen-active .vow-challenge-group {
+  max-width: 0;
+  opacity: 0;
+  gap: 0;
+  pointer-events: none;
+}
+
+.vow-nav-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+}
+
 .vow-tool-btn {
   background: transparent;
   border: none;
@@ -259,7 +283,19 @@
   pointer-events: none;
 }
 
+@keyframes vowTileIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .vow-tile {
+  animation: vowTileIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   font-size: 32px;
   font-weight: 400;
   width: 56px;
@@ -283,6 +319,12 @@
 .vow-tile.consonant {
   color: #888;
   border-color: rgba(255, 255, 255, 0.05);
+}
+
+.vow-tile.forbidden {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.02);
 }
 
 /* ── Typewriter input ── */
