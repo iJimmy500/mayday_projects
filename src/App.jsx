@@ -7,6 +7,7 @@ import Quiz from './pages/Quiz';
 import QuizEngine from './pages/QuizEngine';
 
 import QuizCreator from './pages/QuizCreator';
+import OneHitWonder from './pages/OneHitWonder';
 
 export default function App() {
   const path = window.location.pathname;
@@ -26,6 +27,11 @@ export default function App() {
   if (path === '/vowelism' || path === '/words' || path === '/day4') {
     return <Vowelism />;
   }
+
+  if (path === '/ohw' || path === '/onehit' || path === '/day6') {
+    return <OneHitWonder />;
+  }
+
 
   if (path === '/quiz/create' || path === '/day5/create') {
     return <QuizCreator />;

@@ -44,3 +44,8 @@ src/pages/Images.css
 
 # Sensitive Data
 src/data/quizzes.json
+
+# WIP / Disabled Features
+src/pages/akinator/
+src/data/akinator/
+src/scripts/seedAkinator.js
