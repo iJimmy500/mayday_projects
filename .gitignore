@@ -41,3 +41,6 @@ src/pages/Images.css
 
 # Archives
 .day4_archive/
+
+# Sensitive Data
+src/data/quizzes.json

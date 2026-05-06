@@ -3,6 +3,10 @@ import { Flower } from 'lucide-react';
 import Birthday from './pages/Birthday';
 import Randomizer from './pages/Randomizer';
 import Vowelism from './pages/Vowelism';
+import Quiz from './pages/Quiz';
+import QuizEngine from './pages/QuizEngine';
+
+import QuizCreator from './pages/QuizCreator';
 
 export default function App() {
   const path = window.location.pathname;
@@ -21,6 +25,19 @@ export default function App() {
 
   if (path === '/vowelism' || path === '/words' || path === '/day4') {
     return <Vowelism />;
+  }
+
+  if (path === '/quiz/create' || path === '/day5/create') {
+    return <QuizCreator />;
+  }
+
+  if (path.startsWith('/quiz/') || path.startsWith('/day5/')) {
+    const quizId = path.split('/').pop();
+    return <QuizEngine id={quizId} />;
+  }
+
+  if (path === '/quiz' || path === '/day5') {
+    return <Quiz />;
   }
 
   return <Redirect />;
