@@ -1,0 +1,132 @@
+{
+  "data": {
+    "metadata": {
+      "ogLocale": "en_us",
+      "viewport": "width=device-width, initial-scale=1",
+      "language": "en_us",
+      "twitter:site": "@rockstargames",
+      "title": "Fan Art: Red Dead Redemption 2 Photography by Sindy JB - Rockstar Games",
+      "ogSiteName": "Rockstar Games",
+      "ogTitle": "Fan Art: Red Dead Redemption 2 Photography by Sindy JB - Rockstar Games",
+      "twitter:description": "Whether it's breathtaking landscapes or expert composition, Sindy JB — also known as Mesopotamian_meow on Instagram — is a prolific digital photographer capturing the beauty and color of the American West in Red Dead Redemption 2.",
+      "twitter:title": "Fan Art: Red Dead Redemption 2 Photography by Sindy JB - Rockstar Games",
+      "twitter:creator": "@rockstargames",
+      "twitter:image": "https://media.rockstargames.com/rockstargames-newsite/uploads/0b5b8a6031c9eef2f4cc74a1fc256c992c20e465.jpg",
+      "twitter:card": "summary",
+      "ogDescription": "Whether it's breathtaking landscapes or expert composition, Sindy JB — also known as Mesopotamian_meow on Instagram — is a prolific digital photographer capturing the beauty and color of the American West in Red Dead Redemption 2.",
+      "og:image": "https://media.rockstargames.com/rockstargames-newsite/uploads/0b5b8a6031c9eef2f4cc74a1fc256c992c20e465.jpg",
+      "og:locale": "en_us",
+      "image": "https://media.rockstargames.com/rockstargames-newsite/uploads/0b5b8a6031c9eef2f4cc74a1fc256c992c20e465.jpg",
+      "keywords": "Rockstar Games, Rockstar, Video Games, Games, Gaming, Grand Theft Auto, GTA, GTAV, GTA 5, GTA Online, GTA+, GTA Plus, Red Dead Redemption, RDR, Red Dead Online, PS5, PlayStation, Xbox Series X, Xbox Series S, Xbox, PC Games, Computer Games, Home Entertainment, Home Gaming, New Video Games, Videogames, LA Noire, L.A. Noire, Max Payne 3, Max Payne, Vice City, San Andreas, Liberty City, Los Santos, Vinewood",
+      "copyright": "Rockstar Games 2026. All Rights Reserved.",
+      "theme-color": "#000000",
+      "author": "Rockstar Games",
+      "og:site_name": "Rockstar Games",
+      "og:title": "Fan Art: Red Dead Redemption 2 Photography by Sindy JB - Rockstar Games",
+      "twitter:creator:id": "29758446",
+      "description": "Whether it's breathtaking landscapes or expert composition, Sindy JB — also known as Mesopotamian_meow on Instagram — is a prolific digital photographer capturing the beauty and color of the American West in Red Dead Redemption 2.",
+      "og:description": "Whether it's breathtaking landscapes or expert composition, Sindy JB — also known as Mesopotamian_meow on Instagram — is a prolific digital photographer capturing the beauty and color of the American West in Red Dead Redemption 2.",
+      "ogImage": "https://media.rockstargames.com/rockstargames-newsite/uploads/0b5b8a6031c9eef2f4cc74a1fc256c992c20e465.jpg",
+      "favicon": "https://media-rockstargames-com.akamaized.net/rockstargames-newsite/img/meta-icons/rockstar/favicon-32x32.png",
+      "scrapeId": "019e08e8-dca9-77ba-862a-86790038a0b8",
+      "sourceURL": "https://www.rockstargames.com/newswire/article/ak14o88388k841/fan-art-red-dead-redemption-2-photography-by-sindy-jb",
+      "url": "https://www.rockstargames.com/newswire/article/ak14o88388k841/fan-art-red-dead-redemption-2-photography-by-sindy-jb",
+      "statusCode": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "timezone": "America/New_York",
+      "proxyUsed": "basic",
+      "cacheState": "miss",
+      "indexId": "753cf9b6-b60c-4af5-b861-3fd5aa4933da",
+      "creditsUsed": 5,
+      "concurrencyLimited": false
+    },
+    "images": [],
+    "json": {
+      "image file": "/path/to/image.png",
+      "subtitle": "Explore the World of Red Dead Redemption"
+    }
+  },
+  "scrape_id": "019e08e8-dca9-77ba-862a-86790038a0b8",
+  "id": "oBd2GdiyHTz6qvyasuUBi",
+  "startedAt": "2026-05-08T18:45:38.684Z",
+  "endedAt": "2026-05-08T18:45:43.645Z",
+  "endpoint": "scrape",
+  "formState": {
+    "parseFile": null,
+    "parseFileMeta": null,
+    "extractSetupCompleted": false,
+    "urls": [],
+    "extractSchema": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "company_mission": {
+          "type": "string"
+        },
+        "supports_sso": {
+          "type": "boolean"
+        },
+        "is_open_source": {
+          "type": "boolean"
+        },
+        "is_in_yc": {
+          "type": "boolean"
+        }
+      }
+    },
+    "extractPrompt": "Extract the company details, following the schema.",
+    "enableWebSearch": false,
+    "constrainUrls": false,
+    "options": {
+      "onlyMainContent": false,
+      "parsePDF": true,
+      "stealthMode": false,
+      "excludeTags": [],
+      "includeTags": [],
+      "waitFor": "",
+      "timeout": "",
+      "maxAge": "2 days",
+      "ignoreSitemap": false,
+      "crawlEntireDomain": false,
+      "sitemap": "include",
+      "limit": "10",
+      "maxDepth": "",
+      "excludePaths": [],
+      "includePaths": [],
+      "includeSubdomains": false,
+      "search": "",
+      "scrapeContentFromSearchResults": true,
+      "timeBasedSearch": "",
+      "location": "",
+      "prompt": ""
+    },
+    "formats": [
+      "json",
+      "images"
+    ],
+    "sources": [
+      "web"
+    ],
+    "categories": [],
+    "jsonSchema": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "image file": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        }
+      }
+    },
+    "jsonPrompt": "ignore the ads or ad deterrence or other articles that have nothing to do with anything outside of red dead redemption",
+    "questionPrompt": "",
+    "agent": {},
+    "url": "www.rockstargames.com/newswire/article/ak14o88388k841/fan-art-red-dead-redemption-2-photography-by-sindy-jb",
+    "endpoint": "scrape"
+  },
+  "status": "success",
+  "version": "fs7e8Y5iKwhXHC1_0HLIB",
+  "isPreview": false
+}

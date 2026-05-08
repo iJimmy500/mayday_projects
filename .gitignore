@@ -49,3 +49,16 @@ src/data/quizzes.json
 src/pages/akinator/
 src/data/akinator/
 src/scripts/seedAkinator.js
+
+# Image Harvest Staging
+/images
+
+# Security & Private Info
+src/scripts/sync_cloudinary.cjs
+src/scripts/prune_manifest.cjs
+src/scripts/generate_ai_titles.cjs
+src/scripts/sync_titles.cjs
+.env
+.env.local
+.env.*
+*.log

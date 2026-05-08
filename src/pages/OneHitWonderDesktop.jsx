@@ -98,8 +98,8 @@ export default function OneHitWonderDesktop({
                 </div>
                 {isLoading && <div className="lcd-loading">Connecting...</div>}
                 <div className="lcd-actions">
-                  <button 
-                    className="linkout-2008 sm" 
+                  <button
+                    className="linkout-2008 sm"
                     onClick={(e) => openAddModal(e, playingSong)}
                     title="Add to Playlist"
                     style={{ border: 'none', padding: 0 }}
@@ -173,19 +173,19 @@ export default function OneHitWonderDesktop({
                 <Shuffle size={12} className="header-shuffle-icon" title="Reset to Random Order" />
               )}
             </div>
-            <div 
+            <div
               className={`th-cell sortable ${sortConfig.key === 'title' ? 'active-sort' : ''}`}
               onClick={() => handleSort('title')}
             >
               Name {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? '▴' : '▾')}
             </div>
-            <div 
+            <div
               className={`th-cell sortable ${sortConfig.key === 'artist' ? 'active-sort' : ''}`}
               onClick={() => handleSort('artist')}
             >
               Artist {sortConfig.key === 'artist' && (sortConfig.direction === 'asc' ? '▴' : '▾')}
             </div>
-            <div 
+            <div
               className={`th-cell sortable ${sortConfig.key === 'year' ? 'active-sort' : ''}`}
               onClick={() => handleSort('year')}
             >
@@ -246,11 +246,11 @@ export default function OneHitWonderDesktop({
             <div className="mac-alert-message" style={{ marginBottom: '20px' }}>
               Search <strong>"{songToAdd.title}"</strong> by <strong>{songToAdd.artist}</strong> on your favorite platform:
             </div>
-            
+
             <div className="data-file-list">
-              <a 
-                href={`https://music.apple.com/search?term=${encodeURIComponent(songToAdd.artist + ' ' + songToAdd.title)}`} 
-                target="_blank" rel="noopener noreferrer" 
+              <a
+                href={`https://music.apple.com/search?term=${encodeURIComponent(songToAdd.artist + ' ' + songToAdd.title)}`}
+                target="_blank" rel="noopener noreferrer"
                 className="data-file-item"
                 style={{ textDecoration: 'none' }}
               >
@@ -264,9 +264,9 @@ export default function OneHitWonderDesktop({
                 <div className="linkout-2008">›</div>
               </a>
 
-              <a 
-                href={`https://open.spotify.com/search/${encodeURIComponent(songToAdd.artist + ' ' + songToAdd.title)}`} 
-                target="_blank" rel="noopener noreferrer" 
+              <a
+                href={`https://open.spotify.com/search/${encodeURIComponent(songToAdd.artist + ' ' + songToAdd.title)}`}
+                target="_blank" rel="noopener noreferrer"
                 className="data-file-item"
                 style={{ textDecoration: 'none' }}
               >
@@ -280,9 +280,9 @@ export default function OneHitWonderDesktop({
                 <div className="linkout-2008">›</div>
               </a>
 
-              <a 
-                href={`https://listen.tidal.com/search?q=${encodeURIComponent(songToAdd.artist + ' ' + songToAdd.title)}`} 
-                target="_blank" rel="noopener noreferrer" 
+              <a
+                href={`https://listen.tidal.com/search?q=${encodeURIComponent(songToAdd.artist + ' ' + songToAdd.title)}`}
+                target="_blank" rel="noopener noreferrer"
                 className="data-file-item"
                 style={{ textDecoration: 'none' }}
               >
@@ -296,9 +296,9 @@ export default function OneHitWonderDesktop({
                 <div className="linkout-2008">›</div>
               </a>
 
-              <a 
-                href={`https://youtube.com/watch?v=${songToAdd.id}`} 
-                target="_blank" rel="noopener noreferrer" 
+              <a
+                href={`https://youtube.com/watch?v=${songToAdd.id}`}
+                target="_blank" rel="noopener noreferrer"
                 className="data-file-item"
                 style={{ textDecoration: 'none' }}
               >
@@ -330,9 +330,9 @@ export default function OneHitWonderDesktop({
               </button>
             </div>
             <div className="mac-alert-message">
-              This library is a research archive curated by James to document musical history. It combines publicly available metadata with custom processing for educational and historical use.
+              This library is a research archive curated by James006 to document musical history. It combines publicly available metadata with custom processing for educational and historical use.
             </div>
-            
+
             <div className="data-file-list">
               <div className="data-file-item">
                 <div className="file-icon"><FileJson size={24} color="#3e81cb" /></div>

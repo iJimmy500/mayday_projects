@@ -9,6 +9,8 @@ import QuizEngine from './pages/QuizEngine';
 import QuizCreator from './pages/QuizCreator';
 import OneHitWonder from './pages/OneHitWonder';
 import CanvasBreach from './pages/CanvasBreach';
+import RedDeadLandscapes from './pages/RedDeadLandscapes';
+
 
 export default function App() {
   const path = window.location.pathname;
@@ -35,6 +37,10 @@ export default function App() {
 
   if (path === '/canvas' || path === '/day7') {
     return <CanvasBreach />;
+  }
+
+  if (path === '/rdr' || path === '/day8' || path === '/frontier') {
+    return <RedDeadLandscapes />;
   }
 
 
