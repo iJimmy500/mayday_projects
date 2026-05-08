@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Pencil, Flower, Eye, EyeOff, Share } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Pencil, Flower, Eye, EyeOff, Plus, Share, Check, Download, Image as ImageIcon, Monitor, Smartphone } from 'lucide-react';
 import LZString from 'lz-string';
+import { toPng } from 'html-to-image';
 import './CanvasBreach.css';
 
 const DEFAULTS = {
@@ -50,6 +51,12 @@ export default function CanvasBreach() {
   const [showControls, setShowControls] = useState(true);
   const [showHint, setShowHint] = useState(false);
   const [isShared, setIsShared] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareType, setShareType] = useState('both'); // 'link', 'image', 'both'
+  const [forcedView, setForcedView] = useState('mobile');
+  const [isCapturing, setIsCapturing] = useState(false);
+  const inputRefs = useRef([]);
+  const cardRef = useRef(null);
 
   // Load from URL on mount
   useEffect(() => {
@@ -113,46 +120,81 @@ export default function CanvasBreach() {
     }
   }, []);
 
+  const generateShareUrl = () => {
+    const visKeys = Object.keys(DEFAULT_VISIBILITY);
+    let mask = 0;
+    visKeys.forEach((key, i) => {
+      if (visibility[key]) mask |= (1 << i);
+    });
+
+    const parts = [
+      data.title === DEFAULTS.title ? '' : data.title,
+      data.subtitle === DEFAULTS.subtitle ? '' : data.subtitle,
+      data.p1 === DEFAULTS.p1 ? '' : data.p1,
+      data.warning === DEFAULTS.warning ? '' : data.warning,
+      data.p2 === DEFAULTS.p2 ? '' : data.p2,
+      data.p3 === DEFAULTS.p3 ? '' : data.p3,
+      data.dlTitle === DEFAULTS.dlTitle ? '' : data.dlTitle,
+      data.dlLink === DEFAULTS.dlLink ? '' : data.dlLink,
+      data.footer === DEFAULTS.footer ? '' : data.footer,
+      theme.accent === DEFAULT_THEME.accent ? '' : theme.accent,
+      theme.bg === DEFAULT_THEME.bg ? '' : theme.bg,
+      theme.cardBg === DEFAULT_THEME.cardBg ? '' : theme.cardBg,
+      mask === 255 ? '' : mask.toString(16),
+      lockedInLines.join('|')
+    ];
+
+    while (parts.length > 0 && parts[parts.length - 1] === '') {
+      parts.pop();
+    }
+
+    const encodedStr = parts.join('~');
+    const encoded = LZString.compressToEncodedURIComponent(encodedStr);
+    return `${window.location.origin}${window.location.pathname}?v=${encoded}`;
+  };
+
   const handleShare = (e) => {
     if (e) e.stopPropagation();
-    try {
-      const visKeys = Object.keys(DEFAULT_VISIBILITY);
-      let mask = 0;
-      visKeys.forEach((key, i) => {
-        if (visibility[key]) mask |= (1 << i);
-      });
+    setShowShareModal(!showShareModal);
+  };
 
-      const parts = [
-        data.title === DEFAULTS.title ? '' : data.title,
-        data.subtitle === DEFAULTS.subtitle ? '' : data.subtitle,
-        data.p1 === DEFAULTS.p1 ? '' : data.p1,
-        data.warning === DEFAULTS.warning ? '' : data.warning,
-        data.p2 === DEFAULTS.p2 ? '' : data.p2,
-        data.p3 === DEFAULTS.p3 ? '' : data.p3,
-        data.dlTitle === DEFAULTS.dlTitle ? '' : data.dlTitle,
-        data.dlLink === DEFAULTS.dlLink ? '' : data.dlLink,
-        data.footer === DEFAULTS.footer ? '' : data.footer,
-        theme.accent === DEFAULT_THEME.accent ? '' : theme.accent,
-        theme.bg === DEFAULT_THEME.bg ? '' : theme.bg,
-        theme.cardBg === DEFAULT_THEME.cardBg ? '' : theme.cardBg,
-        mask === 255 ? '' : mask.toString(16),
-        lockedInLines.join('|')
-      ];
-
-      // Trim empty trailing parts
-      while (parts.length > 0 && parts[parts.length - 1] === '') {
-        parts.pop();
+  const handleFinalShare = async () => {
+    if (shareType === 'link' || shareType === 'both') {
+      try {
+        const url = generateShareUrl();
+        await navigator.clipboard.writeText(url);
+      } catch (err) {
+        console.error("Failed to copy link", err);
       }
+    }
 
-      const encodedStr = parts.join('~');
-      const encoded = LZString.compressToEncodedURIComponent(encodedStr);
-      const url = `${window.location.origin}${window.location.pathname}?v=${encoded}`;
-
-      navigator.clipboard.writeText(url);
-      setShareText('Ransom shared!');
+    if (shareType === 'image' || shareType === 'both') {
+      setIsCapturing(true);
+      // Give React a moment to apply the .force-view classes
+      setTimeout(async () => {
+        try {
+          const dataUrl = await toPng(cardRef.current, {
+            backgroundColor: theme.bg,
+            cacheBust: true,
+            pixelRatio: 2, // Higher quality
+          });
+          const link = document.createElement('a');
+          link.download = `ransom-${data.title.toLowerCase().replace(/\s+/g, '-')}.png`;
+          link.href = dataUrl;
+          link.click();
+        } catch (err) {
+          console.error('Failed to capture screenshot', err);
+        } finally {
+          setIsCapturing(false);
+          setShowShareModal(false);
+          setShareText(shareType === 'both' ? 'Ransom shared!' : 'Image downloaded!');
+          setTimeout(() => setShareText('Share Link'), 2500);
+        }
+      }, 150);
+    } else {
+      setShowShareModal(false);
+      setShareText('Link copied!');
       setTimeout(() => setShareText('Share Link'), 2500);
-    } catch (e) {
-      console.error("Failed to share", e);
     }
   };
 
@@ -214,20 +256,20 @@ export default function CanvasBreach() {
     );
   };
 
-return (
-  <div className="cb-page" onClick={handleScreenClick} style={{
-    backgroundColor: theme.bg,
-    cursor: !showControls ? 'pointer' : 'default',
-    backgroundImage: `
-        radial-gradient(ellipse at 0% 0%, ${theme.accent}2E 0%, transparent 55%),
-        radial-gradient(ellipse at 100% 0%, ${theme.accent}2E 0%, transparent 55%),
-        radial-gradient(ellipse at 0% 100%, ${theme.accent}1F 0%, transparent 45%),
-        radial-gradient(ellipse at 100% 100%, ${theme.accent}1F 0%, transparent 45%)
-      `
-  }}>
-    {/* ── RANSOM CARD ── */}
-    <div className="cb-card-wrap">
-      <div className="cb-card" style={{
+  return (
+    <div className={`cb-page ${isCapturing ? (forcedView === 'mobile' ? 'force-mobile-view' : 'force-desktop-view') : ''}`} onClick={handleScreenClick} style={{
+      backgroundColor: theme.bg,
+      cursor: !showControls ? 'pointer' : 'default',
+      backgroundImage: `
+          radial-gradient(ellipse at 0% 0%, ${theme.accent}2E 0%, transparent 55%),
+          radial-gradient(ellipse at 100% 0%, ${theme.accent}2E 0%, transparent 55%),
+          radial-gradient(ellipse at 0% 100%, ${theme.accent}1F 0%, transparent 45%),
+          radial-gradient(ellipse at 100% 100%, ${theme.accent}1F 0%, transparent 45%)
+        `
+    }}>
+      {/* ── RANSOM CARD ── */}
+      <div className="cb-card-wrap" ref={cardRef}>
+        <div className="cb-card" style={{
         background: theme.cardBg,
         borderColor: theme.accent,
         boxShadow: `
@@ -237,7 +279,7 @@ return (
           `
       }}>
         <div className="cb-card-title">
-          <a href="https://mayinflight.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+          <a href="https://mayinflight.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
             {data.title} <Flower size={18} strokeWidth={1.5} />
           </a>
         </div>
@@ -299,11 +341,15 @@ return (
           </div>
 
           {/* editor body with line numbers */}
-          <div style={{ background: '#11111b', padding: '10px 0', maxHeight: '320px', overflowY: 'auto' }}>
+          <div 
+            onClick={(e) => e.target === e.currentTarget && inputRefs.current[lockedInLines.length - 1]?.focus()}
+            style={{ background: '#11111b', padding: '10px 0', maxHeight: '320px', overflowY: 'auto' }}
+          >
             {lockedInLines.map((line, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ width: '36px', textAlign: 'right', paddingRight: '12px', color: '#45475a', userSelect: 'none', fontSize: '12px', flexShrink: 0 }}>{i + 1}</span>
                 <input
+                  ref={el => inputRefs.current[i] = el}
                   value={line}
                   readOnly={isShared}
                   onChange={e => {
@@ -314,16 +360,41 @@ return (
                   }}
                   onKeyDown={e => {
                     if (isShared) return;
+                    const cursor = e.target.selectionStart;
+
                     if (e.key === 'Enter') {
                       e.preventDefault();
+                      const before = line.slice(0, cursor);
+                      const after = line.slice(cursor);
                       const updated = [...lockedInLines];
-                      updated.splice(i + 1, 0, '');
+                      updated[i] = before;
+                      updated.splice(i + 1, 0, after);
                       setLockedInLines(updated);
-                    }
-                    if (e.key === 'Backspace' && line === '' && lockedInLines.length > 1) {
+                      setTimeout(() => {
+                        inputRefs.current[i + 1]?.focus();
+                        inputRefs.current[i + 1]?.setSelectionRange(0, 0);
+                      }, 0);
+                    } else if (e.key === 'Backspace' && cursor === 0 && i > 0) {
                       e.preventDefault();
-                      const updated = lockedInLines.filter((_, idx) => idx !== i);
+                      const prevLine = lockedInLines[i - 1];
+                      const updated = [...lockedInLines];
+                      updated[i - 1] = prevLine + line;
+                      updated.splice(i, 1);
                       setLockedInLines(updated);
+                      setTimeout(() => {
+                        inputRefs.current[i - 1]?.focus();
+                        inputRefs.current[i - 1]?.setSelectionRange(prevLine.length, prevLine.length);
+                      }, 0);
+                    } else if (e.key === 'ArrowUp' && i > 0) {
+                      e.preventDefault();
+                      inputRefs.current[i - 1]?.focus();
+                      const prevLen = lockedInLines[i - 1].length;
+                      inputRefs.current[i - 1]?.setSelectionRange(Math.min(cursor, prevLen), Math.min(cursor, prevLen));
+                    } else if (e.key === 'ArrowDown' && i < lockedInLines.length - 1) {
+                      e.preventDefault();
+                      inputRefs.current[i + 1]?.focus();
+                      const nextLen = lockedInLines[i + 1].length;
+                      inputRefs.current[i + 1]?.setSelectionRange(Math.min(cursor, nextLen), Math.min(cursor, nextLen));
                     }
                   }}
                   style={{
@@ -520,7 +591,8 @@ return (
       </div>
     )}
 
-    {/* ── HINT POPUP ── */}
+
+      {/* ── HINT POPUP ── */}
     {showHint && (
       <div style={{
         position: 'fixed',
@@ -567,22 +639,39 @@ return (
         bottom: '24px',
         right: '24px',
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         gap: '12px',
         zIndex: 100
       }}>
-        <button
-          className="cb-edit-trigger"
-          onClick={handleShare}
-          title={shareText}
-          style={{
-            position: 'static',
-            borderColor: shareText === 'Ransom shared!' ? '#4a8a4a' : '#333',
-            color: shareText === 'Ransom shared!' ? '#4a8a4a' : '#555'
-          }}
-        >
-          <Share size={18} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            className={`cb-edit-trigger ${showShareModal ? 'active' : ''}`}
+            onClick={handleShare}
+            title="Share Options"
+            style={{
+              position: 'static',
+              borderColor: showShareModal ? theme.accent : '#333',
+              color: showShareModal ? theme.accent : '#555',
+              transform: showShareModal ? 'rotate(45deg)' : 'none'
+            }}
+          >
+            <Plus size={18} />
+          </button>
+
+          {showShareModal && (
+            <div className="cb-share-popover" onClick={e => e.stopPropagation()}>
+              <button onClick={() => { setShareType('link'); handleFinalShare(); }} className="cb-popover-item">
+                <Share size={14} /> <span>Copy Link</span>
+              </button>
+              <button onClick={() => { setShareType('image'); handleFinalShare(); }} className="cb-popover-item">
+                <ImageIcon size={14} /> <span>Save Image</span>
+              </button>
+              <button onClick={() => { setShareType('both'); handleFinalShare(); }} className="cb-popover-item">
+                <Check size={14} /> <span>Share Both</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <button className="cb-edit-trigger" onClick={openModal} title="Edit ransom note" style={{ position: 'static' }}>
           <Pencil size={18} />
