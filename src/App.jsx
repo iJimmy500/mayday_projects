@@ -8,6 +8,7 @@ import QuizEngine from './pages/QuizEngine';
 
 import QuizCreator from './pages/QuizCreator';
 import OneHitWonder from './pages/OneHitWonder';
+import CanvasBreach from './pages/CanvasBreach';
 
 export default function App() {
   const path = window.location.pathname;
@@ -30,6 +31,10 @@ export default function App() {
 
   if (path === '/ohw' || path === '/onehit' || path === '/day6') {
     return <OneHitWonder />;
+  }
+
+  if (path === '/canvas' || path === '/day7') {
+    return <CanvasBreach />;
   }
 
 
