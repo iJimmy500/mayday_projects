@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Volume2, VolumeX, Aperture, Flower, Database, FileJson, Download, X, MessageSquare, Flag } from 'lucide-react';
+import { Volume2, VolumeX, Aperture, Flower, Database, FileJson, Download, X, MessageSquare, Flag, Settings } from 'lucide-react';
 import SEO from '../components/SEO';
 import manifest from '../data/manifest.json';
 
@@ -7,6 +7,7 @@ import GridImage from '../components/RDR/GridImage';
 import WelcomeModal from '../components/RDR/WelcomeModal';
 import CinematicOverlay from '../components/RDR/CinematicOverlay';
 import InteractiveViewer from '../components/RDR/InteractiveViewer';
+import CinematicSettingsModal from '../components/RDR/CinematicSettingsModal';
 
 import './RedDeadLandscapes.css';
 
@@ -22,11 +23,44 @@ const getDownloadUrl = (filename) => {
   return `https://res.cloudinary.com/dxtcexgjm/image/upload/fl_attachment/${publicId}`;
 };
 
-const playHonorSound = (isMuted) => {
+let audioContext = null;
+let honorBuffer = null;
+
+const initAudio = async () => {
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (!honorBuffer) {
+      const response = await fetch('/honor.mp3');
+      const arrayBuffer = await response.arrayBuffer();
+      honorBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    }
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+  } catch (e) {
+    console.warn('Audio initialization failed:', e);
+  }
+};
+
+const playHonorSound = async (isMuted) => {
   if (isMuted) return;
-  const audio = new Audio('/honor.mp3');
-  audio.volume = 0.5;
-  audio.play().catch(e => console.log('Audio blocked:', e.message));
+  
+  await initAudio();
+  
+  if (!honorBuffer || !audioContext) return;
+
+  const source = audioContext.createBufferSource();
+  source.buffer = honorBuffer;
+  
+  const gainNode = audioContext.createGain();
+  gainNode.gain.value = 0.4;
+  
+  source.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  source.start(0);
 };
 
 const shuffleArray = (array) => {
@@ -58,6 +92,22 @@ export default function RedDeadLandscapes() {
   const [isMuted, setIsMuted] = useState(false);
   const [player, setPlayer] = useState(null);
   const [hasSeenCinematicPrompt, setHasSeenCinematicPrompt] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [isSettingsExiting, setIsSettingsExiting] = useState(false);
+  const [cinematicSettings, setCinematicSettings] = useState(() => {
+    const saved = localStorage.getItem('rdr_cinematic_settings');
+    return saved ? JSON.parse(saved) : {
+      interval: 10000,
+      transition: 'fade',
+      animation: 'ken-burns',
+      showMetadata: true,
+      highQuality: false
+    };
+  });
+
+  useEffect(() => {
+    initAudio();
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -109,6 +159,14 @@ export default function RedDeadLandscapes() {
     setTimeout(() => {
       setShowDataModal(false);
       setIsDataExiting(false);
+    }, 500);
+  }, []);
+
+  const closeSettings = useCallback(() => {
+    setIsSettingsExiting(true);
+    setTimeout(() => {
+      setShowSettings(false);
+      setIsSettingsExiting(false);
     }, 500);
   }, []);
 
@@ -237,7 +295,7 @@ export default function RedDeadLandscapes() {
         }, 2000);
       };
 
-      interval = setInterval(cycleImage, 15000);
+      interval = setInterval(cycleImage, cinematicSettings.interval);
       return () => {
         clearInterval(interval);
         clearTimeout(promptTimeout);
@@ -285,9 +343,11 @@ export default function RedDeadLandscapes() {
         <h1 className="rdr-main-title">
           <span style={{ color: '#b30000' }}>RDR</span>scapes
         </h1>
-        <button className="rdr-prompt-btn rdr-desktop-db" onClick={() => setShowDataModal(true)} title="Data Archive" style={{ cursor: 'pointer', border: 'none', background: 'none' }}>
-          <Database size={18} strokeWidth={2} />
-        </button>
+        <div className="rdr-header-actions">
+          <button className="rdr-prompt-btn rdr-desktop-db" onClick={() => setShowDataModal(true)} title="Data Archive" style={{ cursor: 'pointer', border: 'none', background: 'none', opacity: 0.6 }}>
+            <Database size={18} strokeWidth={2} />
+          </button>
+        </div>
         <div className="rdr-divider" />
       </header>
 
@@ -337,6 +397,7 @@ export default function RedDeadLandscapes() {
           cinematicImage={cinematicImage}
           nextImage={nextImage}
           hasSeenCinematicPrompt={hasSeenCinematicPrompt}
+          settings={cinematicSettings}
           onExit={() => setIsCinematicMode(false)}
           onViewInCompendium={(img) => {
             setIsCinematicMode(false);
@@ -345,6 +406,15 @@ export default function RedDeadLandscapes() {
             if (idx !== -1) setCurrentIndex(idx);
           }}
           getPublicId={getPublicId}
+        />
+      )}
+
+      {showSettings && (
+        <CinematicSettingsModal
+          settings={cinematicSettings}
+          setSettings={setCinematicSettings}
+          onClose={closeSettings}
+          isExiting={isSettingsExiting}
         />
       )}
 
@@ -400,10 +470,18 @@ export default function RedDeadLandscapes() {
         <div id="youtube-player" />
       </div>
 
-      <div className="rdr-master-mute" onClick={() => setIsMuted(!isMuted)}>
-        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-        <span>{isMuted ? 'MUTED' : 'VOLUME'}</span>
-      </div>
+      {!selectedImage && (
+        <div className="rdr-bottom-controls">
+          <div className="rdr-master-mute" onClick={() => setIsMuted(!isMuted)}>
+            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+            <span>{isMuted ? 'MUTED' : 'VOLUME'}</span>
+          </div>
+          <div className="rdr-master-mute" onClick={() => setShowSettings(true)}>
+            <Settings size={20} />
+            <span>SETTINGS</span>
+          </div>
+        </div>
+      )}
 
       {showDataModal && (
         <div className={`rdr-alert-overlay cinematic ${isDataExiting ? 'exiting' : ''}`} onClick={closeDataModal}>
