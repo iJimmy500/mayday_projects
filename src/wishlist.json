@@ -70,5 +70,13 @@
     "link": "https://www.amazon.com/Espressif-ESP32-S3-EYE-Development-Board/dp/B09MS6PH7L/?_encoding=UTF8&content-id=amzn1.sym.9c7b99cf-e985-4bc9-a541-c9a74e21a3f8%3Aamzn1.symc.050ea944-f1cf-4610-b462-3b604f2f4082",
     "img": "https://m.media-amazon.com/images/I/71TUAzG+8qL._AC_SY879_.jpg",
     "completed": false
+  },
+  {
+    "id": "3f24a118-30d1-4606-9efc-95521996939a",
+    "name": "Raspberry Pi Zero 2 W",
+    "price": "$42.25",
+    "link": "https://www.amazon.com/Raspberry-Zero-Bluetooth-RPi-2W/dp/B09LH5SBPS?crid=FFQGYRYJLLZZ&sprefix=p%2Caps%2C171&sr=8-5",
+    "img": "https://m.media-amazon.com/images/I/61rVLsPzmeL._AC_SX679_.jpg",
+    "completed": false
   }
 ]
