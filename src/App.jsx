@@ -51,7 +51,7 @@ function Redirect() {
   useEffect(() => {
     const timer = setTimeout(() => {
       window.location.href = 'https://mayinflight.com';
-    }, 2500);
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
 

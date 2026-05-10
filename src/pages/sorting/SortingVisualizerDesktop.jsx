@@ -7,7 +7,7 @@ import { ALGORITHMS, PRESETS } from './constants';
 import { sleep, makeArray } from './utils';
 import RaceCell from './components/RaceCell';
 import DocsView from './components/DocsView';
-import { ALGO_CODE } from './code/index';
+import { ALGO_CODE } from './algorithmCode';
 
 import * as Basic from './algorithms/basicSorts';
 import * as Advanced from './algorithms/advancedSorts';
@@ -408,7 +408,7 @@ export default function SortingVisualizer() {
 
       {/* Code Modal */}
       {showCode && (
-        <div className="modal-overlay" onClick={() => setShowCode(false)}>
+        <div className="code-modal-overlay" onClick={() => setShowCode(false)}>
           <div className="code-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">
@@ -456,7 +456,9 @@ export default function SortingVisualizer() {
                           className={`code-line ${getActiveLineIndex() === i ? 'highlight' : ''}`}
                         >
                           <span className="line-number">{i + 1}</span>
-                          <span className="line-text">{lineText}</span>
+                          <span className="line-text">
+                            <SyntaxHighlight text={lineText} />
+                          </span>
                         </div>
                       );
                     })}
@@ -466,7 +468,36 @@ export default function SortingVisualizer() {
           </div>
         </div>
       )}
-
     </div>
+  );
+}
+
+function SyntaxHighlight({ text }) {
+  // Ultra-simple but effective regex highlighting
+  const tokens = [];
+  const parts = text.split(/(\b(?:async|function|for|let|if|return|while|await|const|new|throw|try|catch|void|public|int|def|range|in|while|if|not)\b|[\(\)\{\}\[\]\=<>!\|\&\+\-\*\/]+|\".*?\"|\'.*?\'|\`.*?\`|\/\/.+|#.+)/g);
+
+  return (
+    <>
+      {parts.map((p, i) => {
+        if (!p) return null;
+        if (/^\b(?:async|function|for|let|if|return|while|await|const|new|throw|try|catch|void|public|int|def|range|in|while|if|not)\b$/.test(p)) {
+          return <span key={i} style={{ color: '#ff7b72' }}>{p}</span>;
+        }
+        if (/^[\(\)\{\}\[\]]+$/.test(p)) {
+          return <span key={i} style={{ color: '#d2a8ff' }}>{p}</span>;
+        }
+        if (/^[\=<>!\|\&\+\-\*\/]+$/.test(p)) {
+          return <span key={i} style={{ color: '#79c0ff' }}>{p}</span>;
+        }
+        if (/^(\/\/|#).+/.test(p)) {
+          return <span key={i} style={{ color: '#8b949e', fontStyle: 'italic' }}>{p}</span>;
+        }
+        if (/^[\"\'\`].*[\"\'\`]$/.test(p)) {
+          return <span key={i} style={{ color: '#a5d6ff' }}>{p}</span>;
+        }
+        return <span key={i}>{p}</span>;
+      })}
+    </>
   );
 }
