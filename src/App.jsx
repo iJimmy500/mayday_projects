@@ -14,7 +14,17 @@ const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
 
 const Loading = () => (
   <div className="simple-center">
-    <Flower size={32} strokeWidth={1} className="spinning-flower" />
+    <div className="flower-container">
+      <Flower size={32} strokeWidth={1} className="spinning-flower" />
+    </div>
+    <div className="home-logo">mayday</div>
+    <p className="redirect-msg" style={{ opacity: 0.4 }}>loading ur page...</p>
+  </div>
+);
+
+const PageWrapper = ({ children }) => (
+  <div className="page-transition">
+    {children}
   </div>
 );
 
@@ -23,26 +33,28 @@ export default function App() {
 
   return (
     <Suspense fallback={<Loading />}>
-      {(() => {
-        if (path === '/' || path === '') return <Redirect />;
-        if (path === '/birthday' || path === '/bday' || path === '/day2') return <Birthday />;
-        if (path === '/random' || path === '/gen' || path === '/day3' || path === '/pro') return <Randomizer />;
-        if (path === '/vowelism' || path === '/words' || path === '/day4') return <Vowelism />;
-        if (path === '/ohw' || path === '/onehit' || path === '/day6') return <OneHitWonder />;
-        if (path === '/canvas' || path === '/day7') return <CanvasBreach />;
-        if (path === '/rdr' || path === '/day8' || path === '/frontier') return <RedDeadLandscapes />;
-        if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
-        if (path === '/quiz/create' || path === '/day5/create') return <QuizCreator />;
-        
-        if (path.startsWith('/quiz/') || path.startsWith('/day5/')) {
-          const quizId = path.split('/').pop();
-          return <QuizEngine id={quizId} />;
-        }
+      <PageWrapper key={path}>
+        {(() => {
+          if (path === '/' || path === '') return <Redirect />;
+          if (path === '/birthday' || path === '/bday' || path === '/day2') return <Birthday />;
+          if (path === '/random' || path === '/gen' || path === '/day3' || path === '/pro') return <Randomizer />;
+          if (path === '/vowelism' || path === '/words' || path === '/day4') return <Vowelism />;
+          if (path === '/ohw' || path === '/onehit' || path === '/day6') return <OneHitWonder />;
+          if (path === '/canvas' || path === '/day7') return <CanvasBreach />;
+          if (path === '/rdr' || path === '/day8' || path === '/frontier') return <RedDeadLandscapes />;
+          if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
+          if (path === '/quiz/create' || path === '/day5/create') return <QuizCreator />;
 
-        if (path === '/quiz' || path === '/day5') return <Quiz />;
+          if (path.startsWith('/quiz/') || path.startsWith('/day5/')) {
+            const quizId = path.split('/').pop();
+            return <QuizEngine id={quizId} />;
+          }
 
-        return <Redirect />;
-      })()}
+          if (path === '/quiz' || path === '/day5') return <Quiz />;
+
+          return <Redirect />;
+        })()}
+      </PageWrapper>
     </Suspense>
   );
 }

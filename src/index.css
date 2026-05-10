@@ -204,6 +204,46 @@ header p.countdown-text {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.page-transition {
+  animation: pageReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: opacity;
+}
+
+@keyframes pageReveal {
+  0% { 
+    opacity: 0; 
+  }
+  100% { 
+    opacity: 1; 
+  }
+}
+
+.spinning-flower.exit {
+  animation: flowerExit 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes flowerExit {
+  to {
+    transform: scale(4) rotate(360deg);
+    opacity: 0;
+    filter: blur(20px);
+  }
+}
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 600px) {
   .page-footer {
     position: relative;
