@@ -11,7 +11,7 @@ const OneHitWonder = lazy(() => import('./pages/OneHitWonder'));
 const CanvasBreach = lazy(() => import('./pages/CanvasBreach'));
 const RedDeadLandscapes = lazy(() => import('./pages/RedDeadLandscapes'));
 const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
-const LyricFinder = lazy(() => import('./pages/LyricFinder'));
+// const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
 const IOU = lazy(() => import('./pages/IOU'));
 
 const Loading = () => (
@@ -44,9 +44,10 @@ export default function App() {
           if (path === '/ohw' || path === '/onehit' || path === '/day6') return <OneHitWonder />;
           if (path === '/canvas' || path === '/day7') return <CanvasBreach />;
           if (path === '/rdr' || path === '/day8' || path === '/frontier') return <RedDeadLandscapes />;
-          if (path === '/day11/globalsongs' || path === '/lyrics/globalsongs') return <LyricFinder isGlobal={true} />;
           if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
           if (path === '/day10') return <IOU />;
+          /* 
+          if (path === '/day11/globalsongs' || path === '/lyrics/globalsongs') return <LyricFinder isGlobal={true} />;
           if (path.startsWith('/lyrics/artist/') || path.startsWith('/day11/artist/')) {
             const parts = path.split('/').filter(p => p.length > 0);
             const artist = parts[parts.length - 1];
@@ -56,16 +57,14 @@ export default function App() {
             const parts = path.split('/').filter(p => p.length > 0);
             const last = parts[parts.length - 1];
             const secondLast = parts[parts.length - 2];
-            
-            // Only pass as artistName if it's NOT a sub-route (custom, genre, mixtape, artist, globalsongs)
             const isSubRoute = ['custom', 'genre', 'mixtape', 'artist', 'globalsongs'].includes(secondLast) || 
                               ['custom', 'genre', 'mixtape', 'artist', 'globalsongs'].includes(last);
-            
             if (!isSubRoute && last && last !== 'day11' && last !== 'lyrics') {
               return <LyricFinder artistName={decodeURIComponent(last)} />;
             }
           }
           if (path === '/lyrics' || path === '/day11' || path.startsWith('/lyrics/') || path.startsWith('/day11/')) return <LyricFinder />;
+          */
           if (path === '/quiz/create' || path === '/day5/create') return <QuizCreator />;
 
           if (path.startsWith('/quiz/') || path.startsWith('/day5/')) {
