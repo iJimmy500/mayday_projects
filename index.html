@@ -9,6 +9,37 @@
     content="default-src 'self'; script-src 'self' 'unsafe-inline' https://*.youtube.com https://*.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; frame-src 'self' https://*.youtube.com https://youtube.com; connect-src 'self' http://127.0.0.1:8001 http://localhost:8001 https://*.youtube.com https://*.google.com;">
   <meta name="description" content="Projects by Mayinflight - A collection of different projects." />
   <title>Mayday Projects</title>
+  <script>
+    (function() {
+      // Check for features required by modern React/Vite apps
+      var isLegacy = false;
+      try {
+        // Check for basic ES6+ and modern features
+        if (typeof Promise === 'undefined' || 
+            typeof fetch === 'undefined' || 
+            typeof Object.assign === 'undefined' ||
+            !window.CSS || !CSS.supports('display', 'grid') ||
+            !Array.prototype.flat ||
+            !Object.fromEntries) {
+          isLegacy = true;
+        }
+        // Specific check for older iOS versions (iPhone 5S maxes out at iOS 12.5.7)
+        var ua = navigator.userAgent;
+        if (/iPhone|iPad|iPod/.test(ua)) {
+          var versionMatch = ua.match(/OS (\d+)_/);
+          if (versionMatch && parseInt(versionMatch[1]) < 13) {
+            isLegacy = true;
+          }
+        }
+      } catch (e) {
+        isLegacy = true;
+      }
+
+      if (isLegacy) {
+        window.location.href = '/legacy.html';
+      }
+    })();
+  </script>
   <style>
     body {
       background-color: #0a0a0a;

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayday - Legacy</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --accent-color: #00d2ff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            display: inline-block;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-code {
+            display: block;
+            width: 200px;
+            height: 200px;
+        }
+
+        .footer {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Legacy</h1>
+        <p>This project requires a more modern browser. Please scan the code below to visit Mayinflight, or wait to be
+            redirected.</p>
+
+        <div class="qr-wrapper">
+            <img class="qr-code"
+                src="data:image/png;base64,iVBORw0KGgoAAAASUVORK5CYIIAt1xeIbAAAB8UlEQVR4nO1aQY6DMAwcB6Qeg7QP6FPgZ/1a85T9ARxXCvLKTky1vXQPyxLS+IDAncMomPHEKTFeR3C/AAENZdFW4gQrsVCOCSshDCsBSw/L9mWzPzmqYw29o2m5MMIAYNTsfByv11EDilJ5L0QYZbH1oh/EdCivulH9cyJcvwjw8WBe7g1RzHPHGD/7wnjViOr1yk/ZMHQAvKSXY3i5N0GtydBYr+2z3gfNDqWzfx2lovpc3hrLSgxEcLjGH99CqezdqVFIAq8hphIjR5jlNKN5L5W9OzUKzKyepmO+P3KzPHq2S6ns3alR0N0T67JLyWdr76XufZQf5C2Uyt7VUPejFrrucNOdxvZYKntXhd57eQEq9bqvtfeRxahU9u7UKDwWm6Xa02gn6ZBqTtP7nWdpkKDJMyenH66i9+L006XUynGnRuEh8JxUXtpsarhN7//J33di7bO7sci5pvf7+ZwtbHxsjsd+bb12/3MrLyXvI+g2i/zLeKedW+3dazWsuV5S6+U7VlKzU263chXMkAnoZI27SDLWlDNDssc+lsveVYXi5Orldpzl1LwQXm+BCnRhuqVZ2jbeKYBXvf5ewjxm/sdC3ua2ec6uer+atCwfURpu5C0njaDgynH1nFvhcVpl5ylH8XINlaOthMVf6v03miw6cjX+VzEAAAAASUVORK5CYII="
+                alt="QR Code to mayinflight.com">
+        </div>
+
+        <div class="footer">
+            Redirecting to <a href="https://iam.james006.com">iam.james006.com</a>...
+        </div>
+    </div>
+
+    <script>
+        // Automatic redirect after 10 seconds
+        setTimeout(function () {
+            window.location.href = "https://iam.james006.com";
+        }, 15000);
+    </script>
+</body>
+
+</html>
