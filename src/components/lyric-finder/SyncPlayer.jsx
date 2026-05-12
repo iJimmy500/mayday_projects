@@ -1,0 +1,97 @@
+import React, { useEffect, useRef } from 'react';
+import ReactPlayer from 'react-player';
+
+export default function SyncPlayer({
+  streamUrl,
+  youtubeId,
+  previewUrl,
+  isPlaying,
+  playerRef,
+  onTimeUpdate,
+  onReady,
+  onEnded,
+  onError,
+}) {
+  const audioRef = useRef(null);
+
+  // Determine the best URL
+  const directUrl = streamUrl || previewUrl;
+  const ytUrl = (!streamUrl && youtubeId) ? `https://www.youtube.com/embed/${youtubeId}` : null;
+
+  useEffect(() => {
+    if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube: ${ytUrl}`);
+    else if (directUrl) console.log(`[SyncPlayer] 🔊 Using Native Audio: ${directUrl}`);
+  }, [ytUrl, directUrl]);
+
+  // Handle Native Audio
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying && directUrl) {
+        audioRef.current.play().catch(err => {
+          if (err.name !== 'AbortError') console.error("Audio play failed:", err);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying, directUrl]);
+  if (!directUrl && !ytUrl) return null;
+
+  return (
+    <div style={{ 
+      position: 'fixed', 
+      bottom: 0, 
+      right: 0, 
+      width: '1px', 
+      height: '1px', 
+      opacity: 0.01, 
+      pointerEvents: 'none',
+      zIndex: -1
+    }}>
+      {ytUrl ? (
+        <ReactPlayer
+          ref={playerRef}
+          url={ytUrl}
+          width="100%"
+          height="100%"
+          playing={isPlaying}
+          onProgress={onTimeUpdate}
+          onReady={() => {
+            console.log("[SyncPlayer] ✅ YouTube Player Ready");
+            onReady?.();
+          }}
+          onEnded={onEnded}
+          onError={(e) => {
+            console.error("[SyncPlayer] ❌ YouTube Player Error", e);
+            onError?.(e);
+          }}
+          volume={0.8}
+          config={{
+            youtube: {
+              playerVars: { 
+                origin: window.location.origin,
+                autoplay: 1,
+                controls: 0
+              }
+            }
+          }}
+        />
+      ) : directUrl ? (
+        <audio
+          ref={audioRef}
+          src={directUrl}
+          onTimeUpdate={(e) => onTimeUpdate({ playedSeconds: e.target.currentTime })}
+          onCanPlay={() => {
+            console.log("[SyncPlayer] ✅ Native Audio Ready");
+            onReady?.();
+          }}
+          onEnded={onEnded}
+          onError={(e) => {
+            console.error("[SyncPlayer] ❌ Native Audio Error", e);
+            onError?.(e);
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}

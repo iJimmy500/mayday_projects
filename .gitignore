@@ -65,10 +65,6 @@ src/scripts/seedAkinator.js
 # Image Harvest Staging
 /images
 
-# Day 11 / Lyric Finder (Local Archive)
-src/pages/LyricFinder.jsx
-src/pages/LyricFinder.css
-src/components/lyric-finder/
 
 # Security & Private Info
 src/scripts/sync_cloudinary.cjs

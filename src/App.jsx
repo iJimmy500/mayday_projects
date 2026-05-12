@@ -11,7 +11,7 @@ const OneHitWonder = lazy(() => import('./pages/OneHitWonder'));
 const CanvasBreach = lazy(() => import('./pages/CanvasBreach'));
 const RedDeadLandscapes = lazy(() => import('./pages/RedDeadLandscapes'));
 const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
-// const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
+const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
 const IOU = lazy(() => import('./pages/IOU'));
 
 const Loading = () => (
@@ -35,7 +35,7 @@ export default function App() {
 
   return (
     <Suspense fallback={<Loading />}>
-      <PageWrapper key={path}>
+      <PageWrapper>
         {(() => {
           if (path === '/' || path === '') return <Redirect />;
           if (path === '/birthday' || path === '/bday' || path === '/day2') return <Birthday />;
@@ -46,25 +46,23 @@ export default function App() {
           if (path === '/rdr' || path === '/day8' || path === '/frontier') return <RedDeadLandscapes />;
           if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
           if (path === '/day10') return <IOU />;
-          /* 
-          if (path === '/day11/globalsongs' || path === '/lyrics/globalsongs') return <LyricFinder isGlobal={true} />;
-          if (path.startsWith('/lyrics/artist/') || path.startsWith('/day11/artist/')) {
+
+          // Consolidate LyricFinder routes to prevent remounting
+          if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
             const parts = path.split('/').filter(p => p.length > 0);
-            const artist = parts[parts.length - 1];
-            return <LyricFinder artistName={decodeURIComponent(artist)} />;
-          }
-          if (path.startsWith('/lyrics/') || path.startsWith('/day11/')) {
-            const parts = path.split('/').filter(p => p.length > 0);
-            const last = parts[parts.length - 1];
-            const secondLast = parts[parts.length - 2];
-            const isSubRoute = ['custom', 'genre', 'mixtape', 'artist', 'globalsongs'].includes(secondLast) || 
-                              ['custom', 'genre', 'mixtape', 'artist', 'globalsongs'].includes(last);
-            if (!isSubRoute && last && last !== 'day11' && last !== 'lyrics') {
-              return <LyricFinder artistName={decodeURIComponent(last)} />;
+            const isGlobal = parts.includes('globalsongs');
+            let artist = null;
+
+            if (parts.includes('artist')) {
+              artist = parts[parts.indexOf('artist') + 1];
+            } else if (parts.length > 1 && !['custom', 'genre', 'mixtape'].includes(parts[parts.length - 2])) {
+              const last = parts[parts.length - 1];
+              if (last !== 'lyrics' && last !== 'day11') artist = last;
             }
+
+            return <LyricFinder isGlobal={isGlobal} artistName={artist ? decodeURIComponent(artist) : undefined} />;
           }
-          if (path === '/lyrics' || path === '/day11' || path.startsWith('/lyrics/') || path.startsWith('/day11/')) return <LyricFinder />;
-          */
+
           if (path === '/quiz/create' || path === '/day5/create') return <QuizCreator />;
 
           if (path.startsWith('/quiz/') || path.startsWith('/day5/')) {

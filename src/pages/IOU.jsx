@@ -145,7 +145,7 @@ export default function IOU() {
           {showWhy ? 'close' : 'why?'}
         </button>
 
-        <a href="https://youtube.com/@iam.james006" target="_blank" rel="noopener noreferrer" className="iou-btn">
+        <a href="https://youtube.com/@iamjames006" target="_blank" rel="noopener noreferrer" className="iou-btn">
           subscribe
         </a>
 
