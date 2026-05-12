@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
 export default function SyncPlayer({
-  streamUrl,
   youtubeId,
   previewUrl,
   isPlaying,
@@ -15,8 +14,8 @@ export default function SyncPlayer({
   const audioRef = useRef(null);
 
   // Determine the best URL
-  const directUrl = streamUrl || previewUrl;
-  const ytUrl = (!streamUrl && youtubeId) ? `https://www.youtube.com/embed/${youtubeId}` : null;
+  const directUrl = previewUrl;
+  const ytUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}` : null;
 
   useEffect(() => {
     if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube: ${ytUrl}`);

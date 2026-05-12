@@ -106,34 +106,8 @@ export default function LyricFinder({ artistName, isGlobal }) {
   }, []);
 
   const fetchAudioStream = useCallback(async (song, rid) => {
-    if (!song?.artist || !song?.track) return;
-    
-    // Add a small delay so we don't hammer the API during rapid skips/loops
-    await new Promise(r => setTimeout(r, 2000));
-    if (rid !== lastRequestId.current) return;
-
-    const query = `${song.artist} ${song.track} audio`;
-    setIsYoutubeLoading(true);
-    setIsPlayerReady(false);
-    setIsPlaying(false);
-
-    try {
-      const { data } = await axios.get(`/api-youtube/search?q=${encodeURIComponent(query)}`);
-      if (rid !== lastRequestId.current) return;
-      if (data?.videoId) {
-        console.log(`[Flow] 📺 Received YouTube Video ID: ${data.videoId}`);
-        setCurrentSong(prev => prev ? { ...prev, youtubeId: data.videoId } : prev);
-        console.log(`[Flow] ✅ YouTube Audio Linked`);
-      } else {
-        console.warn(`[Flow] ⚠️ No YouTube Audio found for: ${query}`);
-      }
-    } catch (err) {
-      console.error("[Flow] ❌ YouTube fetch failed", err);
-    } finally {
-      if (rid === lastRequestId.current) {
-        setIsYoutubeLoading(false);
-      }
-    }
+    // Synced playback disabled as per request
+    setIsYoutubeLoading(false);
   }, []);
 
   const activeLyricsRequest = useRef(null);
@@ -816,7 +790,6 @@ export default function LyricFinder({ artistName, isGlobal }) {
 
       {/* SyncPlayer — uses Apple Music 30s preview */}
       <SyncPlayer
-        streamUrl={gameState === 'playing' ? currentSong?.streamUrl : null}
         youtubeId={gameState === 'playing' ? currentSong?.youtubeId : null}
         previewUrl={currentSong?.previewUrl}
         isPlaying={isPlaying}
