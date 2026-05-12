@@ -106,9 +106,6 @@ export default function LyricFinder({ artistName, isGlobal }) {
   }, []);
 
   const fetchAudioStream = useCallback(async (song, rid) => {
-    // Disabled synced playback for now
-    setIsYoutubeLoading(false);
-    return;
     if (!song?.artist || !song?.track) return;
     
     // Add a small delay so we don't hammer the API during rapid skips/loops

@@ -73,6 +73,20 @@ export default function ControlBar({
             </div>
             
             <div className="am-actions-group">
+              <button
+                className={`am-play-btn ${isPlaying ? 'playing' : ''} ${((isYoutubeLoading || !isPlayerReady) && hasSync) ? 'loading' : ''}`}
+                onClick={onTogglePlay}
+                disabled={!hasSync || !isPlayerReady || isYoutubeLoading}
+                title={!hasSync ? "Audio not available" : isYoutubeLoading ? "Searching for audio..." : isPlaying ? "Pause" : "Play Synced Audio"}
+              >
+                {((isYoutubeLoading || !isPlayerReady) && hasSync) ? (
+                  <div className="am-play-loading-ring" />
+                ) : isPlaying ? (
+                  <Pause size={20} fill="currentColor" />
+                ) : (
+                  <Play size={20} fill="currentColor" />
+                )}
+              </button>
               <button className="am-guess-btn" onClick={onGuessSubmit}>GUESS</button>
               <button className="am-skip-btn" onClick={onSkip} title="I give up">
                 <SkipForward size={20} />
