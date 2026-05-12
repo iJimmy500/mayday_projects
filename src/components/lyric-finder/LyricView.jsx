@@ -22,7 +22,7 @@ export default function LyricView({
     .filter(line => line.trim().length > 10)
     .slice(startIndex, startIndex + (attempts + 1) * hintDepth) : [];
 
-  // Find active line index for synced lyrics
+  
   const activeIndex = hasSync 
     ? parsedLyrics.findIndex((l, i) => {
         const next = parsedLyrics[i + 1];
@@ -30,7 +30,7 @@ export default function LyricView({
       })
     : -1;
 
-  // Auto-scroll logic
+  
   useEffect(() => {
     if (hasSync && activeLineRef.current && containerRef.current) {
       activeLineRef.current.scrollIntoView({
@@ -62,7 +62,7 @@ export default function LyricView({
     <main className="am-main-content">
       <div className="am-lyrics-container" ref={containerRef}>
         {!isRevealed ? (
-          // Progressive Hint View (Apple Music Style)
+          
           <div className="am-progressive-hints">
             {revealedLines.map((line, i) => {
               const isLastGroup = i >= attempts * hintDepth;
@@ -80,7 +80,7 @@ export default function LyricView({
             })}
           </div>
         ) : (
-          // Show full lyrics once revealed
+          
           <div className="am-revealed-lyrics">
             {hasSync ? (
               parsedLyrics.map((line, i) => {

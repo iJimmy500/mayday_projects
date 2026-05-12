@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Flower } from 'lucide-react';
+import ErrorBoundary from './components/lyric-finder/ErrorBoundary';
 
 const Birthday = lazy(() => import('./pages/Birthday'));
 const Randomizer = lazy(() => import('./pages/Randomizer'));
@@ -47,7 +48,6 @@ export default function App() {
           if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
           if (path === '/day10') return <IOU />;
 
-          // Consolidate LyricFinder routes to prevent remounting
           if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
             const parts = path.split('/').filter(p => p.length > 0);
             const isGlobal = parts.includes('globalsongs');
@@ -60,7 +60,11 @@ export default function App() {
               if (last !== 'lyrics' && last !== 'day11') artist = last;
             }
 
-            return <LyricFinder isGlobal={isGlobal} artistName={artist ? decodeURIComponent(artist) : undefined} />;
+            return (
+              <ErrorBoundary>
+                <LyricFinder isGlobal={isGlobal} artistName={artist ? decodeURIComponent(artist) : undefined} />
+              </ErrorBoundary>
+            );
           }
 
           if (path === '/quiz/create' || path === '/day5/create') return <QuizCreator />;

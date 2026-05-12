@@ -32,7 +32,6 @@ export default function DashboardModal({
   return (
     <div className="db-overlay" onClick={onClose}>
       <div className="db-sheet" onClick={e => e.stopPropagation()}>
-
         <div className="db-handle" />
 
         <div className="db-header">
@@ -48,7 +47,6 @@ export default function DashboardModal({
         </div>
 
         <div className="db-body">
-          {/* Stats */}
           <div className="db-stats-grid">
             <div className="db-stat-card correct">
               <span className="db-stat-num">{correctCount}</span>
@@ -68,7 +66,6 @@ export default function DashboardModal({
             </div>
           </div>
 
-          {/* Game Mode */}
           {playlistInfo?.type !== 'artist' && (
             <div className="db-section">
               <p className="db-section-label">Game Mode</p>
@@ -86,7 +83,6 @@ export default function DashboardModal({
             </div>
           )}
 
-          {/* Settings */}
           <div className="db-section">
             <p className="db-section-label">Settings</p>
             <div className="db-surface">
@@ -121,11 +117,9 @@ export default function DashboardModal({
                   aria-label="Toggle strict matching"
                 />
               </div>
-
             </div>
           </div>
 
-          {/* History */}
           <div className="db-section db-history-section">
             <p className="db-section-label">Recent Session</p>
             {history.length > 0 ? (
@@ -146,11 +140,10 @@ export default function DashboardModal({
               </div>
             )}
           </div>
-
         </div>
 
         <div className="db-footer">
-          <a href="https://mayinflight.com" className="db-brand" target="_blank" rel="noopener noreferrer">
+          <a href="https://mayinflight.com" target="_blank" rel="noopener noreferrer" className="db-mayday-link">
             mayday <Flower size={13} strokeWidth={1.5} />
           </a>
         </div>

@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Search, X, Mic2, Music } from 'lucide-react';
-
-const fetchITunesJSONP = (url) => {
-  return new Promise((resolve, reject) => {
-    const callbackName = 'itunes_callback_' + Math.round(100000 * Math.random());
-    window[callbackName] = (data) => {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve({ data });
-    };
-
-    const script = document.createElement('script');
-    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
-    script.onerror = (err) => {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      reject(err);
-    };
-    document.body.appendChild(script);
-  });
-};
+import { fetchITunesJSONP } from '../../utils/itunesJSONP';
 
 export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGenre, onSelectLocal, onImport, isLanding }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,7 +21,6 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
     { id: 'music-apple-com-2026-05-11-2', name: "Top Charts Vol. 2" }
   ];
 
-  // Live Search Debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery.trim().length > 1) {
@@ -55,7 +34,7 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
 
   const fetchArtistSuggestions = async (query) => {
     try {
-      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=4`);
+      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=8`);
       if (data.results) {
         setSearchResults(data.results.map(r => ({
           type: 'artist',
@@ -75,7 +54,6 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
   return (
     <div className={`am-search-overlay ${isLanding ? 'landing' : ''}`} onClick={isLanding ? null : onClose}>
       <div className="am-search-container" onClick={e => e.stopPropagation()}>
-
         <div className={`am-search-header-transition ${isActuallySearching ? 'searching' : ''}`}>
           {isLanding && (
             <div className="am-welcome-header">
@@ -129,7 +107,6 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
           <div className="am-genre-grid">
             <div className="am-genre-label">DISCOVER</div>
             <div className="am-horizontal-scroll">
-              {/* Global Hits First */}
               {MIXTAPES.filter(m => m.id === 'home').map(m => (
                 <button
                   key={m.id}
@@ -143,7 +120,6 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
                 </button>
               ))}
 
-              {/* Then Genres */}
               {GENRES.map(g => (
                 <button
                   key={g}
@@ -157,7 +133,6 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
                 </button>
               ))}
 
-              {/* Then Other Mixtapes */}
               {MIXTAPES.filter(m => m.id !== 'home').map(m => (
                 <button
                   key={m.id}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { SkipForward, List, RefreshCw, Eye, ExternalLink, Play, Pause, Music, Link } from 'lucide-react';
 
-// Refreshed playback controls
 export default function ControlBar({ 
   gameState, 
   loading, 
@@ -27,7 +26,8 @@ export default function ControlBar({
   isYoutubeLoading,
   isPlayerReady,
   youtubeStatus,
-  onManualSearch
+  onManualSearch,
+  correctParts
 }) {
   
   const handleKeyDown = (e) => {
@@ -44,7 +44,6 @@ export default function ControlBar({
         ) : gameState === 'playing' || gameState === 'error' ? (
           <div className="am-guess-flow">
             <div className="am-inputs">
-              {/* Title Input: Show if mode is 'title', 'both', or if we're in an artist-specific view */}
               {(settings.mode === 'title' || settings.mode === 'both' || playlistInfo?.type === 'artist') && (
                 <input
                   autoFocus={settings.mode === 'title' || settings.mode === 'both' || playlistInfo?.type === 'artist'}
@@ -53,13 +52,13 @@ export default function ControlBar({
                   value={guess.title}
                   onChange={e => onGuessChange({ ...guess, title: e.target.value })}
                   onKeyDown={handleKeyDown}
+                  className={correctParts?.title ? 'am-input-correct' : ''}
+                  disabled={correctParts?.title}
                 />
               )}
               
-              {/* Divider and Artist Input: Only if mode is 'both' AND not in an artist-specific view */}
               {settings.mode === 'both' && playlistInfo?.type !== 'artist' && <div className="am-divider" />}
 
-              {/* Artist Input: Show if mode is 'artist' or 'both', but HIDE if in an artist-specific view */}
               {((settings.mode === 'artist' || settings.mode === 'both') && playlistInfo?.type !== 'artist') && (
                 <input
                   autoFocus={settings.mode === 'artist'}
@@ -68,6 +67,8 @@ export default function ControlBar({
                   value={guess.artist}
                   onChange={e => onGuessChange({ ...guess, artist: e.target.value })}
                   onKeyDown={handleKeyDown}
+                  className={correctParts?.artist ? 'am-input-correct' : ''}
+                  disabled={correctParts?.artist}
                 />
               )}
             </div>
@@ -139,7 +140,6 @@ export default function ControlBar({
         )}
       </div>
 
-      {/* Round Guesses Popup */}
       {showRoundGuesses && (
         <div className="am-round-guesses-popup">
           <div className="am-guesses-header">YOUR ATTEMPTS</div>

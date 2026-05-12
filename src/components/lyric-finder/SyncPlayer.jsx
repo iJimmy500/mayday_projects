@@ -13,16 +13,14 @@ export default function SyncPlayer({
 }) {
   const audioRef = useRef(null);
 
-  // Determine the best URL
   const directUrl = previewUrl;
-  const ytUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}` : null;
+  const ytUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
 
   useEffect(() => {
     if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube`);
     else if (directUrl) console.log(`[SyncPlayer] 🔊 Using Native Audio`);
   }, [ytUrl, directUrl]);
 
-  // Handle Native Audio
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying && directUrl) {
@@ -34,6 +32,7 @@ export default function SyncPlayer({
       }
     }
   }, [isPlaying, directUrl]);
+
   if (!directUrl && !ytUrl) return null;
 
   return (
