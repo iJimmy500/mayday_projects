@@ -35,7 +35,7 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
 
   const fetchArtistSuggestions = async (query) => {
     try {
-      const { data } = await axios.get(`/api-itunes/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=4`);
+      const { data } = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=4`);
       if (data.results) {
         setSearchResults(data.results.map(r => ({
           type: 'artist',
