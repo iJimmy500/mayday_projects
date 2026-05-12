@@ -10,7 +10,8 @@ export default defineConfig(async ({ command }) => {
   if (command === 'serve') {
     const ytSearch = await import('yt-search')
     const url = await import('url')
-    const axios = await import('axios')
+    const axiosMod = await import('axios')
+    const axios = axiosMod.default || axiosMod
 
     config.server = {
       proxy: {
@@ -77,6 +78,34 @@ export default defineConfig(async ({ command }) => {
                   console.log(`[Proxy] Search failed or timed out:`, e?.message || 'Unknown error');
                 }
 
+                // Step 2: Optional Piped Upgrade (Direct Stream)
+                if (winner?.videoId) {
+                  const pipedInstances = [
+                    'https://piped-api.private.coffee',
+                    'https://api.piped.projectsegfau.lt',
+                    'https://pipedapi.kavin.rocks'
+                  ];
+
+                  for (const instance of pipedInstances) {
+                    try {
+                      console.log(`[Proxy] Attempting Piped extraction from: ${instance}...`);
+                      const pipedRes = await axios.get(`${instance}/streams/${winner.videoId}`, { 
+                        timeout: 2500,
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+                      });
+                      const audioStream = pipedRes.data.audioStreams?.sort((a, b) => b.bitrate - a.bitrate)[0];
+                      if (audioStream?.url) {
+                        // Proxy the stream through our own backend to bypass IP/CORS blocks
+                        winner.streamUrl = `/api-proxy/stream?url=${encodeURIComponent(audioStream.url)}`;
+                        console.log(`[Proxy] 💎 Piped Stream Extracted from ${instance}!`);
+                        break;
+                      }
+                    } catch (e) {
+                      console.log(`[Proxy] Piped ${instance} failed:`, e.message);
+                    }
+                  }
+                }
+
                 // Save to cache
                 global.searchCache.set(query, { time: Date.now(), data: winner || { videoId: null } });
 
@@ -91,6 +120,45 @@ export default defineConfig(async ({ command }) => {
             }
           }
         }
+      }
+    },
+
+    // Audio Proxy Endpoint
+    {
+      name: 'audio-proxy',
+      configureServer(server) {
+        server.middlewares.use(async (req, res, next) => {
+          const parsedUrl = url.parse(req.url, true);
+          if (parsedUrl.pathname === '/api-proxy/stream') {
+            const streamUrl = parsedUrl.query.url;
+            if (!streamUrl) {
+              res.end('No URL provided');
+              return;
+            }
+
+            try {
+              const response = await axios({
+                method: 'get',
+                url: streamUrl,
+                responseType: 'stream',
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                  'Referer': 'https://www.youtube.com/'
+                }
+              });
+
+              res.setHeader('Content-Type', response.headers['content-type'] || 'audio/mpeg');
+              if (response.headers['content-length']) res.setHeader('Content-Length', response.headers['content-length']);
+              response.data.pipe(res);
+            } catch (err) {
+              console.error("[Proxy] Stream proxy failed:", err.message);
+              res.statusCode = 500;
+              res.end('Proxy failed');
+            }
+            return;
+          }
+          next();
+        });
       }
     }
   }

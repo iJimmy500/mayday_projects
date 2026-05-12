@@ -38,6 +38,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
   const [isSearching, setIsSearching] = useState(false);
   const [isLandingState, setIsLandingState] = useState(false);
   const [customPlaylist, setCustomPlaylist] = useState([]);
+  const playlistRef = useRef([]);
   const [playlistInfo, setPlaylistInfo] = useState(null);
   const [artistImage, setArtistImage] = useState('');
   const [isImporting, setIsImporting] = useState(false);
@@ -105,6 +106,9 @@ export default function LyricFinder({ artistName, isGlobal }) {
   }, []);
 
   const fetchAudioStream = useCallback(async (song, rid) => {
+    // Disabled synced playback for now
+    setIsYoutubeLoading(false);
+    return;
     if (!song?.artist || !song?.track) return;
     
     // Add a small delay so we don't hammer the API during rapid skips/loops
@@ -235,7 +239,6 @@ export default function LyricFinder({ artistName, isGlobal }) {
 
   const startNewRound = useCallback(async (forceGlobal = false, initialPool = null) => {
     if (isRoundStarting.current) {
-      console.warn("[Flow] ⏳ New round request ignored - already starting a round.");
       return;
     }
     isRoundStarting.current = true;
@@ -280,32 +283,36 @@ export default function LyricFinder({ artistName, isGlobal }) {
       }
     }, 12000);
 
-    let poolToUse = initialPool || customPlaylist;
+    if (initialPool) {
+      playlistRef.current = initialPool;
+      setCustomPlaylist(initialPool);
+    }
+
+    let poolToUse = playlistRef.current;
     let randomSong;
 
     if (forceGlobal) {
       randomSong = famousSongs[Math.floor(Math.random() * famousSongs.length)];
     } else if (poolToUse.length > 0) {
       randomSong = poolToUse[0];
-      if (initialPool) {
-        setCustomPlaylist(initialPool.slice(1));
-      } else {
-        setCustomPlaylist(prev => prev.slice(1));
-      }
+      const nextPool = poolToUse.slice(1);
+      playlistRef.current = nextPool;
+      setCustomPlaylist(nextPool);
     } else if (playlistInfo) {
       // End of a playlist
       setGameState('congrats');
       setLoading(false);
+      isRoundStarting.current = false;
       return;
     } else {
       // Standby - No selection made yet
       setLoading(false);
       setIsLandingState(true);
+      isRoundStarting.current = false;
       return;
     }
 
     if (randomSong) {
-      console.log(`[Flow] 🚀 Starting New Round: ${randomSong.artist} - ${randomSong.track}`);
       setCurrentSong(randomSong);
       fetchAlbumArt(randomSong.artist, randomSong.track, null, rid);
       fetchLyrics(randomSong, rid);
@@ -326,10 +333,10 @@ export default function LyricFinder({ artistName, isGlobal }) {
     masteredIds.current.add(track + artist);
     console.warn(`Lyrics missing for: "${track}". Blacklisted and skipping...`);
     
-    // Use a flag to ensure we only start new round once
     setTimeout(() => {
       if (rid === lastRequestId.current) {
         console.log(`[Flow] ⏭️ Auto-skipping to next song...`);
+        isRoundStarting.current = false; // Reset lock to allow the skip
         startNewRound();
       }
     }, 3000);
@@ -871,7 +878,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
       {gameState === 'congrats' && (
         <div className="am-congrats-overlay">
           <div className="am-congrats-card">
-            <div className="am-congrats-icon">🏆</div>
+
             <h2>PLAYLIST COMPLETE</h2>
             <p>You've mastered the entire <strong>{playlistInfo?.name}</strong> collection!</p>
             <div className="am-congrats-stats">
