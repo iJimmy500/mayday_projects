@@ -18,8 +18,8 @@ export default function SyncPlayer({
   const ytUrl = youtubeId ? `https://www.youtube.com/embed/${youtubeId}` : null;
 
   useEffect(() => {
-    if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube: ${ytUrl}`);
-    else if (directUrl) console.log(`[SyncPlayer] 🔊 Using Native Audio: ${directUrl}`);
+    if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube`);
+    else if (directUrl) console.log(`[SyncPlayer] 🔊 Using Native Audio`);
   }, [ytUrl, directUrl]);
 
   // Handle Native Audio

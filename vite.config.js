@@ -4,18 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    proxy: {
-      '/api-itunes': {
-        target: 'https://itunes.apple.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-itunes/, '')
-      },
-      '/api-lyrics': {
-        target: 'https://lrclib.net',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-lyrics/, '')
-      }
-    }
-  }
+  // Proxy removed to support 100% serverless/client-side deployment on Cloudflare
 })

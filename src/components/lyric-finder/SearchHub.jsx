@@ -2,6 +2,26 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Search, X, Mic2, Music } from 'lucide-react';
 
+const fetchITunesJSONP = (url) => {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'itunes_callback_' + Math.round(100000 * Math.random());
+    window[callbackName] = (data) => {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve({ data });
+    };
+
+    const script = document.createElement('script');
+    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+    script.onerror = (err) => {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      reject(err);
+    };
+    document.body.appendChild(script);
+  });
+};
+
 export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGenre, onSelectLocal, onImport, isLanding }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -35,7 +55,7 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
 
   const fetchArtistSuggestions = async (query) => {
     try {
-      const { data } = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=4`);
+      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=4`);
       if (data.results) {
         setSearchResults(data.results.map(r => ({
           type: 'artist',

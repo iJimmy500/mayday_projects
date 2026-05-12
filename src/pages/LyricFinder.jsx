@@ -9,6 +9,26 @@ import DashboardModal from '../components/lyric-finder/DashboardModal';
 import SyncPlayer from '../components/lyric-finder/SyncPlayer';
 import './LyricFinder.css';
 
+const fetchITunesJSONP = (url) => {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'itunes_callback_' + Math.round(100000 * Math.random());
+    window[callbackName] = (data) => {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve({ data });
+    };
+
+    const script = document.createElement('script');
+    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+    script.onerror = (err) => {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      reject(err);
+    };
+    document.body.appendChild(script);
+  });
+};
+
 export default function LyricFinder({ artistName, isGlobal }) {
   const [currentSong, setCurrentSong] = useState(null);
   const [lyrics, setLyrics] = useState('');
@@ -86,12 +106,12 @@ export default function LyricFinder({ artistName, isGlobal }) {
     const query = `${cleanTerm(artist)} ${cleanTerm(track)}`;
     
     try {
-      console.log(`[Flow] 🎨 Fetching Art for: ${artist} - ${track}`);
-      const response = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(artist + ' ' + track)}&entity=musicTrack&limit=1`);
+      console.log(`[Flow] 🎨 Fetching Art...`);
+      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(artist + ' ' + track)}&entity=musicTrack&limit=1`);
       if (rid !== lastRequestId.current) return;
 
-      if (response.data.results && response.data.results[0]) {
-        const trackData = response.data.results[0];
+      if (data.results && data.results[0]) {
+        const trackData = data.results[0];
         const art = trackData.artworkUrl100.replace('100x100bb', '1000x1000bb');
         setAlbumArt(art);
         setTrackUrl(trackData.trackViewUrl);
@@ -114,7 +134,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
   const fetchLyrics = useCallback(async (randomSong, rid) => {
     if (!randomSong || !rid) return;
     activeLyricsRequest.current = rid;
-    console.log(`[Flow] 📝 Fetching Lyrics for: ${randomSong.artist} - ${randomSong.track}`);
+    console.log(`[Flow] 📝 Fetching Lyrics...`);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -486,7 +506,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
     syncUrl(genre, 'genre');
     try {
       const randomOffset = Math.floor(Math.random() * 150);
-      const { data } = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&limit=50&entity=song&offset=${randomOffset}`);
+      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&limit=50&entity=song&offset=${randomOffset}`);
       if (data.results) {
         const mapped = data.results.map(r => ({
           track: r.trackName,
@@ -547,7 +567,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
     setIsSearching(false);
     try {
       const randomOffset = Math.floor(Math.random() * 50);
-      const { data } = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&entity=song&limit=100&offset=${randomOffset}`);
+      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&entity=song&limit=100&offset=${randomOffset}`);
       if (data.results && data.results.length > 0) {
         const songs = data.results.map(s => ({
           track: s.trackName,
@@ -579,7 +599,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
     }
     try {
       // Phase 1: Resolve Artist ID
-      const artistSearch = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(artistName)}&entity=musicArtist&limit=1`);
+      const artistSearch = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(artistName)}&entity=musicArtist&limit=1`);
       const artist = artistSearch.data.results?.[0];
       
       let songs = [];
@@ -587,7 +607,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
 
       if (artist && artist.artistName.toLowerCase() === artistName.toLowerCase()) {
         // Phase 2: Definitive Lookup by ID
-        const lookup = await axios.get(`https://itunes.apple.com/lookup?id=${artist.artistId}&entity=song&limit=50`);
+        const lookup = await fetchITunesJSONP(`https://itunes.apple.com/lookup?id=${artist.artistId}&entity=song&limit=50`);
         if (lookup.data.results) {
           // First item in lookup is usually the artist info itself
           const filtered = lookup.data.results.filter(r => r.wrapperType === 'track');
@@ -608,7 +628,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
 
       // Fallback: If no ID lookup worked or was found
       if (songs.length === 0) {
-        const { data } = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(artistName)}&entity=song&limit=50&attribute=artistTerm`);
+        const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(artistName)}&entity=song&limit=50&attribute=artistTerm`);
         if (data.results && data.results.length > 0) {
           songs = data.results.map(s => ({
             track: s.trackName,
