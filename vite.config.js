@@ -121,10 +121,10 @@ export default defineConfig(async ({ command }) => {
           }
         }
       }
-    },
+    }
 
     // Audio Proxy Endpoint
-    {
+    config.plugins.push({
       name: 'audio-proxy',
       configureServer(server) {
         server.middlewares.use(async (req, res, next) => {
@@ -160,7 +160,7 @@ export default defineConfig(async ({ command }) => {
           next();
         });
       }
-    }
+    });
   }
 
   return config
