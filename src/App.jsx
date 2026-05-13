@@ -15,6 +15,8 @@ const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
 const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
 const IOU = lazy(() => import('./pages/IOU'));
 const NWTSWeather = lazy(() => import('./pages/NWTSWeather.jsx'));
+// const AuraLayout = lazy(() => import('./pages/AuraLayout'));
+// const Throwback = lazy(() => import('./pages/Throwback'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -53,6 +55,8 @@ export default function App() {
               <NWTSWeather />
             </ErrorBoundary>
           );
+// if (path === '/aura' || path === '/layout' || path === '/day13') return <AuraLayout />;
+// if (path === '/throwback' || path === '/day14') return <Throwback />;
 
           if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
             const parts = path.split('/').filter(p => p.length > 0);

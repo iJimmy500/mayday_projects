@@ -84,3 +84,7 @@ yarn-error.log*
 # Project artifacts
 public/artifacts/*
 !public/artifacts/day11/twosixtape.txt
+
+# Day 13 and Day 14 (WIP)
+src/pages/AuraLayout.*
+src/pages/Throwback.*

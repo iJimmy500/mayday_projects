@@ -44,6 +44,8 @@ export default function Vowelism() {
   const [lettersVisible, setLettersVisible] = useState(true);
   const [requiredLength, setRequiredLength] = useState(0); 
   const [pb, setPb] = useState({ wpm: 0, words: 0 });
+  const [isShake, setIsShake] = useState(false);
+  const [isPop, setIsPop] = useState(false);
 
   // Dropdown States
   const [activeMenu, setActiveMenu] = useState(null); // 'mode', 'vowels', 'time'
@@ -81,6 +83,16 @@ export default function Vowelism() {
       osc.start();
       osc.stop(audioCtx.current.currentTime + 0.05);
     }
+  };
+
+  const triggerPop = () => {
+    setIsPop(true);
+    setTimeout(() => setIsPop(false), 300);
+  };
+
+  const triggerShake = () => {
+    setIsShake(true);
+    setTimeout(() => setIsShake(false), 400);
   };
 
   useEffect(() => {
@@ -159,7 +171,7 @@ export default function Vowelism() {
       const common = ['E', 'A', 'T', 'O', 'I', 'N', 'S', 'R', 'H', 'L'];
       const picked = [];
       const pool = [...common];
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < activeVowelCount; i++) {
         const idx = Math.floor(Math.random() * pool.length);
         picked.push(pool[idx]);
         pool.splice(idx, 1);
@@ -167,9 +179,9 @@ export default function Vowelism() {
       setConsonants(picked);
       setVowels([]);
     } else if (mode === 'anagrams') {
-      setConsonants(weightedPick(CONSONANTS, 4));
+      setConsonants(weightedPick(CONSONANTS, activeVowelCount + 2));
     } else if (mode === 'consonants') {
-      setConsonants(weightedPick(CONSONANTS, 3));
+      setConsonants(weightedPick(CONSONANTS, activeVowelCount));
       setVowels([]);
     } else {
       setConsonants([]);
@@ -230,6 +242,35 @@ export default function Vowelism() {
     setTimeout(() => setMessage({ text: '', type: '' }), 1800);
   };
 
+  const checkMisspelled = (word) => {
+    if (word.length < 3) return false;
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    
+    // Check deletions
+    for (let i = 0; i < word.length; i++) {
+      const w = word.slice(0, i) + word.slice(i + 1);
+      if (dictionary.has(w)) return true;
+    }
+    
+    // Check substitutions
+    for (let i = 0; i < word.length; i++) {
+      for (const char of alphabet) {
+        if (char === word[i]) continue;
+        const w = word.slice(0, i) + char + word.slice(i + 1);
+        if (dictionary.has(w)) return true;
+      }
+    }
+    
+    // Check insertions
+    for (let i = 0; i <= word.length; i++) {
+      for (const char of alphabet) {
+        const w = word.slice(0, i) + char + word.slice(i);
+        if (dictionary.has(w)) return true;
+      }
+    }
+    return false;
+  };
+
   const handlePenalty = () => {
     if (isSuddenDeath) {
       setTimeLeft(p => Math.max(0, p - 3));
@@ -238,12 +279,13 @@ export default function Vowelism() {
     if (isHardcore) {
       if (isProgressive) {
         startProgressive();
-        showMessage('PROGRESS RESET!', 'error');
+        showMessage('progress reset!', 'error');
       } else {
         setFoundWords([]);
-        showMessage('RESET!', 'error');
+        showMessage('reset!', 'error');
       }
     }
+    triggerShake();
   };
 
   const handleSubmit = (e) => {
@@ -265,20 +307,23 @@ export default function Vowelism() {
       return; 
     }
     
-    if (!validate(word)) { 
-      let msg = 'invalid letters';
-      if (mode === 'avoidance') msg = 'used forbidden letter';
-      else if (requiredLength > 0 && word.length !== requiredLength) msg = `must be ${requiredLength} letters`;
-      else if (mode === 'vowels') msg = 'missing required vowels';
-      else if (mode === 'consonants') msg = 'missing required consonants';
-      
-      showMessage(msg, 'error'); 
-      playSound('error');
-      handlePenalty();
-      return; 
-    }
-
+    // Prioritize dictionary check
     if (dictionary.has(word)) {
+      // It is a word, but does it follow game rules?
+      if (!validate(word)) {
+        let msg = 'wrong letters';
+        if (mode === 'avoidance') msg = 'used forbidden letter';
+        else if (requiredLength > 0 && word.length !== requiredLength) msg = `must be ${requiredLength} letters`;
+        else if (mode === 'vowels') msg = 'missing required vowels';
+        else if (mode === 'consonants') msg = 'missing required consonants';
+        
+        showMessage(msg, 'error'); 
+        playSound('error');
+        handlePenalty();
+        return;
+      }
+
+      // Success logic
       setFoundWords(p => [word, ...p]);
       setInputValue('');
       playSound('success');
@@ -294,22 +339,33 @@ export default function Vowelism() {
       if (isProgressive) {
         const nextWords = foundWords.length + 1;
         if (nextWords >= wordsToLevel) {
-          // Level Up Logic
+          let nextVowelCount = vowelCount;
+          let nextReqLength = requiredLength;
+ 
           if (vowelCount < 5) {
-            setVowelCount(p => p + 1);
+            nextVowelCount = vowelCount + 1;
+            setVowelCount(nextVowelCount);
           } else {
-            setRequiredLength(p => (p === 0 ? 4 : p + 1));
+            nextReqLength = requiredLength === 0 ? 4 : requiredLength + 1;
+            setRequiredLength(nextReqLength);
           }
-          setWordsToLevel(p => p + 2);
-          setLevel(p => p + 1);
-          showMessage(`LEVEL ${level + 1}!`, 'success');
-          // Regenerate letters for next level
-          setVowels(weightedPick(VOWELS, Math.min(vowelCount + (vowelCount < 5 ? 1 : 0), 5)));
+          
+          const nextWordsTarget = wordsToLevel + 2;
+          const nextLevel = level + 1;
+          
+          setWordsToLevel(nextWordsTarget);
+          setLevel(nextLevel);
+          showMessage(`level ${nextLevel}!`, 'success');
+          
+          // Regenerate letters for next level using fresh values
+          setVowels(weightedPick(VOWELS, nextVowelCount));
           setLettersVisible(true);
         }
       }
     } else {
-      showMessage('not a word', 'error');
+      // Not a word in dictionary
+      const isTypo = checkMisspelled(word);
+      showMessage(isTypo ? 'not a word (misspelled?)' : 'not a word', 'error');
       playSound('error');
       handlePenalty();
     }
@@ -336,7 +392,9 @@ export default function Vowelism() {
 
   useEffect(() => {
     if (finished) {
-      const finalWpm = Math.round((foundWords.join('').length / 5) / (Math.max(timeLimit, 15) / 60));
+      const elapsed = zenMode ? 60 : Math.max(timeLimit, 15);
+      const totalChars = foundWords.join('').length;
+      const finalWpm = Math.round((totalChars / 5) / (elapsed / 60));
       updatePb(foundWords.length, finalWpm);
     }
   }, [finished]);
@@ -477,7 +535,7 @@ export default function Vowelism() {
             <span className="vow-count-val">{foundWords.length} words</span>
             {(timedMode || isSuddenDeath) && started && !finished && (
               <span className="vow-wpm-val">
-                {timeLimit - timeLeft > 0 ? Math.round((foundWords.join('').length / 5) / ((timeLimit - timeLeft) / 60)) : 0} wpm
+                {timeLimit - timeLeft > 2 ? Math.round((foundWords.join('').length / 5) / ((timeLimit - timeLeft) / 60)) : 0} wpm
               </span>
             )}
           </div>
@@ -498,7 +556,7 @@ export default function Vowelism() {
         <form className="vow-form" onSubmit={handleSubmit}>
           <input
             ref={inputRef}
-            className="vow-input"
+            className={`vow-input ${isShake ? 'shake' : ''} ${isPop ? 'pop' : ''}`}
             value={inputValue}
             onChange={e => setInputValue(e.target.value.toLowerCase())}
             placeholder="..."

@@ -1,5 +1,6 @@
 .vow-theme {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #1a1a1a;
   display: flex;
   flex-direction: column;
@@ -356,6 +357,27 @@
   color: #333;
 }
 
+.vow-input.shake {
+  animation: vowShake 0.4s ease-in-out;
+}
+
+.vow-input.pop {
+  animation: vowPopScale 0.3s ease-out;
+}
+
+@keyframes vowShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+@keyframes vowPopScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 /* ── Feedback popup ── */
 .vow-message {
   position: fixed;
@@ -566,20 +588,23 @@
 
 @media (max-width: 600px) {
   .vow-main {
-    padding: 20px 12px;
-    gap: 32px;
+    padding: 20px 16px;
+    gap: 24px;
+    justify-content: flex-start;
+    padding-top: 60px;
   }
 
   .vow-top-bar {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .vow-nav {
+    width: 95%;
+    max-width: 360px;
+    padding: 8px;
     gap: 8px;
-    padding: 6px 12px;
-    width: auto;
-    margin: 0;
+  }
+ 
+  .vow-nav {
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .vow-nav-tools {
