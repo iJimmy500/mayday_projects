@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Cloud, CloudRain, MapPin, Search, Wind, ShieldCheck, Flower, ExternalLink, Play, Pause } from 'lucide-react';
+import { Sun, Cloud, CloudRain, MapPin, Search, Wind, ShieldCheck, Flower, ExternalLink, Play, Pause, Music, ArrowUpRight, X } from 'lucide-react';
 import WeatherBackground from '../components/NWTSWeather/WeatherBackground';
 import ErrorAlert from '../components/NWTSWeather/ErrorAlert';
 import './NWTSWeather.css';
@@ -128,12 +128,30 @@ const WelcomeScreen = ({ onSearchKeyDown, onAutoDetect, searchQuery, setSearchQu
   </div>
 );
 
+const MusicLinkModal = ({ onClose }) => (
+  <div className="nwts-location-modal music-dropdown" style={{ top: '50px', right: '-20px', left: 'auto', bottom: 'auto', width: '200px', padding: '16px' }}>
+    <div className="modal-header" style={{ marginBottom: '12px' }}>
+      <Music size={14} strokeWidth={2.5} />
+      <span>where to?</span>
+      <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', opacity: 0.5, cursor: 'pointer', padding: 0 }}>
+        <X size={14} />
+      </button>
+    </div>
+    <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <a href="https://music.apple.com/us/album/nothing-was-the-same-deluxe/1440829462" target="_blank" rel="noopener noreferrer" className="modal-maps-link" style={{ padding: '8px 12px' }}>apple music <ArrowUpRight size={12} /></a>
+      <a href="https://open.spotify.com/album/5mz0mJxb80gqJIcRf9LGHJ?si=yhtn6BWSQwyW2jdF4WGV1w" target="_blank" rel="noopener noreferrer" className="modal-maps-link" style={{ padding: '8px 12px' }}>spotify <ArrowUpRight size={12} /></a>
+      <a href="https://www.youtube.com/playlist?list=OLAK5uy_kRINftXw_QTiPPiJEAwgjZXEUJWn8_nJg" target="_blank" rel="noopener noreferrer" className="modal-maps-link" style={{ padding: '8px 12px' }}>youtube <ArrowUpRight size={12} /></a>
+    </div>
+  </div>
+);
+
 export default function NWTSWeather() {
   const [weather, setWeather] = useState(null);
   const [location, setLocation] = useState({ city: 'Toronto', region: 'ON', country: 'Canada', lat: 43.6532, lon: -79.3832 });
   const [loading, setLoading] = useState(false);
   const [hasSetLocation, setHasSetLocation] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
+  const [showMusicModal, setShowMusicModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -204,9 +222,9 @@ export default function NWTSWeather() {
   };
 
   const selectLocation = async (result) => {
-    setLocation({ 
-      city: result.name, 
-      region: result.admin1 || '', 
+    setLocation({
+      city: result.name,
+      region: result.admin1 || '',
       country: result.country,
       lat: result.latitude,
       lon: result.longitude
@@ -271,25 +289,43 @@ export default function NWTSWeather() {
     <div className="nwts-weather-container">
       <WeatherBackground weatherCode={current?.weathercode} isDay={current?.is_day === 1} isWindy={current?.windspeed > 15} />
       <ErrorAlert message={error} />
-      
+
       {!hasSetLocation && !loading ? (
-        <WelcomeScreen 
-          onSearchKeyDown={handleSearchKeyDown} 
-          onAutoDetect={handleAutoDetect} 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-          themeColor={themeColor} 
+        <WelcomeScreen
+          onSearchKeyDown={handleSearchKeyDown}
+          onAutoDetect={handleAutoDetect}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          themeColor={themeColor}
           searchResults={searchResults}
           onSelectResult={selectLocation}
         />
       ) : loading ? (
-        <div className="nwts-ui-wrapper">
-          <TopBar city={location.city} isPlaying={false} onTogglePlay={() => {}} isSearching={false} searchQuery="" onSearchChange={() => {}} onSearchKeyDown={() => {}} onStartSearch={() => {}} onPrivacyToggle={() => {}} searchResults={[]} onSelectResult={() => {}} />
-          <div className="nwts-main-weather">
-            <div className="skeleton-item" style={{ width: '220px', height: '140px', borderRadius: '20px' }}></div>
-            <div className="skeleton-item" style={{ width: '180px', height: '30px', margin: '15px 0', borderRadius: '10px' }}></div>
+        isMobile ? (
+          <div className="nwts-mobile-ui">
+            <header className="mobile-header">
+              <div className="skeleton-item" style={{ width: '120px', height: '32px', borderRadius: '16px' }}></div>
+              <div className="skeleton-item" style={{ width: '32px', height: '32px', borderRadius: '50%' }}></div>
+            </header>
+            <div className="mobile-main">
+              <div className="skeleton-item" style={{ width: '180px', height: '120px', borderRadius: '24px', margin: '0 auto 20px' }}></div>
+              <div className="skeleton-item" style={{ width: '140px', height: '24px', borderRadius: '8px', margin: '0 auto' }}></div>
+            </div>
+            <div className="mobile-forecast-mini" style={{ justifyContent: 'center', gap: '15px' }}>
+              {[1, 2, 3].map(i => (
+                <div key={i} className="skeleton-item" style={{ width: '60px', height: '80px', borderRadius: '16px' }}></div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="nwts-ui-wrapper">
+            <TopBar city={location.city} isPlaying={false} onTogglePlay={() => { }} isSearching={false} searchQuery="" onSearchChange={() => { }} onSearchKeyDown={() => { }} onStartSearch={() => { }} onPrivacyToggle={() => { }} searchResults={[]} onSelectResult={() => { }} />
+            <div className="nwts-main-weather">
+              <div className="skeleton-item" style={{ width: '220px', height: '140px', borderRadius: '20px' }}></div>
+              <div className="skeleton-item" style={{ width: '180px', height: '30px', margin: '15px 0', borderRadius: '10px' }}></div>
+            </div>
+          </div>
+        )
       ) : isMobile ? (
         <div className="nwts-mobile-ui">
           <header className="mobile-header">
@@ -297,12 +333,12 @@ export default function NWTSWeather() {
               <div className="mobile-search-overlay" style={{ background: `${themeColor}F2` }}>
                 <div className="mobile-search-inner">
                   <Search size={16} className="search-icon" />
-                  <input 
-                    autoFocus 
-                    placeholder="where to?" 
-                    value={searchQuery} 
-                    onChange={(e) => setSearchQuery(e.target.value)} 
-                    onKeyDown={handleSearchKeyDown} 
+                  <input
+                    autoFocus
+                    placeholder="where to?"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                   />
                   <button className="mobile-search-cancel" onClick={() => setIsSearching(false)}>cancel</button>
                 </div>
@@ -311,14 +347,15 @@ export default function NWTSWeather() {
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
                 <div className="mobile-location-pill" onClick={() => setIsSearching(true)}>
                   <MapPin size={14} />
                   <span>{location.city.toLowerCase()}</span>
                 </div>
-                <button className={`mobile-play-pill ${isPlaying ? 'playing' : ''}`} onClick={() => setIsPlaying(!isPlaying)}>
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+                <button className={`mobile-play-pill ${showMusicModal ? 'active' : ''}`} onClick={() => setShowMusicModal(!showMusicModal)}>
+                  <ArrowUpRight size={16} />
                 </button>
+                {showMusicModal && <MusicLinkModal onClose={() => setShowMusicModal(false)} />}
               </div>
             )}
             {!isSearching && (
@@ -336,7 +373,7 @@ export default function NWTSWeather() {
                 feels like {Math.round(hourly?.apparent_temperature[nowIndex] || 0)}° | humidity {Math.round(hourly?.relative_humidity_2m[nowIndex] || 0)}%
               </div>
             </div>
-            
+
             {showLocationModal && (
               <div className="mobile-location-details" onClick={() => setShowLocationModal(false)}>
                 <div className="details-header">
@@ -345,19 +382,19 @@ export default function NWTSWeather() {
                 </div>
                 <h3>{location.city.toLowerCase()}, {location.region.toLowerCase()}</h3>
                 <p>{location.country.toLowerCase()}</p>
-                <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`} 
-                  target="_blank" 
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="details-maps-link"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  open in maps <ExternalLink size={12} />
+                  open in maps <ArrowUpRight size={12} />
                 </a>
               </div>
             )}
           </div>
-          
+
           <div className="mobile-forecast-mini">
             {[0, 1, 2].map((offset) => {
               const idx = (nowIndex + offset) % 24;
@@ -378,17 +415,17 @@ export default function NWTSWeather() {
         </div>
       ) : (
         <div className="nwts-ui-wrapper">
-          <TopBar 
-            city={location.city} 
-            isPlaying={isPlaying} 
-            onTogglePlay={() => setIsPlaying(!isPlaying)} 
-            isSearching={isSearching} 
-            searchQuery={searchQuery} 
-            onSearchChange={setSearchQuery} 
-            onSearchKeyDown={handleSearchKeyDown} 
-            onStartSearch={setIsSearching} 
-            onPrivacyToggle={() => setShowLocationModal(!showLocationModal)} 
-            themeColor={themeColor} 
+          <TopBar
+            city={location.city}
+            isPlaying={isPlaying}
+            onTogglePlay={() => setIsPlaying(!isPlaying)}
+            isSearching={isSearching}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchKeyDown={handleSearchKeyDown}
+            onStartSearch={setIsSearching}
+            onPrivacyToggle={() => setShowLocationModal(!showLocationModal)}
+            themeColor={themeColor}
             searchResults={searchResults}
             onSelectResult={selectLocation}
           />
@@ -401,10 +438,10 @@ export default function NWTSWeather() {
               <div className="modal-body">
                 <div className="modal-city">{location.city.toLowerCase()}</div>
                 <div className="modal-region">{location.region.toLowerCase()}, {location.country.toLowerCase()}</div>
-                <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="modal-maps-link"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -413,9 +450,9 @@ export default function NWTSWeather() {
               </div>
             </div>
           )}
-          <MainWeather 
-            temp={current?.temperature} 
-            condition={getWeatherDesc(current?.weathercode)} 
+          <MainWeather
+            temp={current?.temperature}
+            condition={getWeatherDesc(current?.weathercode)}
             feelsLike={hourly?.apparent_temperature[nowIndex]}
             humidity={hourly?.relative_humidity_2m[nowIndex]}
             wind={current?.windspeed}
@@ -423,8 +460,8 @@ export default function NWTSWeather() {
           <ForecastPanel hourlyData={weather?.hourly} nowIndex={nowIndex} getWeatherIcon={getWeatherIcon} />
           <DrakeImage isAlt={isAltImage} onClick={() => setIsAltImage(!isAltImage)} />
           {isPlaying && (
-            <div style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}>
-              <iframe width="560" height="315" title="NWTS Player" src={`https://www.youtube.com/embed/videoseries?list=OLAK5uy_kRINftXw_QTiPPiJEAwgjZXEUJWn8_nJg&autoplay=1&mute=0&index=${Math.floor(Math.random() * 10)}`} allow="autoplay; encrypted-media" />
+            <div style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0.01, pointerEvents: 'none', overflow: 'hidden', bottom: 0, left: 0 }}>
+              <iframe width="1" height="1" title="NWTS Player" src={`https://www.youtube.com/embed/videoseries?list=OLAK5uy_kRINftXw_QTiPPiJEAwgjZXEUJWn8_nJg&autoplay=1&mute=0&playsinline=1&enablejsapi=1&index=${Math.floor(Math.random() * 10)}`} allow="autoplay; encrypted-media" />
             </div>
           )}
         </div>
