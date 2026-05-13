@@ -1,0 +1,99 @@
+.nwts-bg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+  transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Base State Colors */
+.state-clear { background: #79B3E1; }
+.state-cloudy { background: #6085A6; }
+.state-rain { background: #3B5369; }
+.state-snow { background: #A8C6D9; }
+.state-storm { background: #1C2E3E; }
+.state-night { background: #0F1D2B; }
+.state-fog { background: #8FA7B8; }
+
+/* Clouds */
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(20px);
+  animation: float linear infinite;
+}
+
+.c1 { width: 300px; height: 100px; top: 10%; left: -10%; animation-duration: 60s; }
+.c2 { width: 400px; height: 150px; top: 30%; left: -20%; animation-duration: 45s; }
+.c3 { width: 250px; height: 80px; top: 50%; left: -15%; animation-duration: 55s; }
+
+@keyframes float {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(200%); }
+}
+
+.is-windy .cloud {
+  animation-duration: 15s !important;
+}
+
+/* Rain Effect */
+.rain-drops {
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1));
+  mask-image: repeating-linear-gradient(0deg, black 0px, black 1px, transparent 1px, transparent 15px);
+  animation: fall-rain 0.2s infinite linear;
+}
+
+@keyframes fall-rain {
+  from { transform: translateY(-20px); }
+  to { transform: translateY(0); }
+}
+
+/* Fog Effect */
+.fog-overlay {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  animation: fog-drift 10s infinite ease-in-out;
+}
+
+@keyframes fog-drift {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Lightning */
+.lightning-bolt {
+  animation: flash 8s infinite;
+}
+
+@keyframes flash {
+  0%, 94%, 100% { background: transparent; }
+  95% { background: rgba(255,255,255,0.15); }
+  96% { background: transparent; }
+  97% { background: rgba(255,255,255,0.3); }
+  98% { background: transparent; }
+}
+
+/* Wind Lines */
+.wind-lines {
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 100px 100%;
+  animation: wind-move 1s infinite linear;
+}
+
+@keyframes wind-move {
+  from { transform: translateX(-100px); }
+  to { transform: translateX(0); }
+}

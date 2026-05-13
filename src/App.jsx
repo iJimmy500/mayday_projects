@@ -14,6 +14,7 @@ const RedDeadLandscapes = lazy(() => import('./pages/RedDeadLandscapes'));
 const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
 const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
 const IOU = lazy(() => import('./pages/IOU'));
+const NWTSWeather = lazy(() => import('./pages/NWTSWeather.jsx'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -47,6 +48,11 @@ export default function App() {
           if (path === '/rdr' || path === '/day8' || path === '/frontier') return <RedDeadLandscapes />;
           if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
           if (path === '/day10') return <IOU />;
+          if (path === '/weather' || path === '/drakeweather' || path === '/day12') return (
+            <ErrorBoundary>
+              <NWTSWeather />
+            </ErrorBoundary>
+          );
 
           if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
             const parts = path.split('/').filter(p => p.length > 0);
