@@ -1,0 +1,224 @@
+:root {
+  --wii-bg: #e6e6e6;
+  --wii-bg-lines: #d9d9d9;
+  --wii-channel-bg: #f4f4f4;
+  --wii-channel-border: #cccccc;
+  --wii-blue: #00bfff;
+  --wii-text: #555555;
+  --wii-shadow: rgba(0, 0, 0, 0.15);
+}
+
+.throwback-container {
+  height: 100dvh;
+  background-color: var(--wii-bg);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 2px,
+    var(--wii-bg-lines) 2px,
+    var(--wii-bg-lines) 4px
+  );
+  color: var(--wii-text);
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+}
+
+/* ── Main Grid Area ── */
+.wii-main-area {
+  flex: 1;
+  padding: 40px 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 80px; /* space for bottom bar */
+}
+
+.wii-channel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 16 / 9;
+}
+
+.wii-channel {
+  background: var(--wii-channel-bg);
+  border-radius: 16px;
+  border: 2px solid var(--wii-channel-border);
+  box-shadow: 
+    inset 0 4px 10px rgba(255, 255, 255, 1),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.05),
+    0 4px 8px var(--wii-shadow);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wii-channel:hover {
+  transform: scale(1.02);
+  border-color: #bbbbbb;
+  box-shadow: 
+    inset 0 4px 10px rgba(255, 255, 255, 1),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.05),
+    0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.wii-channel:active {
+  transform: scale(0.98);
+}
+
+/* Glossy reflection on channels */
+.wii-channel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0));
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+}
+
+.wii-channel-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.wii-channel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.wii-channel-empty-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #dddddd;
+  text-shadow: 1px 1px 0 #ffffff;
+  letter-spacing: 2px;
+}
+
+/* ── Bottom Bar ── */
+.wii-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+  border-top: 4px solid var(--wii-blue);
+  border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+}
+
+/* ── Bottom Buttons ── */
+.wii-circle-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0);
+  border: 2px solid #ccc;
+  box-shadow: 
+    inset 0 -4px 8px rgba(0,0,0,0.1),
+    0 4px 6px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: #777;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
+
+.wii-circle-btn:active {
+  box-shadow: 
+    inset 0 4px 8px rgba(0,0,0,0.1),
+    0 2px 2px rgba(0,0,0,0.1);
+  transform: translateY(2px);
+}
+
+.wii-btn-blue-ring {
+  border: 3px solid var(--wii-blue);
+}
+
+/* ── Clock Area ── */
+.wii-clock-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-10px);
+}
+
+.wii-time {
+  font-family: 'Courier New', Courier, monospace; /* Pseudo-digital */
+  font-size: 32px;
+  font-weight: bold;
+  color: #555;
+  text-shadow: 1px 1px 0 #fff;
+  letter-spacing: 2px;
+}
+
+.wii-date {
+  font-size: 18px;
+  font-weight: bold;
+  color: #777;
+  text-shadow: 1px 1px 0 #fff;
+  margin-top: -4px;
+}
+
+/* ── Mobile adjustments ── */
+@media (max-width: 768px) {
+  .wii-main-area {
+    padding: 20px 10px;
+    margin-bottom: 80px;
+  }
+  
+  .wii-channel-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  .wii-bottom-bar {
+    height: 80px;
+    padding: 0 20px;
+  }
+
+  .wii-circle-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 14px;
+  }
+
+  .wii-time {
+    font-size: 24px;
+  }
+
+  .wii-date {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,645 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.ps-root {
+  min-height: 100dvh;
+  background: #0d0d0d;
+  color: #e8e8e8;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.ps-ambient {
+  position: fixed;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(255, 60, 60, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ps-bg-art {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(80px) brightness(0.2);
+  opacity: 0.6;
+  z-index: -1;
+  pointer-events: none;
+  transform: scale(1.1);
+}
+
+/* ── Header ── */
+.ps-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+}
+
+.ps-wordmark {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+.ps-wordmark span { color: rgba(255,255,255,0.35); font-weight: 400; }
+
+.ps-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ps-icon-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+}
+.ps-icon-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.ps-icon-btn.active { background: rgba(255,255,255,0.1); color: #fff; }
+
+.ps-icon-btn.main-play {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+}
+
+.ps-icon-btn.muted {
+  color: #ff5722 !important;
+  background: rgba(255, 87, 34, 0.1);
+}
+
+.ps-home-link {
+  color: rgba(255,255,255,0.25);
+  text-decoration: none;
+  transition: color 0.2s;
+  margin-left: 12px;
+  padding-left: 16px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+.ps-home-link:hover { color: rgba(255,255,255,0.6); }
+
+/* ── Main ── */
+.ps-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  padding: 0 24px 40px;
+}
+
+/* ── Landing ── */
+.ps-landing { max-width: 480px; width: 100%; text-align: center; }
+.ps-landing h1 { font-size: 40px; font-weight: 800; letter-spacing: -0.04em; color: #fff; margin-bottom: 12px; }
+.ps-landing p { font-size: 15px; color: rgba(255,255,255,0.4); margin-bottom: 36px; line-height: 1.5; }
+
+.ps-url-box {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 0 16px;
+  margin-bottom: 16px; transition: border-color 0.2s;
+}
+.ps-url-box:focus-within { border-color: rgba(255,255,255,0.2); }
+.ps-url-box input { flex: 1; background: transparent; border: none; color: #e8e8e8; font-size: 14px; padding: 16px 0; outline: none; }
+.ps-url-box input::placeholder { color: rgba(255,255,255,0.2); }
+.ps-url-enter { font-size: 18px; color: rgba(255,255,255,0.2); padding-left: 12px; }
+
+.ps-landing-hint { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+.ps-local-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.ps-local-upload .ps-rec-btn {
+  margin: 0 auto;
+}
+
+/* ── Session Workspace ── */
+.ps-session {
+  max-width: 1000px; width: 100%;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.ps-workspace {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.ps-tracks-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ps-lyric-pad {
+  width: 320px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.ps-lyric-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  margin-top: 12px;
+}
+.ps-lyric-textarea::placeholder { color: rgba(255,255,255,0.2); }
+
+/* ── Tracks ── */
+.ps-track-row {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.ps-track-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.ps-track-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: rgba(255,255,255,0.2);
+}
+
+.ps-vol-control { display: flex; align-items: center; gap: 8px; }
+.ps-vol-control span { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; }
+.ps-vol-control input[type="range"] {
+  -webkit-appearance: none; width: 60px; height: 4px;
+  background: rgba(255,255,255,0.1); border-radius: 2px; outline: none;
+}
+.ps-vol-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 10px;
+  background: #fff; border-radius: 50%; cursor: pointer;
+}
+
+.ps-vol-slider.speed {
+  width: 80px !important;
+}
+
+.ps-speed-val {
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  min-width: 35px;
+}
+
+.ps-kill-btn {
+  background: #ff5722;
+  border: none;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: all 0.2s;
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.3);
+}
+
+.ps-kill-btn:hover {
+  background: #ff7043;
+  box-shadow: 0 0 15px rgba(255, 87, 34, 0.5);
+  transform: scale(1.05);
+}
+
+.ps-kill-btn:active {
+  transform: scale(0.95);
+}
+
+.ps-bpm-input {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  outline: none;
+  text-align: center;
+}
+
+/* ── YouTube Embed & Sample Mode ── */
+.ps-yt-embed {
+  border-radius: 12px; overflow: hidden; aspect-ratio: 16/6;
+  position: relative; background: #080808;
+}
+.ps-yt-embed #yt-backing { width: 100%; height: 100%; pointer-events: none; }
+.ps-yt-veil {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(13,13,13,0.7), rgba(13,13,13,0.3));
+}
+
+.ps-sample-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.ps-sample-overlay.p16 {
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+  padding: 8px;
+}
+
+.ps-pad {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; 
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+}
+
+.ps-sample-overlay.p16 .ps-pad { border-radius: 8px; }
+
+.ps-pad:active {
+  background: rgba(255,255,255,0.2);
+  transform: scale(0.95);
+}
+
+.ps-pad-num {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+.ps-sample-overlay.p16 .ps-pad-num { font-size: 13px; }
+
+.ps-pad-time {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+}
+.ps-sample-overlay.p16 .ps-pad-time { font-size: 7px; }
+
+.ps-ghost-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: transparent; border: none; color: rgba(255,255,255,0.3);
+  font-size: 12px; font-weight: 600; cursor: pointer; padding: 0; align-self: flex-start;
+}
+.ps-ghost-btn:hover { color: rgba(255,255,255,0.7); }
+
+/* ── Vocal Tools ── */
+.ps-vocal-tools {
+  display: flex; align-items: center; gap: 16px;
+}
+.ps-takes-dropdown {
+  background: rgba(255,255,255,0.05);
+  color: #fff; border: 1px solid rgba(255,255,255,0.1);
+  padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  outline: none;
+}
+
+/* ── Booth States ── */
+.ps-booth { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 20px 0; }
+.ps-booth.idle { flex-direction: column; gap: 12px; color: rgba(255,255,255,0.4); font-size: 12px; }
+
+.ps-count-in { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #ffeb3b; font-weight: 800; }
+.spin-slow { animation: spin 2s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.ps-recording-state { display: flex; align-items: center; gap: 24px; }
+.ps-mic-ring {
+  position: relative; width: 52px; height: 52px;
+  background: rgba(255,255,255,0.05); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.ps-mic-ring.live { background: rgba(255, 45, 45, 0.15); color: #ff2d2d; }
+.ps-ring-pulse {
+  position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid rgba(255, 45, 45, 0.3);
+  animation: ringPulse 1.2s ease-out infinite;
+}
+@keyframes ringPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+.ps-rec-timer { font-size: 32px; font-weight: 700; color: #ff2d2d; font-variant-numeric: tabular-nums; }
+
+.ps-rec-btn {
+  background: #fff; color: #0d0d0d; border: none; border-radius: 30px;
+  padding: 10px 22px; font-weight: 700; font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+}
+.ps-rec-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+.ps-rec-btn.stop { background: rgba(255,45,45,0.15); border: 1px solid rgba(255,45,45,0.3); color: #ff6b6b; }
+
+/* Playback State */
+.ps-playback-state { display: flex; flex-direction: column; width: 100%; gap: 16px; }
+
+.ps-visualizer-container {
+  height: 60px; background: rgba(0,0,0,0.2); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+}
+.ps-visualizer-canvas { width: 100%; height: 100%; }
+.ps-vis-placeholder { position: absolute; font-size: 12px; color: rgba(255,255,255,0.2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.ps-playback-controls { display: flex; align-items: center; justify-content: center; gap: 16px; }
+
+.ps-play-btn {
+  width: 44px; height: 44px; border-radius: 50%; background: #fff; color: #0d0d0d;
+  border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+
+.ps-dl-btn {
+  width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center;
+}
+.ps-dl-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Status Bar ── */
+.ps-status-bar { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  gap: 8px; 
+  padding: 8px 4px; 
+  font-size: 12px; 
+  color: rgba(255,255,255,0.25); 
+}
+
+.ps-status-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Modal ── */
+.ps-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.ps-modal {
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.ps-modal h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  color: #fff;
+}
+.ps-modal h2 span { color: rgba(255,255,255,0.3); font-weight: 400; }
+
+.ps-modal h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ff5722;
+  margin-bottom: 16px;
+}
+
+.ps-modal p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16px;
+}
+.ps-modal p strong { color: #fff; }
+
+.ps-modal-btn {
+  margin-top: 12px;
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ps-modal-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.ps-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+.ps-dot.live { background: #ff2d2d; box-shadow: 0 0 8px rgba(255,45,45,0.6); }
+.ps-dot.play { background: #30d158; box-shadow: 0 0 8px rgba(48,209,88,0.6); }
+.ps-dot.sample { background: #a391ff; box-shadow: 0 0 8px rgba(163,145,255,0.6); }
+
+.ps-local-label { font-size: 10px; font-weight: 800; color: #ffeb3b; letter-spacing: 0.2em; }
+
+/* ── Master Deck UI ── */
+.ps-local-player-view.minimal {
+  background: #080808; 
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.ps-minimal-deck {
+  width: 100%; height: 100%; display: flex; flex-direction: column; 
+  justify-content: center; align-items: center; gap: 20px;
+}
+.ps-deck-label { 
+  font-size: 11px; font-weight: 900; color: rgba(255,255,255,0.1); 
+  letter-spacing: 0.4em; text-align: center;
+  text-transform: uppercase;
+}
+.ps-minimal-vis { width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.ps-minimal-vis canvas { width: 90%; height: 100%; opacity: 0.8; }
+
+.ps-wave-line {
+  height: 2px; background: rgba(255,255,255,0.05); width: 100%; border-radius: 1px;
+  position: relative; overflow: hidden;
+}
+.ps-wave-line::after {
+  content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: waveTravel 2s linear infinite;
+}
+.ps-wave-line:nth-child(2)::after { animation-delay: 0.6s; }
+.ps-wave-line:nth-child(3)::after { animation-delay: 1.2s; }
+
+@keyframes waveTravel { 
+  0% { transform: translateX(-100%); } 
+  100% { transform: translateX(500%); } 
+}
+
+/* ── Session Rec Button ── */
+.ps-session-rec {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255, 45, 45, 0.1); border: 1px solid rgba(255, 45, 45, 0.2);
+  color: #ff6b6b; font-size: 10px; font-weight: 800; padding: 6px 12px;
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.ps-session-rec:hover { background: rgba(255, 45, 45, 0.2); border-color: rgba(255, 45, 45, 0.4); }
+.ps-session-rec.active {
+  background: #ff2d2d; color: #fff; border-color: #ff2d2d;
+  box-shadow: 0 0 15px rgba(255, 45, 45, 0.4);
+  animation: pulse 1.5s infinite;
+}
+.ps-rec-dot { width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Pro Modal ── */
+.pro-explainer { border: 1px solid rgba(255, 87, 34, 0.3); }
+.pro-badge {
+  background: #ff5722; color: #fff; font-size: 9px; font-weight: 900;
+  padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 12px;
+}
+.pro-steps { text-align: left; margin: 24px 0; display: flex; flex-direction: column; gap: 16px; }
+.pro-step { display: flex; gap: 12px; align-items: center; }
+.pro-step span {
+  width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+}
+.pro-step p { margin: 0; font-size: 12px; }
+.pro-modal-actions { display: flex; gap: 12px; margin-top: 12px; }
+
+.ps-landing-divider {
+  display: flex; align-items: center; gap: 12px; margin: 24px 0; color: rgba(255,255,255,0.1);
+}
+.ps-landing-divider::before, .ps-landing-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+.ps-landing-divider span { font-size: 10px; font-weight: 800; }
+
+/* ── Responsive ── */
+
+@media (max-width: 800px) {
+  /* Layout */
+  .ps-workspace { flex-direction: column; }
+  .ps-lyric-pad { width: 100%; height: 200px; }
+  .ps-session { max-width: 100%; }
+  .ps-main { padding: 0 12px 24px; }
+
+  /* Header */
+  .ps-header { padding: 16px 20px; gap: 8px; flex-wrap: wrap; }
+  .ps-top-controls { gap: 8px; }
+  .ps-wordmark { font-size: 14px; }
+
+  /* Track header — allow wrapping */
+  .ps-track-header { flex-wrap: wrap; gap: 8px; }
+  .ps-track-tag { flex-basis: 100%; }
+  .ps-vol-control span { display: none; }   /* hide labels, keep sliders */
+  .ps-session-rec { font-size: 9px; padding: 5px 10px; }
+
+  /* Pads grid — 4 columns but smaller */
+  .ps-sample-overlay.p16 {
+    grid-template-rows: repeat(4, 1fr);
+    gap: 4px;
+    padding: 6px;
+  }
+  .ps-pad-num { font-size: 11px; }
+
+  /* Landing */
+  .ps-landing { padding: 0 8px; }
+  .ps-landing h1 { font-size: 28px; }
+
+  /* Pro modal actions stack vertically */
+  .pro-modal-actions { flex-direction: column; }
+  .ps-modal { padding: 28px 20px; }
+}
+
+@media (max-width: 600px) {
+  /* Header — keep icons, simplify spacing */
+  .ps-icon-btn { padding: 6px; }
+  .ps-home-link { padding-left: 12px; margin-left: 8px; }
+
+  /* Track controls move below the embed */
+  .ps-track-header { gap: 6px; }
+  .ps-vol-slider { width: 48px !important; }
+  .ps-speed-val { display: none; }
+  .ps-kill-btn { padding: 4px 8px; font-size: 8px; }
+
+  /* Backing embed shorter on very small screens */
+  .ps-yt-embed { aspect-ratio: 16/7; }
+
+  /* Pads — 4 col stays, make pads taller */
+  .ps-sample-overlay.p16 { gap: 3px; padding: 4px; }
+  .ps-pad { border-radius: 6px; }
+
+  /* Status bar compact */
+  .ps-status-bar { font-size: 10px; padding: 4px 2px; }
+
+  /* Booth controls */
+  .ps-booth { gap: 12px; }
+  .ps-playback-controls { gap: 10px; }
+  .ps-play-btn { width: 36px; height: 36px; }
+
+  /* Landing */
+  .ps-landing h1 { font-size: 24px; }
+  .ps-landing p { font-size: 13px; }
+  .ps-url-box input { font-size: 12px; }
+
+  /* Modal full-screen on very small */
+  .ps-modal-overlay { padding: 0; align-items: flex-end; }
+  .ps-modal { border-radius: 24px 24px 0 0; max-width: 100%; }
+}

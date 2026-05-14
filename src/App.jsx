@@ -15,7 +15,9 @@ const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
 const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
 const IOU = lazy(() => import('./pages/IOU'));
 const NWTSWeather = lazy(() => import('./pages/NWTSWeather.jsx'));
-// const AuraLayout = lazy(() => import('./pages/AuraLayout'));
+const AuraLayout = lazy(() => import('./pages/Aura'));
+const LuckiExperience = lazy(() => import('./pages/LuckiExperience'));
+const PocketStudio = lazy(() => import('./pages/PocketStudio'));
 // const Throwback = lazy(() => import('./pages/Throwback'));
 
 const Loading = () => (
@@ -49,13 +51,14 @@ export default function App() {
           if (path === '/canvas' || path === '/day7') return <CanvasBreach />;
           if (path === '/rdr' || path === '/day8' || path === '/frontier') return <RedDeadLandscapes />;
           if (path === '/sort' || path === '/day9') return <SortingVisualizer />;
-          if (path === '/day10') return <IOU />;
+          if (path === '/day10' || path === '/aura' || path === '/layout' || path === '/frame' || path === '/drb') return <AuraLayout />;
+          if (path === '/lucki' || path === '/flawless') return <LuckiExperience />;
+          if (path === '/studio' || path === '/day13' || path === '/record' || path === '/booth') return <PocketStudio />;
           if (path === '/weather' || path === '/drakeweather' || path === '/day12') return (
             <ErrorBoundary>
               <NWTSWeather />
             </ErrorBoundary>
           );
-// if (path === '/aura' || path === '/layout' || path === '/day13') return <AuraLayout />;
 // if (path === '/throwback' || path === '/day14') return <Throwback />;
 
           if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
