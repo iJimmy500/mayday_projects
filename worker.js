@@ -1,14 +1,7 @@
-import yts from 'yt-search';
-import ytdl from '@distube/ytdl-core';
-
 /**
  * Mayday Projects - Cloudflare Worker Entry Point
  * 
- * Handles:
- * 1. Archive.org Proxy (for Flash games)
- * 2. Lyricly Audio Proxy (YouTube stream extraction)
- * 3. Lyricly API Proxy (Bypassing SSL/CORS for lrclib.net)
- * 4. Static Asset Fallback
+ * Optimized for Edge: Removed heavy Node.js libraries to ensure deployment success.
  */
 
 export default {
@@ -25,7 +18,7 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // --- ROUTE: Archive.org Proxy ---
+    // --- ROUTE: Archive.org Proxy (Flash Games) ---
     if (url.pathname.startsWith('/archive-proxy/')) {
       const targetPath = url.pathname.replace('/archive-proxy/', '');
       if (!targetPath) return new Response("No target path", { status: 400 });
@@ -48,34 +41,7 @@ export default {
       }
     }
 
-    // --- ROUTE: Audio Stream Proxy ---
-    if (url.pathname.startsWith('/api/get-audio')) {
-      const artist = url.searchParams.get('artist');
-      const track = url.searchParams.get('track');
-
-      if (!artist || !track) {
-        return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: corsHeaders });
-      }
-
-      try {
-        const r = await yts(`${artist} ${track} audio`);
-        const video = r.videos[0];
-        if (!video) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
-
-        const info = await ytdl.getInfo(video.url);
-        const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
-
-        return new Response(JSON.stringify({
-          audioUrl: format.url,
-          videoId: video.videoId,
-          title: video.title
-        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: e.message, stack: e.stack }), { status: 500, headers: corsHeaders });
-      }
-    }
-
-    // --- ROUTE: Lyrics API Proxy (Fixes Cert Error) ---
+    // --- ROUTE: Lyrics API Proxy ---
     if (url.pathname.startsWith('/api/lyrics/')) {
       const targetUrl = `https://lrclib.net/api/${url.pathname.replace('/api/lyrics/', '')}${url.search}`;
       try {
@@ -87,6 +53,15 @@ export default {
       } catch (e) {
         return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
       }
+    }
+
+    // --- ROUTE: Audio Stream Proxy (Fallback) ---
+    if (url.pathname.startsWith('/api/get-audio')) {
+      // Temporary fallback while we move audio extraction to a compatible service
+      return new Response(JSON.stringify({ 
+        error: "YouTube audio extraction is currently being rebuilt for Edge compatibility.",
+        fallback: true
+      }), { status: 503, headers: corsHeaders });
     }
 
     // --- FALLBACK: Assets ---
