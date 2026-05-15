@@ -1,6 +1,7 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Flower } from 'lucide-react';
 import ErrorBoundary from './components/lyric-finder/ErrorBoundary';
+import WiiIntro from './components/WiiIntro';
 
 const Birthday = lazy(() => import('./pages/Birthday'));
 const Randomizer = lazy(() => import('./pages/Randomizer'));
@@ -18,7 +19,7 @@ const NWTSWeather = lazy(() => import('./pages/NWTSWeather.jsx'));
 const AuraLayout = lazy(() => import('./pages/Aura'));
 const LuckiExperience = lazy(() => import('./pages/LuckiExperience'));
 const PocketStudio = lazy(() => import('./pages/PocketStudio'));
-// const Throwback = lazy(() => import('./pages/Throwback'));
+const Flashy = lazy(() => import('./pages/Flashy'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -37,7 +38,18 @@ const PageWrapper = ({ children }) => (
 );
 
 export default function App() {
+  const [introDone, setIntroDone] = useState(() => {
+    const lastSeen = localStorage.getItem('wii_intro_last_seen');
+    if (!lastSeen) return false;
+    const now = Date.now();
+    return (now - parseInt(lastSeen, 10)) < 600000; // 10 minutes cooldown
+  });
   const path = window.location.pathname;
+  
+  const handleIntroComplete = () => {
+    setIntroDone(true);
+    localStorage.setItem('wii_intro_last_seen', Date.now().toString());
+  };
 
   return (
     <Suspense fallback={<Loading />}>
@@ -59,7 +71,16 @@ export default function App() {
               <NWTSWeather />
             </ErrorBoundary>
           );
-// if (path === '/throwback' || path === '/day14') return <Throwback />;
+          if (path === '/day14' || path === '/flashy' || path.startsWith('/day14/play/') || path.startsWith('/flashy/play/')) {
+            if (!introDone) {
+              return <WiiIntro onComplete={handleIntroComplete} />;
+            }
+            const gameId = path.split('/').pop();
+            const isActive = path.includes('/play/');
+            return <Flashy initialGameId={isActive ? gameId : null} />;
+          }
+
+
 
           if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
             const parts = path.split('/').filter(p => p.length > 0);
