@@ -1,98 +1,95 @@
+import yts from 'yt-search';
+import ytdl from '@distube/ytdl-core';
+
 /**
  * Mayday Projects - Cloudflare Worker Entry Point
- *
- * This file is the main entry point for the Cloudflare Worker.
- * It handles special routes (like the archive.org proxy) and 
- * falls back to serving static assets (the React SPA) for everything else.
+ * 
+ * Handles:
+ * 1. Archive.org Proxy (for Flash games)
+ * 2. Lyricly Audio Proxy (YouTube stream extraction)
+ * 3. Lyricly API Proxy (Bypassing SSL/CORS for lrclib.net)
+ * 4. Static Asset Fallback
  */
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+      "Access-Control-Allow-Headers": "*",
+    };
+
+    // Handle CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
+    }
 
     // --- ROUTE: Archive.org Proxy ---
-    // Intercept requests to /archive-proxy/* and forward them to archive.org
     if (url.pathname.startsWith('/archive-proxy/')) {
       const targetPath = url.pathname.replace('/archive-proxy/', '');
-
-      if (!targetPath) {
-        return new Response("No target path provided", { status: 400 });
-      }
-
-      const targetUrl = `https://archive.org/${targetPath}`;
-
+      if (!targetPath) return new Response("No target path", { status: 400 });
+      
       try {
-        const response = await fetch(targetUrl, {
-          method: "GET",
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "*/*",
-            "Referer": "https://archive.org/"
-          },
+        const response = await fetch(`https://archive.org/${targetPath}`, {
+          headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://archive.org/" },
           redirect: "follow"
         });
 
-        // Clone the response so we can modify headers
         const newHeaders = new Headers(response.headers);
-        newHeaders.set("Access-Control-Allow-Origin", "*");
-        newHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-        newHeaders.set("Access-Control-Allow-Headers", "*");
-
-        // Force the correct content type for SWF files
+        Object.keys(corsHeaders).forEach(k => newHeaders.set(k, corsHeaders[k]));
         if (targetPath.toLowerCase().endsWith(".swf")) {
           newHeaders.set("Content-Type", "application/x-shockwave-flash");
         }
 
-        return new Response(response.body, {
-          status: response.status,
-          headers: newHeaders
-        });
-      } catch (error) {
-        return new Response(`Proxy Error: ${error.message}`, { status: 500 });
+        return new Response(response.body, { status: response.status, headers: newHeaders });
+      } catch (e) {
+        return new Response(`Archive Proxy Error: ${e.message}`, { status: 500, headers: corsHeaders });
       }
     }
 
-    // --- ROUTE: Audio Stream Proxy (for LyricFinder) ---
+    // --- ROUTE: Audio Stream Proxy ---
     if (url.pathname.startsWith('/api/get-audio')) {
-      // Dynamically import to avoid loading yt-search/ytdl unless needed
       const artist = url.searchParams.get('artist');
       const track = url.searchParams.get('track');
-      const corsHeaders = {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      };
 
       if (!artist || !track) {
-        return new Response(JSON.stringify({ error: "Missing artist or track" }), { status: 400, headers: corsHeaders });
+        return new Response(JSON.stringify({ error: "Missing params" }), { status: 400, headers: corsHeaders });
       }
 
       try {
-        const { default: yts } = await import('yt-search');
-        const { default: ytdl } = await import('@distube/ytdl-core');
-
         const r = await yts(`${artist} ${track} audio`);
         const video = r.videos[0];
-        if (!video) {
-          return new Response(JSON.stringify({ error: "No video found" }), { status: 404, headers: corsHeaders });
-        }
+        if (!video) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
 
         const info = await ytdl.getInfo(video.url);
         const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
 
-        if (!format || !format.url) throw new Error("Could not find a valid audio format");
-
         return new Response(JSON.stringify({
-          videoId: video.videoId,
           audioUrl: format.url,
-          title: video.title,
-          duration: video.seconds
-        }), { headers: { ...corsHeaders, "Cache-Control": "public, max-age=3600" } });
-      } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+          videoId: video.videoId,
+          title: video.title
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message, stack: e.stack }), { status: 500, headers: corsHeaders });
       }
     }
 
-    // --- FALLBACK: Serve the React SPA (static assets) ---
-    // env.ASSETS is automatically provided by Cloudflare for Workers with assets
+    // --- ROUTE: Lyrics API Proxy (Fixes Cert Error) ---
+    if (url.pathname.startsWith('/api/lyrics/')) {
+      const targetUrl = `https://lrclib.net/api/${url.pathname.replace('/api/lyrics/', '')}${url.search}`;
+      try {
+        const response = await fetch(targetUrl);
+        const data = await response.text();
+        return new Response(data, { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // --- FALLBACK: Assets ---
     return env.ASSETS.fetch(request);
   }
 };

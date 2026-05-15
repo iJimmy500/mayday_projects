@@ -18,7 +18,7 @@ export const parseLrc = (lrc) => {
 
 export const fetchLyricsData = async (artist, track, signal) => {
   const { data } = await axios.get(
-    `https://lrclib.net/api/search?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
+    `/api/lyrics/search?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
     { signal }
   );
 
