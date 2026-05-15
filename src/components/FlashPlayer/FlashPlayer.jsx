@@ -15,16 +15,16 @@ export default function FlashPlayer({ game, onClose }) {
       window.RufflePlayer = window.RufflePlayer || {};
       const script = document.createElement('script');
       script.src = "https://unpkg.com/@ruffle-rs/ruffle";
-      
+
       script.onload = () => {
         try {
           const ruffle = window.RufflePlayer.newest();
           const player = ruffle.createPlayer();
-          
+
           if (containerRef.current) {
             containerRef.current.innerHTML = ''; // Clear any existing
             containerRef.current.appendChild(player);
-            
+
             // Note: Since the games aren't hosted yet, this might throw a 404
             // But the architecture is fully ready for when they are!
             player.load(game.url).then(() => {
@@ -82,15 +82,15 @@ export default function FlashPlayer({ game, onClose }) {
                     <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '10px' }}>URL: {game.url}</p>
                   </div>
                 )}
-                
+
                 {game.type === 'swf' ? (
                   <div id="ruffle-container" ref={containerRef}>
                     {/* Ruffle player mounts here */}
                   </div>
                 ) : game.type === 'iframe' ? (
-                  <iframe 
-                    src={game.url} 
-                    className={`flash-iframe ${isLoading ? 'hidden' : ''}`} 
+                  <iframe
+                    src={game.url}
+                    className={`flash-iframe ${isLoading ? 'hidden' : ''}`}
                     title={game.title}
                     allow="autoplay; fullscreen"
                     onLoad={() => setIsLoading(false)}
@@ -105,7 +105,7 @@ export default function FlashPlayer({ game, onClose }) {
             )}
           </div>
         </div>
-        
+
         <div className="wii-channel-actions">
           {!hasStarted ? (
             <button className="wii-action-btn wii-btn-start" onClick={() => setHasStarted(true)}>
@@ -117,7 +117,7 @@ export default function FlashPlayer({ game, onClose }) {
             </button>
           )}
           <button className="wii-action-btn wii-btn-back" onClick={onClose}>
-            Wii Menu
+            Flashy Menu
           </button>
         </div>
       </div>

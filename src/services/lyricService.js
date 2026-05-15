@@ -17,17 +17,36 @@ export const parseLrc = (lrc) => {
 };
 
 export const fetchLyricsData = async (artist, track, signal) => {
-  const { data } = await axios.get(
-    `/api/lyrics/search?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
-    { signal }
-  );
+  let synced = null;
+  let plain = null;
 
-  if (!data || data.length === 0) {
-    throw new Error('Lyrics not found');
+  try {
+    const { data } = await axios.get(
+      `/api/lyrics/search?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
+      { signal }
+    );
+    if (data && data.length > 0) {
+      synced = data[0].syncedLyrics;
+      plain = data[0].plainLyrics;
+    } else {
+      throw new Error("Not found on primary API");
+    }
+  } catch (error) {
+    console.warn("Primary lyrics API failed, falling back to lyrics.ovh", error);
+    try {
+      const { data } = await axios.get(
+        `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(track)}`,
+        { signal }
+      );
+      if (data && data.lyrics) {
+        plain = data.lyrics;
+      } else {
+        throw new Error("Not found on fallback API");
+      }
+    } catch (fallbackError) {
+      throw new Error('Lyrics not found');
+    }
   }
-
-  const synced = data[0].syncedLyrics;
-  const plain = data[0].plainLyrics;
   
   const cleanLrc = (l) => l ? l.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim() : '';
   const fullLyrics = plain || cleanLrc(synced);
