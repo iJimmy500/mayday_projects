@@ -95,6 +95,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
       <SyncPlayer
         youtubeId={gameState === 'playing' ? currentSong?.youtubeId : null}
         previewUrl={currentSong?.previewUrl}
+        currentSong={currentSong}
         isPlaying={isPlaying}
         playerRef={refs.playerRef}
         onTimeUpdate={(state) => setCurrentTime(state.playedSeconds)}

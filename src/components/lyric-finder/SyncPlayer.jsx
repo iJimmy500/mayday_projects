@@ -4,6 +4,7 @@ import ReactPlayer from 'react-player';
 export default function SyncPlayer({
   youtubeId,
   previewUrl,
+  currentSong,
   isPlaying,
   playerRef,
   onTimeUpdate,
@@ -13,8 +14,13 @@ export default function SyncPlayer({
 }) {
   const audioRef = useRef(null);
 
-  const directUrl = previewUrl;
+  const directUrl = previewUrl || currentSong?.streamUrl;
   const ytUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
+
+  // If we have a direct stream URL from our proxy, we prefer that over the YouTube iframe
+  // because it allows for much better seeking and syncing.
+  const useNativeAudio = !!(currentSong?.streamUrl || previewUrl);
+  const useYouTube = !useNativeAudio && !!youtubeId;
 
   useEffect(() => {
     if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube`);
@@ -46,7 +52,7 @@ export default function SyncPlayer({
       pointerEvents: 'none',
       zIndex: -1
     }}>
-      {ytUrl ? (
+      {useYouTube ? (
         <ReactPlayer
           ref={playerRef}
           url={ytUrl}
@@ -74,7 +80,7 @@ export default function SyncPlayer({
             }
           }}
         />
-      ) : directUrl ? (
+      ) : useNativeAudio ? (
         <audio
           ref={audioRef}
           src={directUrl}

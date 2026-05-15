@@ -152,6 +152,22 @@ export const useLyricGame = (artistName, isGlobal) => {
       setCurrentSong(randomSong);
       fetchAlbumArt(randomSong.artist, randomSong.track, rid);
       
+      // Fetch direct audio stream from our new serverless function
+      const fetchAudioStream = async () => {
+        try {
+          const res = await fetch(`/api/get-audio?artist=${encodeURIComponent(randomSong.artist)}&track=${encodeURIComponent(randomSong.track)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.audioUrl && rid === lastRequestId.current) {
+              setCurrentSong(prev => prev ? { ...prev, streamUrl: data.audioUrl, youtubeId: data.videoId } : prev);
+            }
+          }
+        } catch (err) {
+          console.warn("Audio stream fetch failed, falling back to YouTube/iTunes", err);
+        }
+      };
+      fetchAudioStream();
+      
       const controller = new AbortController();
       try {
         const data = await fetchLyricsData(randomSong.artist, randomSong.track, controller.signal);

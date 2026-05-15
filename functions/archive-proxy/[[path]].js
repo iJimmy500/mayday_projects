@@ -1,40 +1,39 @@
 export async function onRequest(context) {
-  // context.params.path contains the array of path segments after /archive-proxy/
-  // e.g. ["download", "mahjong_202011", "mahjong.swf"]
-  const pathArray = context.params.path;
+  const url = new URL(context.request.url);
+  // Get the part of the path after /archive-proxy/
+  const targetPath = url.pathname.replace('/archive-proxy/', '');
   
-  if (!pathArray) {
+  if (!targetPath || targetPath === url.pathname) {
     return new Response("No target path provided", { status: 400 });
   }
 
-  // Reconstruct the archive.org URL
-  const targetUrl = `https://archive.org/${pathArray.join("/")}`;
+  const targetUrl = `https://archive.org/${targetPath}`;
 
   try {
-    // Cloudflare Workers' fetch() automatically follows redirects (which handles the 302s to iaXXXX.us.archive.org)
     const response = await fetch(targetUrl, {
-      method: context.request.method,
+      method: "GET",
       headers: {
-        "User-Agent": context.request.headers.get("User-Agent") || "Cloudflare Proxy",
-      }
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "*/*"
+      },
+      redirect: "follow" // Ensure Cloudflare follows the archive.org 302 redirects
     });
 
-    // Create a new response using the body of the archive.org response
+    // Create a new response so we can fix the headers
     const proxyResponse = new Response(response.body, response);
 
-    // Override headers to allow cross-origin requests (fixing the Ruffle CORS issue)
+    // CRITICAL: Set CORS headers so Ruffle can read the data
     proxyResponse.headers.set("Access-Control-Allow-Origin", "*");
+    proxyResponse.headers.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    proxyResponse.headers.set("Access-Control-Allow-Headers", "*");
     
-    // Explicitly set the SWF content type
-    if (targetUrl.endsWith(".swf")) {
+    // Ensure the content type is correct for Ruffle
+    if (targetUrl.toLowerCase().endsWith(".swf")) {
       proxyResponse.headers.set("Content-Type", "application/x-shockwave-flash");
     }
 
-    // Set cache headers to reduce hits to archive.org
-    proxyResponse.headers.set("Cache-Control", "public, max-age=86400");
-
     return proxyResponse;
   } catch (error) {
-    return new Response(`Error proxying request: ${error.message}`, { status: 500 });
+    return new Response(`Proxy Error: ${error.message}`, { status: 500 });
   }
 }
