@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import https from 'https'
 import http from 'http'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 // A simple plugin to proxy requests and perfectly follow redirects without CORS issues
 const archiveProxyPlugin = () => {
   return {
@@ -36,5 +38,5 @@ const archiveProxyPlugin = () => {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), archiveProxyPlugin()],
+  plugins: [react(), archiveProxyPlugin(), cloudflare()],
 })
