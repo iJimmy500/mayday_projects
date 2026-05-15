@@ -1,2 +1,0 @@
-/archive-proxy/*  https://archive.org/:splat  200
-/*  /index.html  200
