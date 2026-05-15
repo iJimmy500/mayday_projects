@@ -85,3 +85,9 @@ yarn-error.log*
 public/artifacts/*
 !public/artifacts/day11/twosixtape.txt
 
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
