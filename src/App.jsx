@@ -20,6 +20,7 @@ const AuraLayout = lazy(() => import('./pages/Aura'));
 const LuckiExperience = lazy(() => import('./pages/LuckiExperience'));
 const PocketStudio = lazy(() => import('./pages/PocketStudio'));
 const Flashy = lazy(() => import('./pages/Flashy'));
+const MathAcademy = lazy(() => import('./pages/MathAcademy'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -79,6 +80,7 @@ export default function App() {
             const isActive = path.includes('/play/');
             return <Flashy initialGameId={isActive ? gameId : null} />;
           }
+          if (path === '/day15' || path === '/math' || path === '/academy') return <MathAcademy />;
 
 
 

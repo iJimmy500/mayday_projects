@@ -102,6 +102,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
         onReady={() => setIsPlayerReady(true)}
         onEnded={() => setIsPlaying(false)}
         onError={handlePlayerError}
+        hasSync={state.hasSync}
       />
 
       <ControlBar 

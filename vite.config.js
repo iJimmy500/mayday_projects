@@ -9,13 +9,10 @@ const archiveProxyPlugin = () => {
     name: 'archive-proxy',
     configureServer(server) {
       server.middlewares.use('/archive-proxy', (req, res) => {
-        // req.url is the path after /archive-proxy, e.g. /download/gravityguy...
         const targetUrl = 'https://archive.org' + req.url;
-        
         const fetchFile = (url) => {
           https.get(url, (response) => {
             if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-              // Follow redirects (which is what archive.org does for downloads)
               fetchFile(response.headers.location.startsWith('http') ? response.headers.location : 'https://archive.org' + response.headers.location);
             } else {
               res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,8 +24,48 @@ const archiveProxyPlugin = () => {
             res.end(err.message);
           });
         };
-        
         fetchFile(targetUrl);
+      });
+
+      // YouTube Search Proxy with Failover
+      server.middlewares.use('/yt-search', (req, res) => {
+        const query = new URL(req.url, 'http://localhost').searchParams.get('q');
+        if (!query) {
+          res.statusCode = 400;
+          return res.end('Missing query');
+        }
+
+        const instances = [
+          'https://inv.vern.cc',
+          'https://invidious.drgns.space',
+          'https://invidious.io.lol',
+          'https://vid.priv.au',
+          'https://invidious.lunar.icu'
+        ];
+
+        const tryInstance = (index) => {
+          if (index >= instances.length) {
+            res.statusCode = 503;
+            return res.end(JSON.stringify({ error: 'All search instances failed' }));
+          }
+
+          const targetUrl = `${instances[index]}/api/v1/search?q=${encodeURIComponent(query)}&type=video`;
+          
+          https.get(targetUrl, (apiRes) => {
+            if (apiRes.statusCode === 200) {
+              res.setHeader('Access-Control-Allow-Origin', '*');
+              res.setHeader('Content-Type', 'application/json');
+              apiRes.pipe(res);
+            } else {
+              // Try next instance on failure
+              tryInstance(index + 1);
+            }
+          }).on('error', () => {
+            tryInstance(index + 1);
+          });
+        };
+
+        tryInstance(0);
       });
     }
   }

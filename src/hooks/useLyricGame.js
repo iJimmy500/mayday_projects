@@ -152,21 +152,31 @@ export const useLyricGame = (artistName, isGlobal) => {
       setCurrentSong(randomSong);
       fetchAlbumArt(randomSong.artist, randomSong.track, rid);
       
-      // Fetch direct audio stream from our new serverless function
-      const fetchAudioStream = async () => {
+      // Use the new local proxy to find the YouTube videoId for the song
+      const fetchYoutubeId = async () => {
+        console.log(`[Sync] 🔍 Searching YouTube for: ${randomSong.artist} - ${randomSong.track}`);
         try {
-          const res = await fetch(`/api/get-audio?artist=${encodeURIComponent(randomSong.artist)}&track=${encodeURIComponent(randomSong.track)}`);
-          if (res.ok) {
+          const res = await fetch(`/yt-search?q=${encodeURIComponent(randomSong.artist + ' ' + randomSong.track + ' official audio')}`);
+          const contentType = res.headers.get("content-type");
+          
+          if (res.ok && contentType && contentType.includes("application/json")) {
             const data = await res.json();
-            if (data.audioUrl && rid === lastRequestId.current) {
-              setCurrentSong(prev => prev ? { ...prev, streamUrl: data.audioUrl, youtubeId: data.videoId } : prev);
+            if (data && data.length > 0 && rid === lastRequestId.current) {
+              const videoId = data[0].videoId;
+              console.log(`[Sync] ✅ Found Video ID: ${videoId}`);
+              setCurrentSong(prev => prev ? { ...prev, youtubeId: videoId } : prev);
+            } else {
+              console.warn("[Sync] ⚠️ No YouTube results found or invalid data structure");
             }
+          } else {
+            const errorText = await res.text();
+            console.error(`[Sync] ❌ Search failed. Status: ${res.status}. Type: ${contentType}`);
           }
         } catch (err) {
-          console.warn("Audio stream fetch failed, falling back to YouTube/iTunes", err);
+          console.error("[Sync] ❌ YouTube search exception:", err.message);
         }
       };
-      fetchAudioStream();
+      fetchYoutubeId();
       
       const controller = new AbortController();
       try {
@@ -406,7 +416,8 @@ export const useLyricGame = (artistName, isGlobal) => {
       startIndex, history, sessionHistory, currentGuesses, settings, showHistory,
       showRoundGuesses, isSearching, isLandingState, customPlaylist, playlistInfo,
       artistImage, isImporting, importUrl, isCrashed, crashReason, isPlaying, isPlayerReady,
-      isYoutubeLoading, correctParts
+      isYoutubeLoading, correctParts,
+      hasSync: !!(parsedLyrics?.length > 1 && currentSong?.youtubeId) // Require full song (YouTube) + at least 2 synced lines
     },
     actions: {
       setCurrentSong, setLyrics, setSnippet, setLoading, setStatusMessage, setAlbumArt,

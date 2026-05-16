@@ -21,18 +21,21 @@ export const fetchLyricsData = async (artist, track, signal) => {
   let plain = null;
 
   try {
+    console.log(`[Lyrics] 🔍 Fetching from LRCLIB: ${artist} - ${track}`);
     const { data } = await axios.get(
-      `/api/lyrics/search?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
+      `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
       { signal }
     );
-    if (data && data.length > 0) {
-      synced = data[0].syncedLyrics;
-      plain = data[0].plainLyrics;
+    
+    if (data) {
+      synced = data.syncedLyrics;
+      plain = data.plainLyrics || data.syncedLyrics;
+      console.log(`[Lyrics] ✅ Success! Synced: ${!!synced}`);
     } else {
-      throw new Error("Not found on primary API");
+      throw new Error("Lyrics not found on LRCLIB");
     }
   } catch (error) {
-    console.warn("Primary lyrics API failed, falling back to lyrics.ovh", error);
+    console.warn("[Lyrics] ⚠️ LRCLIB failed, trying fallback...", error.message);
     try {
       const { data } = await axios.get(
         `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(track)}`,
@@ -40,10 +43,10 @@ export const fetchLyricsData = async (artist, track, signal) => {
       );
       if (data && data.lyrics) {
         plain = data.lyrics;
-      } else {
-        throw new Error("Not found on fallback API");
+        console.log("[Lyrics] ✅ Success (Fallback)");
       }
     } catch (fallbackError) {
+      console.error("[Lyrics] ❌ All APIs failed");
       throw new Error('Lyrics not found');
     }
   }

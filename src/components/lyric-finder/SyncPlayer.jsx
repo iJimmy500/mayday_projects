@@ -11,16 +11,17 @@ export default function SyncPlayer({
   onReady,
   onEnded,
   onError,
+  hasSync // New prop
 }) {
   const audioRef = useRef(null);
 
+  // If synced, we use YouTube for full seeking. 
+  // If NOT synced, we use the Apple previewUrl for that "standard" experience.
+  const useYouTube = hasSync && !!youtubeId;
+  const useNativeAudio = !useYouTube && !!(previewUrl || currentSong?.streamUrl);
+  
   const directUrl = previewUrl || currentSong?.streamUrl;
   const ytUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
-
-  // If we have a direct stream URL from our proxy, we prefer that over the YouTube iframe
-  // because it allows for much better seeking and syncing.
-  const useNativeAudio = !!(currentSong?.streamUrl || previewUrl);
-  const useYouTube = !useNativeAudio && !!youtubeId;
 
   useEffect(() => {
     if (ytUrl) console.log(`[SyncPlayer] 📺 Using YouTube`);
