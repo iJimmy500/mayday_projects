@@ -18,7 +18,8 @@ import {
   Flower,
   Skull,
   AlignLeft,
-  Lightbulb
+  Lightbulb,
+  CornerDownLeft
 } from 'lucide-react';
 import './Numism.css';
 import { FERMI_QUESTIONS } from '../utils/fermiQuestions';
@@ -58,6 +59,7 @@ export default function Numism() {
   const [fermiQuestion, setFermiQuestion] = useState(null);
   const [foundItems, setFoundItems] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [customXStr, setCustomXStr] = useState('');
   
@@ -287,9 +289,31 @@ export default function Numism() {
     newGame(1);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const val = inputValue.trim();
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    
+    // For primal mode, auto-submit if P or C is entered
+    if (mode === 'primal') {
+      const clean = val.trim().toLowerCase();
+      if (clean === 'p' || clean === 'c') {
+        setInputValue(clean);
+        handleSubmit(null, clean);
+        return;
+      }
+    }
+    
+    setInputValue(val);
+  };
+
+  const handlePrimalSubmit = (choice) => {
+    if (finished || isTransitioning.current) return;
+    setInputValue(choice);
+    handleSubmit(null, choice);
+  };
+
+  const handleSubmit = (e, overrideVal) => {
+    if (e) e.preventDefault();
+    const val = (overrideVal !== undefined ? overrideVal : inputValue).trim();
     if (!val || finished || isTransitioning.current) return;
 
     if (!started) setStarted(true);
@@ -644,21 +668,53 @@ export default function Numism() {
         </div>
 
         <form className="num-form" onSubmit={handleSubmit}>
-          <input
-            ref={inputRef}
-            type="number"
-            inputMode="numeric"
-            className={`num-input ${isShake ? 'shake' : ''} ${isPop ? 'pop' : ''}`}
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            placeholder={mode === 'fermi' ? "e.g., 6" : "1"}
-            disabled={finished}
-            autoFocus
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
+          <div className="num-input-wrapper">
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode={
+                ['target', 'makex', 'primal', 'fermi'].includes(mode)
+                  ? 'text'
+                  : 'numeric'
+              }
+              className={`num-input ${isShake ? 'shake' : ''} ${isPop ? 'pop' : ''}`}
+              value={inputValue}
+              onChange={handleInputChange}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
+              placeholder={mode === 'fermi' ? "e.g., 6" : (mode === 'primal' ? "P or C" : "1")}
+              disabled={finished}
+              autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+            {inputValue.trim() !== '' && (
+              <button type="submit" className="num-inline-submit-btn" title="Submit Answer">
+                <CornerDownLeft size={16} />
+              </button>
+            )}
+          </div>
         </form>
+
+        {mode === 'primal' && !finished && (
+          <div className="num-primal-options">
+            <button
+              type="button"
+              className="num-primal-btn num-primal-btn--prime"
+              onClick={() => handlePrimalSubmit('p')}
+            >
+              Prime <span className="num-key-hint">P</span>
+            </button>
+            <button
+              type="button"
+              className="num-primal-btn num-primal-btn--composite"
+              onClick={() => handlePrimalSubmit('c')}
+            >
+              Composite <span className="num-key-hint">C</span>
+            </button>
+          </div>
+        )}
         {showFermiModal && fermiQuestion && (
           <div className="num-modal-overlay" onClick={() => setShowFermiModal(false)}>
             <div className="num-modal" onClick={e => e.stopPropagation()}>
@@ -769,6 +825,21 @@ export default function Numism() {
           mayday <Flower size={14} strokeWidth={1.5} />
         </a>
       </footer>
+
+      {isInputFocused && inputValue.trim() !== '' && !finished && (
+        <div className="num-mobile-submit-bar">
+          <button 
+            type="button" 
+            className="num-mobile-submit-btn"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
+            Submit Answer <CornerDownLeft size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
