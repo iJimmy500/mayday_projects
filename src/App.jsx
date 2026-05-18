@@ -82,7 +82,7 @@ export default function App() {
             return <Flashy initialGameId={isActive ? gameId : null} />;
           }
           if (path === '/day15' || path === '/math' || path === '/academy') return <MathAcademy />;
-          if (path === '/day17' || path === '/numism' || path === '/numbers') return <Numism />;
+          if (path === '/day17' || path === '/numism' || path === '/numisim' || path === '/numbers' || path === '/mathaddict') return <Numism />;
 
 
 

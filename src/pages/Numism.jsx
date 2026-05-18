@@ -78,6 +78,11 @@ export default function Numism() {
   const [isPop, setIsPop] = useState(false);
   const [promptVisible, setPromptVisible] = useState(true);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [showFermiModal, setShowFermiModal] = useState(false);
+  const [foundItemDetails, setFoundItemDetails] = useState([]);
+  const [selectedFermiDetail, setSelectedFermiDetail] = useState(null);
+  const [fermiReveal, setFermiReveal] = useState(null);
+  const [revealCountdown, setRevealCountdown] = useState(8);
 
   const inputRef = useRef(null);
   const isTransitioning = useRef(false);
@@ -145,6 +150,9 @@ export default function Numism() {
     setLevel(activeLevel);
     
     setFoundItems([]);
+    setFoundItemDetails([]);
+    setSelectedFermiDetail(null);
+    setFermiReveal(null);
     setInputValue('');
     setStarted(false);
     setFinished(false);
@@ -208,6 +216,23 @@ export default function Numism() {
     return () => clearInterval(t);
   }, [started, finished, timeLeft, zenMode]);
 
+
+  const advanceFermi = () => {
+    setFermiReveal(null);
+    isTransitioning.current = false;
+    generateProblem(level);
+  };
+
+  useEffect(() => {
+    if (!fermiReveal) { setRevealCountdown(8); return; }
+    setRevealCountdown(8);
+    const t = setInterval(() => setRevealCountdown(p => p - 1), 1000);
+    return () => clearInterval(t);
+  }, [fermiReveal]);
+
+  useEffect(() => {
+    if (fermiReveal && revealCountdown <= 0) advanceFermi();
+  }, [revealCountdown, fermiReveal]);
 
 
   const updatePb = (finalScore, finalLevel, finalItems) => {
@@ -288,8 +313,10 @@ export default function Numism() {
         if (isSuddenDeath) setTimeLeft(p => Math.min(p + 3, 60));
         setScore(s => s + 30 * level);
         
-        const itemDesc = `10^${target} - ${fermiQuestion.q} (${fermiQuestion.desc})`;
+        const itemDesc = `10^${target}`;
+        const detail = { q: fermiQuestion.q, desc: fermiQuestion.desc, exponent: target, guessed: target, exact: true };
         setFoundItems(p => [itemDesc, ...p]);
+        setFoundItemDetails(p => [detail, ...p]);
         setInputValue('');
 
         let nextLevel = level;
@@ -306,15 +333,24 @@ export default function Numism() {
         setTimeout(() => generateProblem(nextLevel), 400);
         return;
       } else if (diff === 1) {
+        if (isSuddenDeath || isHardcore) {
+          showMessage('incorrect! (strict)', 'error');
+          playSound('error');
+          handlePenalty();
+          setInputValue('');
+          setFermiReveal({ q: fermiQuestion.q, desc: fermiQuestion.desc, exponent: target });
+          return;
+        }
         playSound('success');
         triggerPop();
-        showMessage('close! off by 1', 'success');
+        showMessage('close! +1 order off', 'success');
         
-        if (isSuddenDeath) setTimeLeft(p => Math.min(p + 1, 60));
         setScore(s => s + 10 * level);
         
-        const itemDesc = `10^${target} - ${fermiQuestion.q} (Guessed 10^${n}: ${fermiQuestion.desc})`;
+        const itemDesc = `~10^${target}`;
+        const detail = { q: fermiQuestion.q, desc: fermiQuestion.desc, exponent: target, guessed: n, exact: false };
         setFoundItems(p => [itemDesc, ...p]);
+        setFoundItemDetails(p => [detail, ...p]);
         setInputValue('');
 
         let nextLevel = level;
@@ -335,8 +371,7 @@ export default function Numism() {
         playSound('error');
         handlePenalty();
         setInputValue('');
-        isTransitioning.current = true;
-        setTimeout(() => generateProblem(level), 400);
+        setFermiReveal({ q: fermiQuestion.q, desc: fermiQuestion.desc, exponent: target });
         return;
       }
     }
@@ -376,6 +411,7 @@ export default function Numism() {
         const itemDesc = getDescriptionForFoundItem(val);
         const newFound = [itemDesc, ...foundItems];
         setFoundItems(newFound);
+        setFoundItemDetails(p => [null, ...p]);
         setInputValue('');
 
         const allFactors = getAllFactors(target);
@@ -403,6 +439,7 @@ export default function Numism() {
       } else if (mode === 'divis') {
         const itemDesc = getDescriptionForFoundItem(val);
         setFoundItems(p => [itemDesc, ...p]);
+        setFoundItemDetails(p => [null, ...p]);
         setInputValue('');
 
         if (isProgressive) {
@@ -421,6 +458,7 @@ export default function Numism() {
       } else {
         const itemDesc = getDescriptionForFoundItem(val);
         setFoundItems(p => [itemDesc, ...p]);
+        setFoundItemDetails(p => [null, ...p]);
         setInputValue('');
 
         let nextLevel = level;
@@ -555,7 +593,7 @@ export default function Numism() {
         ) : mode === 'fermi' ? (
           <div className={`num-fermi-box ${!promptVisible ? 'fade-out' : ''}`}>
             <div className="num-fermi-label">Fermi Question</div>
-            <div className="num-fermi-question">"{fermiQuestion?.q}"</div>
+            <div className="num-fermi-question" onClick={() => setShowFermiModal(true)}>{fermiQuestion?.q}</div>
             <div className="num-fermi-sub">Order of Magnitude: 10<sup>?</sup></div>
           </div>
         ) : (
@@ -608,10 +646,12 @@ export default function Numism() {
         <form className="num-form" onSubmit={handleSubmit}>
           <input
             ref={inputRef}
+            type="number"
+            inputMode="numeric"
             className={`num-input ${isShake ? 'shake' : ''} ${isPop ? 'pop' : ''}`}
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
-            placeholder={mode === 'fermi' ? "e.g., 6" : "..."}
+            placeholder={mode === 'fermi' ? "e.g., 6" : "1"}
             disabled={finished}
             autoFocus
             autoComplete="off"
@@ -619,19 +659,67 @@ export default function Numism() {
             spellCheck={false}
           />
         </form>
+        {showFermiModal && fermiQuestion && (
+          <div className="num-modal-overlay" onClick={() => setShowFermiModal(false)}>
+            <div className="num-modal" onClick={e => e.stopPropagation()}>
+              <span className="num-modal-tag">Fermi Question</span>
+              <h2 className="num-modal-title">{fermiQuestion.q}</h2>
+              <p className="num-modal-desc">{fermiQuestion.desc}</p>
+              <button className="num-modal-close" onClick={() => setShowFermiModal(false)}>close</button>
+            </div>
+          </div>
+        )}
+
+        {selectedFermiDetail && (
+          <div className="num-modal-overlay" onClick={() => setSelectedFermiDetail(null)}>
+            <div className="num-modal" onClick={e => e.stopPropagation()}>
+              <span className="num-modal-tag">
+                {selectedFermiDetail.exact ? '✓ exact' : `~off by 1 · guessed 10^${selectedFermiDetail.guessed}`}
+              </span>
+              <h2 className="num-modal-title">{selectedFermiDetail.q}</h2>
+              <p className="num-modal-desc">Answer: 10<sup>{selectedFermiDetail.exponent}</sup></p>
+              <p className="num-modal-desc" style={{ opacity: 0.5, fontSize: '13px' }}>{selectedFermiDetail.desc}</p>
+              <button className="num-modal-close" onClick={() => setSelectedFermiDetail(null)}>close</button>
+            </div>
+          </div>
+        )}
 
         {message.text && (
           <div className={`num-message ${message.type}`}>{message.text}</div>
         )}
 
         <div className="num-found-area">
-          {foundItems.map((w, i) => (
-            <span key={i} className="num-found-item">{w}</span>
-          ))}
+          {foundItems.map((w, i) => {
+            const detail = foundItemDetails[i];
+            return detail ? (
+              <span
+                key={i}
+                className="num-found-item num-found-item--fermi"
+                onClick={e => { e.stopPropagation(); setSelectedFermiDetail(detail); }}
+                title="tap for details"
+              >{w}</span>
+            ) : (
+              <span key={i} className="num-found-item">{w}</span>
+            );
+          })}
           {foundItems.length === 0 && !finished && (
             <span className="num-found-empty">ready.</span>
           )}
         </div>
+
+        {fermiReveal && (
+          <div className="num-reveal-overlay">
+            <div className="num-reveal-box">
+              <span className="num-reveal-tag">answer</span>
+              <div className="num-reveal-exponent">10<sup>{fermiReveal.exponent}</sup></div>
+              <div className="num-reveal-question">{fermiReveal.q}</div>
+              <p className="num-reveal-desc">{fermiReveal.desc}</p>
+              <button className="num-reveal-next" onClick={advanceFermi}>
+                next &rarr; <span className="num-reveal-countdown">{revealCountdown}s</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {finished && (
           <div className="num-result-overlay">
@@ -655,9 +743,19 @@ export default function Numism() {
               </div>
 
               <div className="num-result-items">
-                {foundItems.map((w, i) => (
-                  <span key={i} className="num-result-item-text">{w}</span>
-                ))}
+                {foundItems.map((w, i) => {
+                  const detail = foundItemDetails[i];
+                  return detail ? (
+                    <span
+                      key={i}
+                      className="num-result-item-text num-found-item--fermi"
+                      onClick={() => setSelectedFermiDetail(detail)}
+                      title="tap for details"
+                    >{w}</span>
+                  ) : (
+                    <span key={i} className="num-result-item-text">{w}</span>
+                  );
+                })}
               </div>
 
               <button className="num-retry-btn" onClick={() => newGame()}>RETRY</button>
