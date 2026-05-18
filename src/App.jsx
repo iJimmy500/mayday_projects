@@ -21,6 +21,7 @@ const LuckiExperience = lazy(() => import('./pages/LuckiExperience'));
 const PocketStudio = lazy(() => import('./pages/PocketStudio'));
 const Flashy = lazy(() => import('./pages/Flashy'));
 const MathAcademy = lazy(() => import('./pages/MathAcademy'));
+const Numism = lazy(() => import('./pages/Numism'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -81,6 +82,7 @@ export default function App() {
             return <Flashy initialGameId={isActive ? gameId : null} />;
           }
           if (path === '/day15' || path === '/math' || path === '/academy') return <MathAcademy />;
+          if (path === '/day17' || path === '/numism' || path === '/numbers') return <Numism />;
 
 
 

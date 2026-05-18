@@ -85,3 +85,7 @@ yarn-error.log*
 public/artifacts/*
 !public/artifacts/day11/twosixtape.txt
 
+# Scratch scripts and temporary fetchers
+scratch/
+src/scratch/
+
