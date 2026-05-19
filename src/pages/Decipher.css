@@ -283,20 +283,68 @@
 
 .dec-slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  height: 1px;
+  height: 6px;
   background: #252c2a;
+  border-radius: 99px;
   outline: none;
-  margin-bottom: 1.2rem;
+  margin-top: 0.4rem;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
+.dec-slider:hover {
+  background: #2f3835;
+}
+
+/* Webkit / Blink Thumb */
 .dec-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 6px;
-  height: 6px;
+  appearance: none;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #10b981;
-  cursor: pointer;
+  border: 2px solid #121514; /* pops against the dark background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.dec-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+  background: #34d399; /* brighter interactive green */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), 0 0 0 5px rgba(16, 185, 129, 0.25);
+}
+
+/* Firefox Track & Thumb */
+.dec-slider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: #252c2a;
+  border-radius: 99px;
+  border: none;
+}
+
+.dec-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #121514;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.dec-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+  background: #34d399;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), 0 0 0 5px rgba(16, 185, 129, 0.25);
 }
 
 .dec-clean-preview {
