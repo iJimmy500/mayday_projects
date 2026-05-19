@@ -51,6 +51,8 @@ src/pages/Stuff.jsx
 src/pages/Stuff.css
 src/pages/Images.jsx
 src/pages/Images.css
+src/pages/TopFive.jsx
+src/pages/TopFive.css
 
 # Archives
 .day4_archive/

@@ -1,0 +1,619 @@
+/* Sibling App Theme: Decipher (Ultra-Minimal Forest Dark Theme) */
+
+.decipher-game-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #121514; /* Deep forest ink black */
+  color: #72857f; /* Soft silver-sage text */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.dec-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px 20px;
+  cursor: text;
+  gap: 48px;
+  box-sizing: border-box;
+}
+
+/* ── Top Bar Dropdowns ── */
+.dec-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  padding: 10px 0;
+  width: fit-content;
+  margin: 20px auto 0 auto;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.dec-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: ui-monospace, monospace;
+}
+
+.dec-dropdown-wrap {
+  position: relative;
+}
+
+.dec-nav-btn {
+  background: transparent;
+  border: none;
+  color: #4a5753;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.dec-nav-btn:hover,
+.dec-nav-btn.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.dec-nav-value {
+  color: #c1d1cb;
+  font-weight: 500;
+}
+
+.dec-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 140px;
+  background: #1a1e1d;
+  border: 1px solid #252c2a;
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: decDropdownIn 0.15s ease-out;
+}
+
+@keyframes decDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dec-dropdown-item {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  color: #72857f;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.dec-dropdown-item:hover {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+}
+
+.dec-dropdown-item.selected {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.02);
+  font-weight: 600;
+}
+
+.dec-tool-btn {
+  background: transparent;
+  border: none;
+  color: #4a5753;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.dec-tool-btn:hover,
+.dec-tool-btn.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.dec-nav-btn svg {
+  transition: transform 0.2s;
+}
+
+.dec-nav-btn svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* ── Live Stats Header ── */
+.dec-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.dec-live-stats {
+  display: flex;
+  gap: 24px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: #4a5753;
+}
+
+.dec-timer-val,
+.dec-count-val {
+  font-weight: 500;
+}
+
+.dec-timer-val.urgent {
+  color: #ef4444;
+}
+
+/* ── Seamless borderless gameplay deck ── */
+.dec-card {
+  width: 100%;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-shadow: none;
+}
+
+.dec-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dec-level-title {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #4a5753;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.dec-hint-toggle {
+  background: transparent;
+  border: none;
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #4a5753;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+.dec-hint-toggle:hover {
+  color: #10b981;
+}
+
+.dec-hint-box {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #a7f3d0;
+  text-align: center;
+  background: rgba(16, 185, 129, 0.02);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px dashed rgba(16, 185, 129, 0.15);
+}
+
+/* ── Stream Box ── */
+.dec-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dec-meta-label {
+  font-family: ui-monospace, monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: #4a5753;
+}
+
+.dec-code-output {
+  font-family: 'Fira Code', monospace;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  word-break: break-all;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+/* ── Interactive Workspace Desk ── */
+.dec-workspace-tool {
+  padding: 0.5rem 0;
+}
+
+.dec-slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-family: ui-monospace, monospace;
+  color: #4a5753;
+  margin-bottom: 0.5rem;
+}
+
+.dec-shift-metric {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.dec-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1px;
+  background: #252c2a;
+  outline: none;
+  margin-bottom: 1.2rem;
+}
+
+.dec-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  cursor: pointer;
+}
+
+.dec-clean-preview {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dec-preview-value {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #10b981;
+  text-align: center;
+}
+
+.dec-editorial-instruction {
+  font-size: 0.75rem;
+  font-family: ui-monospace, monospace;
+  color: #4a5753;
+  text-align: center;
+}
+
+/* ── Cryptogram mapping ── */
+.dec-grid-mapping {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 1.2rem;
+  margin-top: 0.4rem;
+}
+
+.dec-grid-pair {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.dec-scrambled-letter {
+  font-size: 0.75rem;
+  color: #4a5753;
+}
+
+.dec-mapping-input {
+  width: 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #252c2a;
+  text-align: center;
+  color: #10b981;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.dec-mapping-input:focus {
+  border-bottom-color: #10b981;
+}
+
+/* ── Dynamic Input Forms ── */
+.dec-form {
+  width: 100%;
+}
+
+.dec-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #252c2a;
+  color: #ffffff;
+  font-size: 24px;
+  padding: 8px 0;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  font-weight: 400;
+  transition: all 0.3s;
+  caret-color: #10b981;
+}
+
+.dec-input:focus {
+  border-bottom-color: rgba(16, 185, 129, 0.4);
+}
+
+.dec-input::placeholder {
+  color: #252c2a;
+}
+
+/* ── Notification overlays ── */
+.dec-message {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #121514;
+  border: 1px solid #252c2a;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  z-index: 200;
+  pointer-events: none;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: decPopup 1.5s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dec-message.success {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.dec-message.error {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+@keyframes decPopup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -30%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  85% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -70%);
+  }
+}
+
+/* ── Solved Word List ── */
+.dec-solved-area {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.dec-solved-word {
+  font-size: 13px;
+  font-family: ui-monospace, monospace;
+  color: #4a5753;
+  animation: decFadeIn 0.5s ease;
+}
+
+.dec-solved-empty {
+  font-size: 11px;
+  color: #252c2a;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.05em;
+}
+
+/* ── Result overlays ── */
+.dec-result-overlay {
+  position: fixed;
+  inset: 0;
+  background: #121514;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  animation: decFadeIn 0.3s ease;
+}
+
+.dec-result-box {
+  text-align: center;
+}
+
+.dec-result-stats {
+  margin-bottom: 32px;
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+}
+
+.dec-result-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: center;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 40px;
+  padding: 10px;
+  border-top: 1px solid #252c2a;
+  border-bottom: 1px solid #252c2a;
+}
+
+.dec-result-words::-webkit-scrollbar {
+  width: 2px;
+}
+
+.dec-result-words::-webkit-scrollbar-thumb {
+  background: #252c2a;
+}
+
+.dec-result-word {
+  font-size: 16px;
+  color: #e2ece9;
+  font-weight: 400;
+}
+
+.dec-result-item .label {
+  font-size: 11px;
+  color: #72857f;
+  font-family: ui-monospace, monospace;
+  display: block;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.dec-result-item .value {
+  font-size: 48px;
+  color: #10b981;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.dec-retry-btn {
+  background: transparent;
+  border: 1px solid #252c2a;
+  color: #72857f;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.dec-retry-btn:hover {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+/* Wiggle shake for errors */
+.dec-card.shake {
+  animation: decShake 0.4s ease-in-out;
+}
+
+@keyframes decShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+@keyframes decFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .dec-main {
+    padding: 16px 12px;
+    gap: 24px;
+    justify-content: flex-start;
+    padding-top: 40px;
+  }
+
+  .dec-top-bar {
+    width: 100%;
+    padding: 4px 0;
+  }
+
+  .dec-nav {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .dec-code-output {
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+  }
+
+  .dec-input {
+    font-size: 18px;
+  }
+
+  .dec-card {
+    gap: 1.2rem;
+  }
+
+  .dec-live-stats {
+    gap: 12px;
+  }
+
+  .dec-grid-mapping {
+    gap: 4px;
+  }
+
+  .dec-grid-pair {
+    font-size: 0.7rem;
+  }
+
+  .dec-hint-box {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+  }
+}
