@@ -3,8 +3,10 @@
 .decipher-game-container {
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #121514; /* Deep forest ink black */
-  color: #72857f; /* Soft silver-sage text */
+  background-color: #121514;
+  /* Deep forest ink black */
+  color: #72857f;
+  /* Soft silver-sage text */
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -96,6 +98,7 @@
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -216,6 +219,7 @@
   transition: color 0.2s;
   padding: 0;
 }
+
 .dec-hint-toggle:hover {
   color: #10b981;
 }
@@ -427,14 +431,17 @@
     opacity: 0;
     transform: translate(-50%, -30%);
   }
+
   15% {
     opacity: 1;
     transform: translate(-50%, -50%);
   }
+
   85% {
     opacity: 1;
     transform: translate(-50%, -50%);
   }
+
   100% {
     opacity: 0;
     transform: translate(-50%, -70%);
@@ -557,15 +564,33 @@
 }
 
 @keyframes decShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-3px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-3px);
+  }
 }
 
 @keyframes decFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 600px) {

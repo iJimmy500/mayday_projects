@@ -327,7 +327,7 @@ export default function DecipherLab({ onClose }) {
         <div className="dec-nav">
           <button className="dec-nav-btn" onClick={onClose}>
             <ArrowLeft size={13} />
-            <span className="dec-nav-value">Back to Game</span>
+            <span className="dec-nav-value">Play Decipher</span>
           </button>
           
           {labMode === 'create' && (
@@ -345,12 +345,9 @@ export default function DecipherLab({ onClose }) {
       <main className="dec-main">
         {labMode === 'create' ? (
           <div className="dec-card lab-creator-view">
-            <header className="dec-card-head">
-              <h2 className="dec-level-title">Code Lab Creator</h2>
-            </header>
+            {/* Creator View */}
 
             <div className="lab-form-group">
-              <span className="dec-meta-label">YOUR SECRET MESSAGE</span>
               <input 
                 type="text"
                 className="dec-input"
@@ -382,7 +379,6 @@ export default function DecipherLab({ onClose }) {
 
             {cipherMode === 'vigenere' && (
               <div className="lab-form-group">
-                <span className="dec-meta-label">VIGENÈRE KEY WORD</span>
                 <input 
                   type="text"
                   className="dec-input"
@@ -396,7 +392,6 @@ export default function DecipherLab({ onClose }) {
 
             {customText && (
               <div className="dec-block" style={{ marginTop: '1rem' }}>
-                <span className="dec-meta-label">SCRAMBLED PREVIEW</span>
                 <div className="dec-code-output">
                   {encryptWord(cipherMode, customText.trim().toUpperCase(), {
                     caesarShift,
@@ -414,7 +409,6 @@ export default function DecipherLab({ onClose }) {
             {shareUrl && (
               <div className="lab-share-dock animate-fade">
                 <div className="lab-url-container">
-                  <span className="dec-meta-label">SHARE LINK</span>
                   <input type="text" readOnly value={shareUrl} className="lab-url-field" />
                 </div>
                 <button className="dec-tool-btn" onClick={handleCopyLink} title="Copy to Clipboard">
@@ -429,15 +423,13 @@ export default function DecipherLab({ onClose }) {
         ) : (
           /* Solve Mode */
           <div className="dec-card">
-            <header className="dec-card-head">
-              <h2 className="dec-level-title">INCOMING FRIEND TRANSMISSION</h2>
+            <header className="dec-card-head" style={{ justifyContent: 'flex-end' }}>
               <span className="dec-nav-value" style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#10b981' }}>
                 Mode: {cipherMode}
               </span>
             </header>
 
             <div className="dec-block">
-              <span className="dec-meta-label">ENCRYPTED STREAM</span>
               <div className="dec-code-output">{solveCiphertext}</div>
             </div>
 
@@ -458,7 +450,6 @@ export default function DecipherLab({ onClose }) {
                     className="dec-slider"
                   />
                   <div className="dec-clean-preview">
-                    <span className="dec-meta-label">CALIBRATED OUTFLOW</span>
                     <div className="dec-preview-value">
                       {getHelperPreview(cipherMode, solveCiphertext, { caesarShift })}
                     </div>
@@ -468,7 +459,6 @@ export default function DecipherLab({ onClose }) {
               
               {cipherMode === 'cryptogram' && (
                 <div className="dec-tool-crypto">
-                  <span className="dec-meta-label">ASSOCIATIVE DESK</span>
                   <div className="dec-grid-mapping">
                     {Array.from(new Set(solveCiphertext.replace(/\s/g, '').split(''))).map(char => (
                       <div key={char} className="dec-grid-pair">
@@ -484,7 +474,6 @@ export default function DecipherLab({ onClose }) {
                     ))}
                   </div>
                   <div className="dec-clean-preview">
-                    <span className="dec-meta-label">DECIPHERED PREVIEW</span>
                     <div className="dec-preview-value">
                       {getHelperPreview(cipherMode, solveCiphertext, { cryptoMapping })}
                     </div>
@@ -503,7 +492,6 @@ export default function DecipherLab({ onClose }) {
 
               {(cipherMode === 'navajo' || cipherMode === 'minionese') && (
                 <div className="dec-tool-glossary">
-                  <span className="dec-meta-label">CODEBOOK REFERENCING</span>
                   <div className="dec-grid-mapping">
                     {Object.entries(cipherMode === 'navajo' ? NAVAJO_DICT : MINION_DICT).map(([letter, code]) => (
                       <div key={letter} className="dec-grid-pair">

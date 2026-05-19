@@ -31,6 +31,23 @@ const Loading = () => (
     </div>
     <div className="home-logo">mayday</div>
     <p className="redirect-msg" style={{ opacity: 0.4 }}>loading ur page...</p>
+    <img 
+      src="/landsat.png" 
+      alt="landsat QR" 
+      style={{
+        width: '64px',
+        height: '64px',
+        marginTop: '24px',
+        borderRadius: '6px',
+        opacity: 0.25,
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
+        zIndex: 2,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+        border: '1px solid rgba(255, 255, 255, 0.08)'
+      }}
+      onMouseEnter={e => { e.currentTarget.style.opacity = '0.8'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+      onMouseLeave={e => { e.currentTarget.style.opacity = '0.25'; e.currentTarget.style.transform = 'scale(1)'; }}
+    />
   </div>
 );
 
@@ -138,6 +155,23 @@ function Redirect() {
       </div>
       <div className="home-logo">mayday</div>
       <p className="redirect-msg">Select a project from mayinflight.com</p>
+      <img 
+        src="/landsat.png" 
+        alt="landsat QR" 
+        style={{
+          width: '64px',
+          height: '64px',
+          marginTop: '24px',
+          borderRadius: '6px',
+          opacity: 0.25,
+          transition: 'opacity 0.3s ease, transform 0.3s ease',
+          zIndex: 2,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+          border: '1px solid rgba(255, 255, 255, 0.08)'
+        }}
+        onMouseEnter={e => { e.currentTarget.style.opacity = '0.8'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = '0.25'; e.currentTarget.style.transform = 'scale(1)'; }}
+      />
     </div>
   );
 }

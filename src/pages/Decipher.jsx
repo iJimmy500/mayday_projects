@@ -453,8 +453,7 @@ export default function Decipher() {
         </div>
 
         <div className="dec-card">
-          <header className="dec-card-head">
-            <h2 className="dec-level-title">Active Cipher</h2>
+          <header className="dec-card-head" style={{ justifyContent: 'flex-end' }}>
             <button className="dec-hint-toggle" onClick={() => setShowHint(!showHint)}>
               {showHint ? "Hide Clue" : "Clue"}
             </button>
@@ -479,7 +478,6 @@ export default function Decipher() {
           )}
 
           <div className="dec-block">
-            <span className="dec-meta-label">ENCRYPTED STREAM</span>
             <div className="dec-code-output">{ciphertext}</div>
           </div>
 
@@ -499,7 +497,6 @@ export default function Decipher() {
                   className="dec-slider"
                 />
                 <div className="dec-clean-preview">
-                  <span className="dec-meta-label">CALIBRATED OUTFLOW</span>
                   <div className="dec-preview-value">
                     {getHelperPreview(cipherMode, ciphertext, { caesarShift })}
                   </div>
@@ -509,7 +506,6 @@ export default function Decipher() {
             
             {cipherMode === 'cryptogram' && (
               <div className="dec-tool-crypto">
-                <span className="dec-meta-label">ASSOCIATIVE DESK</span>
                 <div className="dec-grid-mapping">
                   {Array.from(new Set(ciphertext.replace(/\s/g, '').split(''))).map(char => (
                     <div key={char} className="dec-grid-pair">
@@ -525,7 +521,6 @@ export default function Decipher() {
                   ))}
                 </div>
                 <div className="dec-clean-preview">
-                  <span className="dec-meta-label">DECIPHERED PREVIEW</span>
                   <div className="dec-preview-value">
                     {getHelperPreview(cipherMode, ciphertext, { cryptoMapping })}
                   </div>
@@ -544,7 +539,6 @@ export default function Decipher() {
 
             {(cipherMode === 'navajo' || cipherMode === 'minionese') && (
               <div className="dec-tool-glossary">
-                <span className="dec-meta-label">CODEBOOK REFERENCING</span>
                 <div className="dec-grid-mapping">
                   {Object.entries(cipherMode === 'navajo' ? NAVAJO_DICT : MINION_DICT).map(([letter, code]) => (
                     <div key={letter} className="dec-grid-pair">
