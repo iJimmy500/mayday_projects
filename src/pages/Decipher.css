@@ -33,13 +33,33 @@
 .dec-top-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 24px;
   background: transparent;
   padding: 10px 0;
-  width: fit-content;
+  width: 100%;
+  max-width: 600px;
   margin: 20px auto 0 auto;
   transition: all 0.3s ease;
   z-index: 100;
+}
+
+.dec-dropdowns-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: ui-monospace, monospace;
+}
+
+.dec-tools-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dec-dropdowns-group .dec-dropdown-wrap:last-child .dec-dropdown-menu {
+  left: auto;
+  right: 0;
 }
 
 .dec-nav {
@@ -650,14 +670,54 @@
   }
 
   .dec-top-bar {
+    flex-direction: column;
+    gap: 12px;
     width: 100%;
-    padding: 4px 0;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    margin: 10px 0 0 0;
+  }
+
+  .dec-dropdowns-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
+  .dec-dropdown-wrap {
+    width: 100%;
+  }
+
+  .dec-nav-btn {
+    width: 100%;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 8px 4px;
+    box-sizing: border-box;
+    font-size: 10px;
+  }
+
+  .dec-tools-group {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .dec-tools-group .dec-tool-btn {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
   }
 
   .dec-nav {
-    gap: 6px;
-    flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     justify-content: center;
+    width: 100%;
   }
 
   .dec-code-output {

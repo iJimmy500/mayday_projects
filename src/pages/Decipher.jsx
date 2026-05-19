@@ -20,7 +20,8 @@ const CIPHER_MODES = [
 const LENGTH_MODES = [
   { val: 'easy', label: 'short (3-5)' },
   { val: 'medium', label: 'medium (6-8)' },
-  { val: 'hard', label: 'long (9-12)' }
+  { val: 'hard', label: 'long (9-12)' },
+  { val: 'multi', label: 'multiple words (2-3)' }
 ];
 
 const TIMER_MODES = [
@@ -67,13 +68,17 @@ const encryptWord = (cipherMode, word, config = {}) => {
     case 'caesar': {
       const shift = config.caesarShift;
       return word.split('').map(char => {
+        if (!/[A-Z]/.test(char)) return char;
         let code = char.charCodeAt(0) + shift;
         if (code > 90) code -= 26;
         return String.fromCharCode(code);
       }).join('');
     }
     case 'atbash':
-      return word.split('').map(char => String.fromCharCode(90 - (char.charCodeAt(0) - 65))).join('');
+      return word.split('').map(char => {
+        if (!/[A-Z]/.test(char)) return char;
+        return String.fromCharCode(90 - (char.charCodeAt(0) - 65));
+      }).join('');
     case 'reverse':
       return word.split('').reverse().join('');
     case 'leet':
@@ -83,11 +88,17 @@ const encryptWord = (cipherMode, word, config = {}) => {
     case 'keyboard':
       return word.split('').map(char => KEYBOARD_SLIP_MAP[char] || char).join('');
     case 'binary':
-      return word.split('').map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+      return word.split('').map(char => {
+        if (char === ' ') return ' ';
+        return char.charCodeAt(0).toString(2).padStart(8, '0');
+      }).join(' ');
     case 'vigenere': {
       const activeKey = config.vigenereKey;
-      return word.split('').map((char, idx) => {
-        const shift = activeKey.charCodeAt(idx % activeKey.length) - 65;
+      let activeIdx = 0;
+      return word.split('').map((char) => {
+        if (!/[A-Z]/.test(char)) return char;
+        const shift = activeKey.charCodeAt(activeIdx % activeKey.length) - 65;
+        activeIdx++;
         let code = char.charCodeAt(0) + shift;
         if (code > 90) code -= 26;
         return String.fromCharCode(code);
@@ -160,6 +171,8 @@ export default function Decipher() {
   const [solvedWords, setSolvedWords] = useState([]);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [pb, setPb] = useState({ words: 0 });
+  const [displayedText, setDisplayedText] = useState('');
+  const animIntervalRef = useRef(null);
 
   const [activeMenu, setActiveMenu] = useState(null);
 
@@ -227,10 +240,176 @@ export default function Decipher() {
   }, []);
 
   useEffect(() => {
+    if (!ciphertext) {
+      setDisplayedText('');
+      return;
+    }
+
+    if (animIntervalRef.current) clearInterval(animIntervalRef.current);
+
+    const length = ciphertext.length;
+    let iteration = 0;
+    const maxIterations = 12;
+
+    animIntervalRef.current = setInterval(() => {
+      iteration++;
+
+      if (iteration >= maxIterations) {
+        setDisplayedText(ciphertext);
+        clearInterval(animIntervalRef.current);
+        return;
+      }
+
+      let frameText = '';
+
+      switch (cipherMode) {
+        case 'caesar': {
+          frameText = ciphertext.split('').map((char) => {
+            if (!/[A-Z]/.test(char)) return char;
+            const code = char.charCodeAt(0);
+            let nextCode = code - (maxIterations - iteration);
+            if (nextCode < 65) nextCode += 26;
+            return String.fromCharCode(nextCode);
+          }).join('');
+          break;
+        }
+
+        case 'atbash': {
+          frameText = ciphertext.split('').map((char, idx) => {
+            if (!/[A-Z]/.test(char)) return char;
+            if (idx < (iteration / maxIterations) * length) {
+              return char;
+            }
+            return String.fromCharCode(90 - (char.charCodeAt(0) - 65));
+          }).join('');
+          break;
+        }
+
+        case 'reverse': {
+          const original = ciphertext.split('').reverse();
+          const swapBoundary = Math.floor((iteration / maxIterations) * (length / 2));
+          frameText = ciphertext.split('').map((char, idx) => {
+            if (idx < swapBoundary || idx >= length - swapBoundary) {
+              return char;
+            }
+            if (idx === swapBoundary || idx === length - 1 - swapBoundary) {
+              const symbols = ['|', '/', '-', '\\'];
+              return symbols[iteration % symbols.length];
+            }
+            return original[idx];
+          }).join('');
+          break;
+        }
+
+        case 'leet': {
+          frameText = ciphertext.split('').map((char) => {
+            if (!/[A-Z0-9]/.test(char)) return char;
+            if (Math.random() > 0.5) {
+              const leetMapping = { '4': 'A', '3': 'E', '0': 'O', '1': 'I', '7': 'T', '5': 'S' };
+              return leetMapping[char] || char;
+            }
+            return String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+          }).join('');
+          break;
+        }
+
+        case 'morse': {
+          const activeIdx = Math.floor((iteration / maxIterations) * length);
+          frameText = ciphertext.split('').map((char, idx) => {
+            if (idx < activeIdx) {
+              return char;
+            }
+            if (idx === activeIdx) {
+              const scannerSyms = ['▓', '▒', '░', '█'];
+              return scannerSyms[iteration % scannerSyms.length];
+            }
+            if (char === ' ') return ' ';
+            return '█';
+          }).join('');
+          break;
+        }
+
+        case 'keyboard': {
+          const adjacent = 'SDFGHJKLZXCVBNMQWERTYUIOP';
+          frameText = ciphertext.split('').map((char) => {
+            if (!/[A-Z]/.test(char)) return char;
+            if (Math.random() > 0.3) {
+              return adjacent[Math.floor(Math.random() * adjacent.length)];
+            }
+            return char;
+          }).join('');
+          break;
+        }
+
+        case 'binary': {
+          frameText = ciphertext.split('').map((char) => {
+            if (char === ' ') return ' ';
+            return Math.random() > 0.5 ? '1' : '0';
+          }).join('');
+          break;
+        }
+
+        case 'vigenere': {
+          frameText = ciphertext.split('').map((char, idx) => {
+            if (!/[A-Z]/.test(char)) return char;
+            const shiftAmount = (idx + iteration) % 26;
+            let code = char.charCodeAt(0) - shiftAmount;
+            if (code < 65) code += 26;
+            return String.fromCharCode(code);
+          }).join('');
+          break;
+        }
+
+        case 'navajo': {
+          const codenoise = ["SHUSH", "MOASI", "AH-JAH", "MA-E", "KLIZZIE", "GAH", "TSAH"];
+          frameText = ciphertext.split(' ').map(() => {
+            return codenoise[Math.floor(Math.random() * codenoise.length)];
+          }).join(' ');
+          break;
+        }
+
+        case 'minionese': {
+          const syllables = ["BA", "NU", "LA", "PE", "KA", "PO", "TI", "DA", "MI", "LU"];
+          frameText = ciphertext.split(' ').map(() => {
+            return syllables[Math.floor(Math.random() * syllables.length)];
+          }).join(' ');
+          break;
+        }
+
+        case 'cryptogram': {
+          frameText = ciphertext.split('').map((char, idx) => {
+            if (char === ' ') return ' ';
+            if (idx < (iteration / maxIterations) * length) {
+              return char;
+            }
+            const chars = "@#$%&*?!ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            return chars[Math.floor(Math.random() * chars.length)];
+          }).join('');
+          break;
+        }
+
+        default:
+          frameText = ciphertext;
+          break;
+      }
+
+      setDisplayedText(frameText);
+    }, 50);
+
+    return () => {
+      if (animIntervalRef.current) clearInterval(animIntervalRef.current);
+    };
+  }, [ciphertext, cipherMode]);
+
+  useEffect(() => {
     if (!loading && dictionary.length > 0) {
+      setSolvedCount(0);
+      setSolvedWords([]);
+      setStarted(false);
+      setFinished(false);
       newGame();
     }
-  }, [cipherMode, lengthMode, loading]);
+  }, [cipherMode, lengthMode, timeLimit, zenMode, isSuddenDeath, loading]);
 
   useEffect(() => {
     if (zenMode || !started || finished) return;
@@ -245,12 +424,22 @@ export default function Decipher() {
   const newGame = () => {
     if (dictionary.length === 0) return;
 
-    let minLen = 3, maxLen = 5;
-    if (lengthMode === 'medium') { minLen = 6; maxLen = 8; }
-    if (lengthMode === 'hard') { minLen = 9; maxLen = 12; }
-
-    const pool = dictionary.filter(w => w.length >= minLen && w.length <= maxLen);
-    const selected = pool[Math.floor(Math.random() * pool.length)] || 'MAYDAY';
+    let selected = '';
+    if (lengthMode === 'multi') {
+      const count = Math.random() > 0.5 ? 3 : 2;
+      const pool = dictionary.filter(w => w.length >= 3 && w.length <= 6);
+      const chosen = [];
+      for (let i = 0; i < count; i++) {
+        chosen.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+      selected = chosen.join(' ');
+    } else {
+      let minLen = 3, maxLen = 5;
+      if (lengthMode === 'medium') { minLen = 6; maxLen = 8; }
+      if (lengthMode === 'hard') { minLen = 9; maxLen = 12; }
+      const pool = dictionary.filter(w => w.length >= minLen && w.length <= maxLen);
+      selected = pool[Math.floor(Math.random() * pool.length)] || 'MAYDAY';
+    }
 
     setTargetWord(selected);
     setCryptoMapping({});
@@ -394,7 +583,7 @@ export default function Decipher() {
   return (
     <div className="decipher-game-container">
       <div className="dec-top-bar">
-        <div className="dec-nav">
+        <div className="dec-dropdowns-group">
           <Dropdown 
             id="mode" 
             value={CIPHER_MODES.find(m => m.val === cipherMode)?.label || cipherMode} 
@@ -419,6 +608,9 @@ export default function Decipher() {
               else { setZenMode(false); setTimeLimit(val); setTimeLeft(val); }
             }} 
           />
+        </div>
+
+        <div className="dec-tools-group">
           <button 
             className={`dec-tool-btn ${isSuddenDeath ? 'active' : ''}`} 
             onClick={() => { setIsSuddenDeath(!isSuddenDeath); setZenMode(false); }}
@@ -433,11 +625,10 @@ export default function Decipher() {
           >
             <Share2 size={13} />
           </button>
+          <button className="dec-tool-btn" onClick={newGame} title="New Word">
+            <RefreshCw size={13} />
+          </button>
         </div>
-
-        <button className="dec-tool-btn" onClick={newGame} title="New Word">
-          <RefreshCw size={13} />
-        </button>
       </div>
 
       <main className="dec-main" onClick={() => inputRef.current?.focus()}>
@@ -478,7 +669,7 @@ export default function Decipher() {
           )}
 
           <div className="dec-block">
-            <div className="dec-code-output">{ciphertext}</div>
+            <div className="dec-code-output">{displayedText || ciphertext}</div>
           </div>
 
           <div className="dec-workspace-tool">

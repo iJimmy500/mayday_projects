@@ -54,13 +54,17 @@ const encryptWord = (cipherMode, word, config = {}) => {
     case 'caesar': {
       const shift = config.caesarShift || 0;
       return word.split('').map(char => {
+        if (!/[A-Z]/.test(char)) return char;
         let code = char.charCodeAt(0) + shift;
         if (code > 90) code -= 26;
         return String.fromCharCode(code);
       }).join('');
     }
     case 'atbash':
-      return word.split('').map(char => String.fromCharCode(90 - (char.charCodeAt(0) - 65))).join('');
+      return word.split('').map(char => {
+        if (!/[A-Z]/.test(char)) return char;
+        return String.fromCharCode(90 - (char.charCodeAt(0) - 65));
+      }).join('');
     case 'reverse':
       return word.split('').reverse().join('');
     case 'leet':
@@ -70,11 +74,17 @@ const encryptWord = (cipherMode, word, config = {}) => {
     case 'keyboard':
       return word.split('').map(char => KEYBOARD_SLIP_MAP[char] || char).join('');
     case 'binary':
-      return word.split('').map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+      return word.split('').map(char => {
+        if (char === ' ') return ' ';
+        return char.charCodeAt(0).toString(2).padStart(8, '0');
+      }).join(' ');
     case 'vigenere': {
       const activeKey = config.vigenereKey || 'KEY';
-      return word.split('').map((char, idx) => {
-        const shift = activeKey.charCodeAt(idx % activeKey.length) - 65;
+      let activeIdx = 0;
+      return word.split('').map((char) => {
+        if (!/[A-Z]/.test(char)) return char;
+        const shift = activeKey.charCodeAt(activeIdx % activeKey.length) - 65;
+        activeIdx++;
         let code = char.charCodeAt(0) + shift;
         if (code > 90) code -= 26;
         return String.fromCharCode(code);
@@ -132,6 +142,7 @@ export default function DecipherLab({ onClose }) {
 
   const [shareUrl, setShareUrl] = useState('');
   const [copyBadge, setCopyBadge] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const [solveCiphertext, setSolveCiphertext] = useState('');
   const [solveCorrectWord, setSolveCorrectWord] = useState('');
@@ -140,6 +151,8 @@ export default function DecipherLab({ onClose }) {
   const [inputValue, setInputValue] = useState('');
   const [solved, setSolved] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [displayedText, setDisplayedText] = useState('');
+  const animIntervalRef = useRef(null);
 
   const [activeMenu, setActiveMenu] = useState(null);
   const inputRef = useRef(null);
@@ -186,6 +199,168 @@ export default function DecipherLab({ onClose }) {
     return () => window.removeEventListener('click', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!solveCiphertext) {
+      setDisplayedText('');
+      return;
+    }
+
+    if (animIntervalRef.current) clearInterval(animIntervalRef.current);
+
+    const length = solveCiphertext.length;
+    let iteration = 0;
+    const maxIterations = 12;
+
+    animIntervalRef.current = setInterval(() => {
+      iteration++;
+
+      if (iteration >= maxIterations) {
+        setDisplayedText(solveCiphertext);
+        clearInterval(animIntervalRef.current);
+        return;
+      }
+
+      let frameText = '';
+
+      switch (cipherMode) {
+        case 'caesar': {
+          frameText = solveCiphertext.split('').map((char) => {
+            if (!/[A-Z]/.test(char)) return char;
+            const code = char.charCodeAt(0);
+            let nextCode = code - (maxIterations - iteration);
+            if (nextCode < 65) nextCode += 26;
+            return String.fromCharCode(nextCode);
+          }).join('');
+          break;
+        }
+
+        case 'atbash': {
+          frameText = solveCiphertext.split('').map((char, idx) => {
+            if (!/[A-Z]/.test(char)) return char;
+            if (idx < (iteration / maxIterations) * length) {
+              return char;
+            }
+            return String.fromCharCode(90 - (char.charCodeAt(0) - 65));
+          }).join('');
+          break;
+        }
+
+        case 'reverse': {
+          const original = solveCiphertext.split('').reverse();
+          const swapBoundary = Math.floor((iteration / maxIterations) * (length / 2));
+          frameText = solveCiphertext.split('').map((char, idx) => {
+            if (idx < swapBoundary || idx >= length - swapBoundary) {
+              return char;
+            }
+            if (idx === swapBoundary || idx === length - 1 - swapBoundary) {
+              const symbols = ['|', '/', '-', '\\'];
+              return symbols[iteration % symbols.length];
+            }
+            return original[idx];
+          }).join('');
+          break;
+        }
+
+        case 'leet': {
+          frameText = solveCiphertext.split('').map((char) => {
+            if (!/[A-Z0-9]/.test(char)) return char;
+            if (Math.random() > 0.5) {
+              const leetMapping = { '4': 'A', '3': 'E', '0': 'O', '1': 'I', '7': 'T', '5': 'S' };
+              return leetMapping[char] || char;
+            }
+            return String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+          }).join('');
+          break;
+        }
+
+        case 'morse': {
+          const activeIdx = Math.floor((iteration / maxIterations) * length);
+          frameText = solveCiphertext.split('').map((char, idx) => {
+            if (idx < activeIdx) {
+              return char;
+            }
+            if (idx === activeIdx) {
+              const scannerSyms = ['▓', '▒', '░', '█'];
+              return scannerSyms[iteration % scannerSyms.length];
+            }
+            if (char === ' ') return ' ';
+            return '█';
+          }).join('');
+          break;
+        }
+
+        case 'keyboard': {
+          const adjacent = 'SDFGHJKLZXCVBNMQWERTYUIOP';
+          frameText = solveCiphertext.split('').map((char) => {
+            if (!/[A-Z]/.test(char)) return char;
+            if (Math.random() > 0.3) {
+              return adjacent[Math.floor(Math.random() * adjacent.length)];
+            }
+            return char;
+          }).join('');
+          break;
+        }
+
+        case 'binary': {
+          frameText = solveCiphertext.split('').map((char) => {
+            if (char === ' ') return ' ';
+            return Math.random() > 0.5 ? '1' : '0';
+          }).join('');
+          break;
+        }
+
+        case 'vigenere': {
+          frameText = solveCiphertext.split('').map((char, idx) => {
+            if (!/[A-Z]/.test(char)) return char;
+            const shiftAmount = (idx + iteration) % 26;
+            let code = char.charCodeAt(0) - shiftAmount;
+            if (code < 65) code += 26;
+            return String.fromCharCode(code);
+          }).join('');
+          break;
+        }
+
+        case 'navajo': {
+          const codenoise = ["SHUSH", "MOASI", "AH-JAH", "MA-E", "KLIZZIE", "GAH", "TSAH"];
+          frameText = solveCiphertext.split(' ').map(() => {
+            return codenoise[Math.floor(Math.random() * codenoise.length)];
+          }).join(' ');
+          break;
+        }
+
+        case 'minionese': {
+          const syllables = ["BA", "NU", "LA", "PE", "KA", "PO", "TI", "DA", "MI", "LU"];
+          frameText = solveCiphertext.split(' ').map(() => {
+            return syllables[Math.floor(Math.random() * syllables.length)];
+          }).join(' ');
+          break;
+        }
+
+        case 'cryptogram': {
+          frameText = solveCiphertext.split('').map((char, idx) => {
+            if (char === ' ') return ' ';
+            if (idx < (iteration / maxIterations) * length) {
+              return char;
+            }
+            const chars = "@#$%&*?!ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            return chars[Math.floor(Math.random() * chars.length)];
+          }).join('');
+          break;
+        }
+
+        default:
+          frameText = solveCiphertext;
+          break;
+      }
+
+      setDisplayedText(frameText);
+    }, 50);
+
+    return () => {
+      if (animIntervalRef.current) clearInterval(animIntervalRef.current);
+    };
+  }, [solveCiphertext, cipherMode]);
+
   const playSound = (type) => {
     try {
       if (!audioCtxRef.current) {
@@ -227,29 +402,36 @@ export default function DecipherLab({ onClose }) {
       return;
     }
 
-    const encoded = btoa(encodeURIComponent(rawWord));
-    const base = window.location.origin + window.location.pathname;
-    let url = `${base}?cipher=${encoded}&mode=${cipherMode}`;
+    setGenerating(true);
+    setShareUrl('');
+    playSound('click');
 
-    if (cipherMode === 'caesar') {
-      url += `&shift=${caesarShift}`;
-    }
-    if (cipherMode === 'vigenere') {
-      url += `&key=${vigenereKey.toUpperCase()}`;
-    }
-    if (cipherMode === 'cryptogram') {
-      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-      const shuffled = [...alphabet].sort(() => Math.random() - 0.5);
-      const mapping = {};
-      alphabet.forEach((char, i) => {
-        mapping[char] = shuffled[i];
-      });
-      const encInv = btoa(encodeURIComponent(JSON.stringify(mapping)));
-      url += `&inv=${encInv}`;
-    }
+    setTimeout(() => {
+      const encoded = btoa(encodeURIComponent(rawWord));
+      const base = window.location.origin + window.location.pathname;
+      let url = `${base}?cipher=${encoded}&mode=${cipherMode}`;
 
-    setShareUrl(url);
-    playSound('success');
+      if (cipherMode === 'caesar') {
+        url += `&shift=${caesarShift}`;
+      }
+      if (cipherMode === 'vigenere') {
+        url += `&key=${vigenereKey.toUpperCase()}`;
+      }
+      if (cipherMode === 'cryptogram') {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const shuffled = [...alphabet].sort(() => Math.random() - 0.5);
+        const mapping = {};
+        alphabet.forEach((char, i) => {
+          mapping[char] = shuffled[i];
+        });
+        const encInv = btoa(encodeURIComponent(JSON.stringify(mapping)));
+        url += `&inv=${encInv}`;
+      }
+
+      setShareUrl(url);
+      setGenerating(false);
+      playSound('success');
+    }, 1000);
   };
 
   const handleCopyLink = () => {
@@ -353,7 +535,7 @@ export default function DecipherLab({ onClose }) {
                 className="dec-input"
                 placeholder="TYPE MESSAGE HERE..."
                 value={customText}
-                onChange={e => setCustomText(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+                onChange={e => setCustomText(e.target.value.toUpperCase().replace(/[^A-Z\s]/g, ''))}
                 autoFocus
                 autoComplete="off"
               />
@@ -402,21 +584,32 @@ export default function DecipherLab({ onClose }) {
               </div>
             )}
 
-            <button className="dec-retry-btn" style={{ marginTop: '1rem' }} onClick={handleGenerateLink}>
-              GENERATE LAB LINK
+            <button 
+              className={`dec-retry-btn ${generating ? 'dec-generating' : ''}`} 
+              style={{ marginTop: '1rem', minWidth: '180px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} 
+              onClick={handleGenerateLink}
+              disabled={generating}
+            >
+              {generating ? "CALCULATING CIPHER..." : "GENERATE LAB LINK"}
             </button>
 
-            {shareUrl && (
-              <div className="lab-share-dock animate-fade">
-                <div className="lab-url-container">
-                  <input type="text" readOnly value={shareUrl} className="lab-url-field" />
+            {shareUrl && !generating && (
+              <div className="lab-share-container" style={{ width: '100%', marginTop: '1rem' }}>
+                <div 
+                  className="lab-share-dock animate-morph clickable" 
+                  onClick={handleCopyLink}
+                  title="Copy to Clipboard"
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="lab-url-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <span className="lab-url-field" style={{ textAlign: 'center', color: copyBadge ? '#10b981' : '#72857f', transition: 'color 0.2s' }}>
+                      {shareUrl}
+                    </span>
+                  </div>
                 </div>
-                <button className="dec-tool-btn" onClick={handleCopyLink} title="Copy to Clipboard">
-                  <Clipboard size={14} />
-                  <span className="dec-nav-value" style={{ marginLeft: '4px' }}>
-                    {copyBadge ? 'COPIED!' : 'COPY'}
-                  </span>
-                </button>
+                <div className="lab-share-hint animate-fade" style={{ textAlign: 'center', fontSize: '0.65rem', fontFamily: 'ui-monospace, monospace', marginTop: '6px', color: copyBadge ? '#10b981' : '#4a5753', transition: 'color 0.2s' }}>
+                  {copyBadge ? "Copied successfully! ✓" : "Tap container above to copy lab link"}
+                </div>
               </div>
             )}
           </div>
@@ -430,7 +623,7 @@ export default function DecipherLab({ onClose }) {
             </header>
 
             <div className="dec-block">
-              <div className="dec-code-output">{solveCiphertext}</div>
+              <div className="dec-code-output">{displayedText || solveCiphertext}</div>
             </div>
 
             {/* Interactive Workspace solver for custom code */}

@@ -81,3 +81,74 @@
     padding: 1rem;
   }
 }
+
+/* Glimmer Shimmer Animation for Generate Button */
+.dec-retry-btn.dec-generating {
+  background: linear-gradient(
+    90deg,
+    rgba(16, 185, 129, 0.04) 0%,
+    rgba(16, 185, 129, 0.22) 50%,
+    rgba(16, 185, 129, 0.04) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: decGlimmer 1.2s infinite linear !important;
+  color: #10b981 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  pointer-events: none;
+}
+
+@keyframes decGlimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Fluid Morph Animation */
+.animate-morph {
+  animation: labMorphIn 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes labMorphIn {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.75) scaleY(0.4) translateY(-10px);
+    filter: blur(10px);
+    background: rgba(16, 185, 129, 0);
+    border-color: rgba(16, 185, 129, 0);
+  }
+  65% {
+    opacity: 0.9;
+    transform: scaleX(1.03) scaleY(1.03) translateY(2px);
+    filter: blur(0);
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1) scaleY(1) translateY(0);
+    filter: blur(0);
+    background: rgba(16, 185, 129, 0.03);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+}
+
+/* Hover and Tap/Active Interaction for Clickable Share Dock */
+.lab-share-dock.clickable {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lab-share-dock.clickable:hover {
+  background: rgba(16, 185, 129, 0.06) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.04);
+}
+
+.lab-share-dock.clickable:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.01);
+}
