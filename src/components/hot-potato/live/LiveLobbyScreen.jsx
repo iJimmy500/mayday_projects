@@ -1,12 +1,12 @@
 import React from 'react';
-import { Share2, Users, X } from 'lucide-react';
-import { QuitBtn, Footer, TimeoutBanner, ShareModal } from './LiveSharedUI';
+import { Share2, Users, X, Copy, Check } from 'lucide-react';
+import { QuitBtn, Footer, TimeoutBanner, ShareModal, ConnectionDot } from './LiveSharedUI';
 
 export default function LiveLobbyScreen({
   isHost, myName, roomCode, roomUrl, gameMode,
   connectedPlayers, maxPlayers,
-  showShareModal, setShowShareModal, copied, onCopy,
-  timeoutCountdown,
+  showShareModal, setShowShareModal, copied, codeCopied, onCopy, onCopyCode,
+  timeoutCountdown, connected,
   onStart, onQuit, onKick,
 }) {
   const canStart = connectedPlayers.length >= 2;
@@ -26,22 +26,29 @@ export default function LiveLobbyScreen({
         <div className="hp-fade-in hpl-page">
           <div className="hpl-top-bar">
             <QuitBtn onQuit={onQuit} />
-            {isHost && (
-              <button className="hpl-share-btn" onClick={() => setShowShareModal(true)}>
-                <Share2 size={14} /> Share
-              </button>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <ConnectionDot connected={connected} />
+              {isHost && (
+                <button className="hpl-share-btn" onClick={() => setShowShareModal(true)}>
+                  <Share2 size={14} /> Share
+                </button>
+              )}
+            </div>
           </div>
 
           <h1 className="hp-title" style={{ marginBottom: 0 }}>HOT POTATO</h1>
-          <p className="hp-subtitle">
-            Lobby · <span className="hpl-room-code-inline">{roomCode}</span>
+          <p className="hp-subtitle" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+            Lobby ·{' '}
+            <span className="hpl-room-code-inline">{roomCode}</span>
+            <button className="hpl-copy-code-btn" onClick={onCopyCode} title="Copy room code">
+              {codeCopied ? <Check size={11} /> : <Copy size={11} />}
+            </button>
             {gameMode === 'central' && <span className="hpl-mode-pill">Central</span>}
             {gameMode === 'distributed' && <span className="hpl-mode-pill">Distributed</span>}
           </p>
 
           {!isHost && (
-            <div className="hpl-waiting-msg">Waiting for host to start...</div>
+            <div className="hpl-waiting-msg">Waiting for host to start…</div>
           )}
 
           <div className="hpl-player-list">
@@ -61,7 +68,7 @@ export default function LiveLobbyScreen({
                 )}
               </div>
             ))}
-            {connectedPlayers.length === 0 && <p className="hpl-empty">Connecting...</p>}
+            {connectedPlayers.length === 0 && <p className="hpl-empty">Connecting…</p>}
           </div>
 
           {isHost && (

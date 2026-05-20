@@ -638,3 +638,66 @@
 .hpl-report-link:hover {
   color: #8e8e93;
 }
+
+/* ── Connection dot ───────────────────────────────────────── */
+
+.hpl-conn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.hpl-conn-dot--on {
+  background: #30d158;
+  box-shadow: 0 0 5px rgba(48, 209, 88, 0.5);
+}
+.hpl-conn-dot--off {
+  background: #3a3a3c;
+}
+
+/* ── Copy code button ─────────────────────────────────────── */
+
+.hpl-copy-code-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #555;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s, background 0.15s;
+  vertical-align: middle;
+}
+.hpl-copy-code-btn:hover {
+  background: #1c1c1e;
+  color: #aeaeb2;
+}
+
+/* ── Countdown screen ─────────────────────────────────────── */
+
+.hpl-countdown-number {
+  font-size: 7rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: #fff;
+  margin: 0;
+  line-height: 1;
+  animation: hp-pop 0.3s ease;
+}
+
+.hpl-countdown-sub {
+  font-size: 1rem;
+  color: #555;
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+}
+
+@keyframes hp-pop {
+  0%   { transform: scale(1.25); opacity: 0; }
+  100% { transform: scale(1);    opacity: 1; }
+}

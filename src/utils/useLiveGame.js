@@ -8,12 +8,17 @@ export const PASS_DELAY_MS = 3000;
 const INACTIVITY_WARN_MS = 3 * 60 * 1000;
 const WARN_DURATION_S = 60;
 const ROOM_VALIDATE_TIMEOUT_MS = 4000;
+const COUNTDOWN_SECONDS = 3;
+const LS_NAME_KEY = 'hp-name';
 
 function genRoomCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 function genId() {
   return (crypto.randomUUID?.() ?? Math.random().toString(36).substring(2, 18));
+}
+function sessionKey(code) {
+  return `hp-session-${code}`;
 }
 
 export function sendAnswerBroadcast(channelRef, myIdRef, liveState, answerIndex) {
@@ -36,15 +41,18 @@ export default function useLiveGame() {
   const [isHost] = useState(!pathCode);
 
   const myIdRef = useRef(genId());
-  const hasJoinedRef = useRef(false); // true once we've tracked presence as a player
+  const hasJoinedRef = useRef(false);
+  const hadHostRef = useRef(false); // flips true the first time we see a host in presence
+
+  // Pre-fill name from last session
+  const savedName = localStorage.getItem(LS_NAME_KEY) ?? '';
 
   const [myName, setMyName] = useState('');
-  const [nameInput, setNameInput] = useState('');
+  const [nameInput, setNameInput] = useState(savedName);
   const [codeInput, setCodeInput] = useState('');
   const [tab, setTab] = useState('create');
   const [mode, setMode] = useState('distributed');
   const [roomCode, setRoomCode] = useState(pathCode || '');
-  // URL joiners start in 'validating' — we peek the room before asking for a name
   const [phase, setPhase] = useState(isHost ? 'setup' : (pathCode ? 'validating' : 'setup'));
   const [connectedPlayers, setConnectedPlayers] = useState([]);
   const connectedPlayersRef = useRef([]);
@@ -57,10 +65,12 @@ export default function useLiveGame() {
   const [urgency, setUrgency] = useState(0);
   const [shake, setShake] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
   const [error, setError] = useState('');
   const [timeoutCountdown, setTimeoutCountdown] = useState(null);
+  const [connected, setConnected] = useState(false);
 
   const channelRef = useRef(null);
   const validateTimerRef = useRef(null);
@@ -83,16 +93,33 @@ export default function useLiveGame() {
   useEffect(() => { connectedPlayersRef.current = connectedPlayers; }, [connectedPlayers]);
   useEffect(() => () => doCleanup(), []);
 
-  // URL joiners: validate the room exists and is open as soon as we mount
+  // URL joiners: validate room on mount
   useEffect(() => {
     if (!isHost && pathCode) validateRoom(pathCode);
   }, []);
 
-  // Host: keep tracked presence up-to-date so joiners can see the game phase
+  // Host: keep tracked presence current so joiners can read the game phase
   useEffect(() => {
     if (!isHost || !channelRef.current || !myName) return;
     channelRef.current.track({ id: myIdRef.current, name: myName, isHost: true, gamePhase: phase });
   }, [phase, isHost, myName]);
+
+  // ── Presence helpers ──────────────────────────────────────
+
+  function parsePresenceList(raw) {
+    return Object.values(raw).flat().map(p => ({ id: p.id, name: p.name, isHost: p.isHost, gamePhase: p.gamePhase }));
+  }
+
+  function checkHostLeft(list) {
+    const hasHost = list.some(p => p.isHost);
+    if (hadHostRef.current && !hasHost && hasJoinedRef.current) {
+      doCleanup();
+      setPhase('host_left');
+      return true;
+    }
+    if (hasHost) hadHostRef.current = true;
+    return false;
+  }
 
   // ── Room validation (URL joiners only) ───────────────────
 
@@ -108,27 +135,50 @@ export default function useLiveGame() {
         setPhase('not_found');
         ch.unsubscribe();
         channelRef.current = null;
+        setConnected(false);
       }
     }, ROOM_VALIDATE_TIMEOUT_MS);
 
     ch.on('presence', { event: 'sync' }, () => {
       const raw = ch.presenceState();
-      const entries = Object.values(raw).flat();
-      const hostEntry = entries.find(p => p.isHost);
-      const list = entries.map(p => ({ id: p.id, name: p.name, isHost: p.isHost }));
+      const list = parsePresenceList(raw);
       setConnectedPlayers(list);
 
-      if (hostEntry && !hasJoinedRef.current) {
-        clearTimeout(validateTimerRef.current);
-        const hostPhase = hostEntry.gamePhase || 'lobby';
-        setPhase(hostPhase !== 'lobby' ? 'already_started' : 'join');
+      if (hasJoinedRef.current) {
+        checkHostLeft(list);
+        return;
       }
+
+      const hostEntry = list.find(p => p.isHost);
+      if (!hostEntry) return;
+
+      clearTimeout(validateTimerRef.current);
+      hadHostRef.current = true;
+
+      if (hostEntry.gamePhase && hostEntry.gamePhase !== 'lobby') {
+        setPhase('already_started');
+        return;
+      }
+
+      // Check for saved session to auto-rejoin
+      try {
+        const stored = JSON.parse(sessionStorage.getItem(sessionKey(code)) ?? 'null');
+        if (stored?.name) {
+          const taken = list.some(p => p.name.toLowerCase() === stored.name.toLowerCase());
+          if (!taken && list.length < MAX_PLAYERS) {
+            setNameInput(stored.name);
+            doJoinRoom(stored.name, code, ch);
+            return;
+          }
+        }
+      } catch (_) {}
+
+      setPhase('join');
     });
 
-    // Broadcast handlers — gated by hasJoinedRef until we've actually joined
+    // Broadcast handlers — gated until we've actually joined
     ch.on('broadcast', { event: 'sync_state' }, ({ payload }) => {
       if (!hasJoinedRef.current) {
-        // Room exists but game is in progress
         if (payload.phase && payload.phase !== 'lobby') {
           clearTimeout(validateTimerRef.current);
           setPhase('already_started');
@@ -143,20 +193,16 @@ export default function useLiveGame() {
       }
     });
     ch.on('broadcast', { event: 'tick' }, ({ payload }) => {
-      if (!hasJoinedRef.current) return;
-      setUrgency(payload.urgency);
+      if (hasJoinedRef.current) setUrgency(payload.urgency);
     });
     ch.on('broadcast', { event: 'game_ended' }, ({ payload }) => {
-      if (!hasJoinedRef.current) return;
-      setPhase(payload?.reason === 'timeout' ? 'timed_out' : 'ended');
+      if (hasJoinedRef.current) setPhase(payload?.reason === 'timeout' ? 'timed_out' : 'ended');
     });
     ch.on('broadcast', { event: 'inactivity_warning' }, ({ payload }) => {
-      if (!hasJoinedRef.current) return;
-      setTimeoutCountdown(payload.seconds);
+      if (hasJoinedRef.current) setTimeoutCountdown(payload.seconds);
     });
     ch.on('broadcast', { event: 'inactivity_clear' }, () => {
-      if (!hasJoinedRef.current) return;
-      setTimeoutCountdown(null);
+      if (hasJoinedRef.current) setTimeoutCountdown(null);
     });
     ch.on('broadcast', { event: 'kick_player' }, ({ payload }) => {
       if (payload.playerId === myIdRef.current) {
@@ -165,7 +211,10 @@ export default function useLiveGame() {
       }
     });
 
-    ch.subscribe();
+    ch.subscribe((status) => {
+      setConnected(status === 'SUBSCRIBED');
+    });
+
     channelRef.current = ch;
     setRoomCode(code);
   }
@@ -181,9 +230,13 @@ export default function useLiveGame() {
 
     ch.on('presence', { event: 'sync' }, () => {
       const raw = ch.presenceState();
-      const list = Object.values(raw).flat().map(p => ({ id: p.id, name: p.name, isHost: p.isHost }));
+      const list = parsePresenceList(raw);
       setConnectedPlayers(list);
-      if (host) resetInactivity();
+      if (host) {
+        resetInactivity();
+      } else if (checkHostLeft(list)) {
+        return;
+      }
     });
 
     if (host) {
@@ -212,12 +265,14 @@ export default function useLiveGame() {
     }
 
     ch.subscribe(async (status) => {
+      setConnected(status === 'SUBSCRIBED');
       if (status === 'SUBSCRIBED') {
         if (!host) {
           const existing = Object.values(ch.presenceState()).flat();
           if (existing.length >= MAX_PLAYERS) {
             ch.unsubscribe();
             channelRef.current = null;
+            setConnected(false);
             setError('Room is full (8 players max).');
             setPhase('setup');
             return;
@@ -225,10 +280,12 @@ export default function useLiveGame() {
           if (existing.some(p => p.name.toLowerCase() === name.toLowerCase())) {
             ch.unsubscribe();
             channelRef.current = null;
+            setConnected(false);
             setError('That name is already taken. Choose another.');
             setPhase('setup');
             return;
           }
+          persistSession(name, code);
         }
         await ch.track({ id: myIdRef.current, name, isHost: host, gamePhase: 'lobby' });
       }
@@ -243,10 +300,16 @@ export default function useLiveGame() {
     clearTimeout(passTimeoutRef.current);
     clearTimeout(inactivityTimerRef.current);
     clearInterval(warnCountdownRef.current);
+    setConnected(false);
     if (channelRef.current) {
       channelRef.current.unsubscribe();
       channelRef.current = null;
     }
+  }
+
+  function persistSession(name, code) {
+    localStorage.setItem(LS_NAME_KEY, name);
+    sessionStorage.setItem(sessionKey(code), JSON.stringify({ name }));
   }
 
   // ── Inactivity (host only) ────────────────────────────────
@@ -284,6 +347,7 @@ export default function useLiveGame() {
     const name = nameInput.trim();
     if (!name) return;
     const code = genRoomCode();
+    localStorage.setItem(LS_NAME_KEY, name);
     setMyName(name);
     setRoomCode(code);
     window.history.pushState({}, '', `/hotpotato/live/${code}`);
@@ -297,6 +361,7 @@ export default function useLiveGame() {
     const name = nameInput.trim();
     const code = codeInput.trim().toUpperCase();
     if (!name || !code) return;
+    localStorage.setItem(LS_NAME_KEY, name);
     setMyName(name);
     setRoomCode(code);
     window.history.pushState({}, '', `/hotpotato/live/${code}`);
@@ -304,15 +369,16 @@ export default function useLiveGame() {
     setPhase('lobby');
   }
 
-  // URL joiners: channel already open from validateRoom, just track presence now
+  // URL joiners: channel already open from validateRoom, just track now
   function handleJoinRoom(e) {
     e.preventDefault();
     const name = nameInput.trim();
     if (!name) return;
+    doJoinRoom(name, pathCode, channelRef.current);
+  }
 
-    const ch = channelRef.current;
+  function doJoinRoom(name, code, ch) {
     if (!ch) return;
-
     const existing = Object.values(ch.presenceState()).flat();
     if (existing.length >= MAX_PLAYERS) {
       setError('Room is full (8 players max).');
@@ -322,8 +388,9 @@ export default function useLiveGame() {
       setError('That name is already taken. Choose another.');
       return;
     }
-
+    persistSession(name, code);
     setMyName(name);
+    setNameInput(name);
     hasJoinedRef.current = true;
     ch.track({ id: myIdRef.current, name, isHost: false, gamePhase: 'lobby' });
     setPhase('lobby');
@@ -353,6 +420,16 @@ export default function useLiveGame() {
       });
       playerStatsRef.current = stats;
       resetInactivity();
+
+      // 3-2-1 countdown before first round
+      for (let i = COUNTDOWN_SECONDS; i >= 1; i--) {
+        const payload = { phase: 'countdown', mode, playerNames: ordered, countdownValue: i };
+        setLiveState(payload);
+        setPhase('countdown');
+        channelRef.current?.send({ type: 'broadcast', event: 'sync_state', payload });
+        await new Promise(r => setTimeout(r, 1000));
+      }
+
       beginRound();
     } catch (err) {
       console.error(err);
@@ -515,24 +592,24 @@ export default function useLiveGame() {
     });
   }
 
+  function copyCode() {
+    navigator.clipboard.writeText(roomCode).then(() => {
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    });
+  }
+
   return {
-    // Identity
     isHost, myName, pathCode,
-    // Phase + nav state
     phase, tab, setTab, mode, setMode,
     roomCode, roomUrl,
-    // Form state
     nameInput, setNameInput, codeInput, setCodeInput, error, setError,
-    // Game state
     connectedPlayers, liveState, urgency, shake, loadingStatus, timeoutCountdown,
-    // Share modal
-    showShareModal, setShowShareModal, copied,
-    // Refs for non-host answer broadcast
+    showShareModal, setShowShareModal, copied, codeCopied,
+    connected,
     channelRef, myIdRef,
-    // Handlers
     handleCreateRoom, handleJoinFromSetup, handleJoinRoom,
-    startGame, handleHostAnswer, quitGame, copyLink, kickPlayer,
-    // Settings (read-only in live mode)
+    startGame, handleHostAnswer, quitGame, copyLink, copyCode, kickPlayer,
     settings,
   };
 }

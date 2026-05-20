@@ -19,10 +19,10 @@ export default function HotPotatoLive() {
     roomCode, roomUrl,
     nameInput, setNameInput, codeInput, setCodeInput, error, setError,
     connectedPlayers, liveState, urgency, shake, loadingStatus, timeoutCountdown,
-    showShareModal, setShowShareModal, copied,
+    showShareModal, setShowShareModal, copied, codeCopied, connected,
     channelRef, myIdRef,
     handleCreateRoom, handleJoinFromSetup, handleJoinRoom,
-    startGame, handleHostAnswer, quitGame, copyLink, kickPlayer,
+    startGame, handleHostAnswer, quitGame, copyLink, copyCode, kickPlayer,
     settings,
   } = game;
 
@@ -42,6 +42,20 @@ export default function HotPotatoLive() {
         handleCreateRoom={handleCreateRoom}
         handleJoinFromSetup={handleJoinFromSetup}
       />
+    );
+  }
+
+  // ── Validating ────────────────────────────────────────────
+  if (phase === 'validating') {
+    return (
+      <div className="hotpotato-container">
+        <div className="hotpotato-content">
+          <div className="hp-fade-in hpl-page hpl-center">
+            <p className="hp-title" style={{ marginBottom: '0.25rem' }}>HOT POTATO</p>
+            <p className="hpl-ended-msg" style={{ marginBottom: 0 }}>Checking room…</p>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -65,8 +79,9 @@ export default function HotPotatoLive() {
         roomCode={roomCode} roomUrl={roomUrl} gameMode={gameMode}
         connectedPlayers={connectedPlayers} maxPlayers={MAX_PLAYERS}
         showShareModal={showShareModal} setShowShareModal={setShowShareModal}
-        copied={copied} onCopy={copyLink}
-        timeoutCountdown={timeoutCountdown}
+        copied={copied} codeCopied={codeCopied}
+        onCopy={copyLink} onCopyCode={copyCode}
+        timeoutCountdown={timeoutCountdown} connected={connected}
         onStart={startGame} onQuit={quitGame} onKick={kickPlayer}
       />
     );
@@ -78,6 +93,20 @@ export default function HotPotatoLive() {
       <div className="hotpotato-container">
         <div className="hotpotato-content">
           <LoadingScreen loadingStatus={loadingStatus} />
+        </div>
+      </div>
+    );
+  }
+
+  // ── Countdown ─────────────────────────────────────────────
+  if (phase === 'countdown') {
+    return (
+      <div className="hotpotato-container">
+        <div className="hotpotato-content">
+          <div className="hp-fade-in hpl-page hpl-center">
+            <p className="hpl-countdown-number">{liveState?.countdownValue}</p>
+            <p className="hpl-countdown-sub">Get ready!</p>
+          </div>
         </div>
       </div>
     );
@@ -141,7 +170,7 @@ export default function HotPotatoLive() {
           <div className="hp-fade-in">
             {!isMyTurn && (
               <div className="hpl-spectating-banner">
-                Waiting for <strong>{activePlayerName}</strong> to answer...
+                Waiting for <strong>{activePlayerName}</strong> to answer…
               </div>
             )}
             <GameScreen
@@ -214,16 +243,28 @@ export default function HotPotatoLive() {
     );
   }
 
-  // ── Validating ────────────────────────────────────────────
-  if (phase === 'validating') {
+  // ── Host left ─────────────────────────────────────────────
+  if (phase === 'host_left') {
     return (
       <div className="hotpotato-container">
         <div className="hotpotato-content">
-          <div className="hp-fade-in hpl-page hpl-center">
-            <p className="hp-title" style={{ marginBottom: '0.25rem' }}>HOT POTATO</p>
-            <p className="hpl-ended-msg" style={{ marginBottom: 0 }}>Checking room…</p>
+          <div className="hp-fade-in hpl-page hpl-center" style={{ gap: '0.75rem' }}>
+            <p className="hp-title" style={{ marginBottom: 0 }}>HOT POTATO</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#e5e5ea', margin: 0 }}>Host Disconnected</p>
+            <p style={{ color: '#555', fontSize: '0.95rem', margin: 0 }}>
+              The host left the game. It can't continue without them.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', marginTop: '0.5rem' }}>
+              <button className="hp-btn-massive" onClick={() => window.location.href = '/hotpotato'}>
+                Play Locally
+              </button>
+              <button className="hp-btn-massive" onClick={() => window.location.href = '/hotpotato/live'}>
+                Play Online <span className="hpl-beta-badge" style={{ marginLeft: 6, verticalAlign: 'middle' }}>BETA</span>
+              </button>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -240,7 +281,7 @@ export default function HotPotatoLive() {
             <p style={{ color: '#555', fontSize: '0.95rem', margin: 0 }}>
               This room doesn't exist or has already ended.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', marginTop: '0.5rem' }}>
               <button className="hp-btn-massive" onClick={() => window.location.href = '/hotpotato'}>
                 Play Locally
               </button>
@@ -268,7 +309,7 @@ export default function HotPotatoLive() {
             <p style={{ color: '#555', fontSize: '0.95rem', margin: 0 }}>
               This game has already begun. You can't join mid-round right now — check back when it ends!
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', marginTop: '0.5rem' }}>
               <button className="hp-btn-massive" onClick={() => window.location.href = '/hotpotato'}>
                 Play Locally
               </button>

@@ -38,6 +38,15 @@ export function TimeoutBanner({ countdown }) {
   );
 }
 
+export function ConnectionDot({ connected }) {
+  return (
+    <span
+      className={`hpl-conn-dot ${connected ? 'hpl-conn-dot--on' : 'hpl-conn-dot--off'}`}
+      title={connected ? 'Connected' : 'Connecting…'}
+    />
+  );
+}
+
 export function ShareModal({ roomUrl, roomCode, copied, onCopy, onClose }) {
   return (
     <div className="hpl-modal-overlay" onClick={onClose}>
