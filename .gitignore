@@ -53,6 +53,8 @@ src/pages/Images.jsx
 src/pages/Images.css
 src/pages/TopFive.jsx
 src/pages/TopFive.css
+src/pages/WembyStats.jsx
+src/pages/WembyStats.css
 
 # Archives
 .day4_archive/

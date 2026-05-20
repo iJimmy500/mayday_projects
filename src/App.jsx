@@ -23,6 +23,9 @@ const Flashy = lazy(() => import('./pages/Flashy'));
 const MathAcademy = lazy(() => import('./pages/MathAcademy'));
 const Numism = lazy(() => import('./pages/Numism'));
 const Decipher = lazy(() => import('./pages/Decipher'));
+const WembyStats = lazy(() => import('./pages/WembyStats'));
+const HotPotato = lazy(() => import('./pages/HotPotato'));
+const HotPotatoLive = lazy(() => import('./pages/HotPotatoLive'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -102,6 +105,9 @@ export default function App() {
           if (path === '/day15' || path === '/math' || path === '/academy') return <MathAcademy />;
           if (path === '/day17' || path === '/numism' || path === '/numisim' || path === '/numbers' || path === '/mathaddict') return <Numism />;
           if (path === '/day18' || path === '/decipher' || path === '/cipher' || path === '/crypt' || path === '/day18/lab' || path === '/decipher/lab' || path === '/cipher/lab') return <Decipher />;
+          if (path === '/day19' || path === '/hotpotato' || path === '/potato') return <HotPotato />;
+          if (path === '/hotpotato/live' || path.startsWith('/hotpotato/live/')) return <HotPotatoLive />;
+          if (path === '/wembystats' || path === '/wemby') return <WembyStats />;
 
 
 
