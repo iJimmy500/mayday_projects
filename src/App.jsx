@@ -25,6 +25,7 @@ const Numism = lazy(() => import('./pages/Numism'));
 const Decipher = lazy(() => import('./pages/Decipher'));
 const HotPotato = lazy(() => import('./pages/HotPotato'));
 const HotPotatoLive = lazy(() => import('./pages/HotPotatoLive'));
+const Throwback = lazy(() => import('./pages/Throwback'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -106,6 +107,7 @@ export default function App() {
           if (path === '/day18' || path === '/decipher' || path === '/cipher' || path === '/crypt' || path === '/day18/lab' || path === '/decipher/lab' || path === '/cipher/lab') return <Decipher />;
           if (path === '/day19' || path === '/hotpotato' || path === '/potato') return <HotPotato />;
           if (path === '/hotpotato/live' || path.startsWith('/hotpotato/live/')) return <HotPotatoLive />;
+          if (path === '/day20' || path === '/throwback' || path === '/rewind') return <Throwback />;
 
 
 

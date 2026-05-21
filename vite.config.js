@@ -27,6 +27,18 @@ const archiveProxyPlugin = () => {
         fetchFile(targetUrl);
       });
 
+      // Deezer artist image proxy
+      server.middlewares.use('/api/artist-image', (req, res) => {
+        const term = new URL(req.url, 'http://localhost').searchParams.get('term');
+        if (!term) { res.statusCode = 400; return res.end('Missing term'); }
+        const targetUrl = `https://api.deezer.com/search/artist?q=${encodeURIComponent(term)}&limit=1`;
+        https.get(targetUrl, apiRes => {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Content-Type', 'application/json');
+          apiRes.pipe(res);
+        }).on('error', err => { res.statusCode = 500; res.end(err.message); });
+      });
+
       // YouTube Search Proxy with Failover
       server.middlewares.use('/yt-search', (req, res) => {
         const query = new URL(req.url, 'http://localhost').searchParams.get('q');

@@ -55,6 +55,21 @@ export default {
       }
     }
 
+    // --- ROUTE: Deezer Artist Image Proxy ---
+    if (url.pathname === '/api/artist-image') {
+      const term = url.searchParams.get('term');
+      if (!term) return new Response('Missing term', { status: 400, headers: corsHeaders });
+      try {
+        const response = await fetch(`https://api.deezer.com/search/artist?q=${encodeURIComponent(term)}&limit=1`);
+        const data = await response.text();
+        return new Response(data, {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
     // --- ROUTE: Audio Stream Proxy (Fallback) ---
     if (url.pathname.startsWith('/api/get-audio')) {
       // Temporary fallback while we move audio extraction to a compatible service
