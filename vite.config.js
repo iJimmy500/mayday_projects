@@ -27,6 +27,16 @@ const archiveProxyPlugin = () => {
         fetchFile(targetUrl);
       });
 
+      // Last.fm proxy
+      server.middlewares.use('/api/lastfm', (req, res) => {
+        const targetUrl = `https://ws.audioscrobbler.com/2.0/${req.url}`;
+        https.get(targetUrl, apiRes => {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Content-Type', 'application/json');
+          apiRes.pipe(res);
+        }).on('error', err => { res.statusCode = 500; res.end(err.message); });
+      });
+
       // Deezer artist image proxy
       server.middlewares.use('/api/artist-image', (req, res) => {
         const term = new URL(req.url, 'http://localhost').searchParams.get('term');

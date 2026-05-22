@@ -41,6 +41,19 @@ export default {
       }
     }
 
+    // --- ROUTE: Last.fm Proxy (avoids ad blocker blocks on audioscrobbler.com) ---
+    if (url.pathname === '/api/lastfm') {
+      try {
+        const response = await fetch(`https://ws.audioscrobbler.com/2.0/${url.search}`);
+        const data = await response.text();
+        return new Response(data, {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
     // --- ROUTE: Lyrics API Proxy ---
     if (url.pathname.startsWith('/api/lyrics/')) {
       const targetUrl = `https://lrclib.net/api/${url.pathname.replace('/api/lyrics/', '')}${url.search}`;

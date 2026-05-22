@@ -26,6 +26,7 @@ const Decipher = lazy(() => import('./pages/Decipher'));
 const HotPotato = lazy(() => import('./pages/HotPotato'));
 const HotPotatoLive = lazy(() => import('./pages/HotPotatoLive'));
 const Throwback = lazy(() => import('./pages/Throwback'));
+const GasStation = lazy(() => import('./pages/GasStation'));
 
 const Loading = () => (
   <div className="simple-center">
@@ -108,6 +109,7 @@ export default function App() {
           if (path === '/day19' || path === '/hotpotato' || path === '/potato') return <HotPotato />;
           if (path === '/hotpotato/live' || path.startsWith('/hotpotato/live/')) return <HotPotatoLive />;
           if (path === '/day20' || path === '/throwback' || path === '/rewind') return <Throwback />;
+          if (path === '/day21' || path === '/gas' || path === '/octane' || path === '/pump') return <GasStation />;
 
 
 

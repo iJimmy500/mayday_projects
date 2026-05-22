@@ -1,7 +1,7 @@
 import { TODAY } from '../components/throwback/constants';
 
 const API_KEY = import.meta.env.VITE_LASTFM_API_KEY;
-const BASE    = 'https://ws.audioscrobbler.com/2.0/';
+const BASE    = '/api/lastfm';
 
 function dayTimestamps(year) {
   const from = new Date(Date.UTC(year, TODAY.getMonth(), TODAY.getDate(), 0, 0, 0));

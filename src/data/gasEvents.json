@@ -1,0 +1,14 @@
+[
+  { "id": 1, "title": "FEDERAL RESERVE RATE HIKE", "desc": "Rising interest rates slow economic growth, reducing industrial activity and cutting fuel demand.", "effect": 0.94, "isGood": true },
+  { "id": 2, "title": "DRONE STRIKE ON REFINERY", "desc": "A targeted attack on a major refinery knocks out a significant chunk of regional fuel production.", "effect": 1.11, "isGood": false },
+  { "id": 3, "title": "CHINA ECONOMIC SLOWDOWN", "desc": "Weaker growth in the world's largest oil consumer tanks global crude demand expectations.", "effect": 0.93, "isGood": true },
+  { "id": 4, "title": "WINTER COLD SNAP", "desc": "An unusually brutal winter drives a surge in home heating and energy demand nationwide.", "effect": 1.08, "isGood": false },
+  { "id": 5, "title": "NEW OFFSHORE RESERVES FOUND", "desc": "A major discovery of untapped offshore oil reserves boosts long-term supply outlooks.", "effect": 0.91, "isGood": true },
+  { "id": 6, "title": "RUSSIA EXPORT BAN", "desc": "Russia cuts off crude exports to key allies, tightening global supply and spiking prices.", "effect": 1.12, "isGood": false },
+  { "id": 7, "title": "CARBON TAX INTRODUCED", "desc": "A new federal carbon tax raises costs for refiners, which get passed directly to consumers at the pump.", "effect": 1.06, "isGood": false },
+  { "id": 8, "title": "MILD SUMMER FORECAST", "desc": "Weather agencies predict a cooler-than-average summer, dampening demand for road trips and AC-heavy driving.", "effect": 0.96, "isGood": true },
+  { "id": 9, "title": "TANKER ROUTE BLOCKAGE", "desc": "A grounded vessel blocks a critical shipping strait, delaying millions of barrels of crude in transit.", "effect": 1.09, "isGood": false },
+  { "id": 10, "title": "REMOTE WORK TREND GROWS", "desc": "A surge in work-from-home adoption cuts daily commuter traffic, meaningfully reducing gasoline consumption.", "effect": 0.95, "isGood": true },
+  { "id": 11, "title": "OPEC UNITY COLLAPSES", "desc": "Internal disagreements cause OPEC members to overproduce, flooding the market with cheap crude.", "effect": 0.90, "isGood": true },
+  { "id": 12, "title": "REFINERY CYBERATTACK", "desc": "Hackers shut down automated systems at several major refineries, halting fuel output for days.", "effect": 1.10, "isGood": false }
+]
