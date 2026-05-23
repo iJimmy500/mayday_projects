@@ -118,7 +118,7 @@ async function generateCard(result) {
   ctx.font = '500 11px system-ui, sans-serif';
   ctx.fillText('via last.fm', PAD, H - 28);
   ctx.fillStyle = '#1c1c1c';
-  const site = 'mayinflight.com/throwback';
+  const site = 'projects.mayinflight.com/throwback';
   ctx.fillText(site, W - PAD - ctx.measureText(site).width, H - 28);
 
   return canvas;

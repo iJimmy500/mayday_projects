@@ -256,7 +256,7 @@ export default function GasStation() {
   const handleShare = useCallback(async () => {
     const diff = Math.round((currentCost - targetAmount) * 100) / 100;
     const diffText = diff === 0 ? "exactly on the dot!" : `${Math.abs(diff).toFixed(2)} away from my target.`;
-    const text = `I just pumped $${currentCost.toFixed(2)} of gas and was ${diffText}\nPlay Mayday Octane: https://mayinflight.com`;
+    const text = `I just pumped $${currentCost.toFixed(2)} of gas and was ${diffText}\nPlay Mayday Octane: https://projects.mayinflight.com`;
     try {
       if (navigator.share) {
         await navigator.share({ text });

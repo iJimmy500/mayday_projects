@@ -288,6 +288,7 @@ export default function useLiveGame() {
           persistSession(name, code);
         }
         await ch.track({ id: myIdRef.current, name, isHost: host, gamePhase: 'lobby' });
+        if (!host) hasJoinedRef.current = true;
       }
     });
 
