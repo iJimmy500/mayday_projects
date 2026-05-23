@@ -18,6 +18,28 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // --- ROUTE: Supabase Proxy (Bypasses adblockers/Brave Shields for DB/Realtime) ---
+    if (url.pathname.startsWith('/supabase/')) {
+      const targetPath = url.pathname.replace('/supabase/', '');
+      const targetUrl = `https://tmhxysfxsokgisruovsj.supabase.co/${targetPath}${url.search}`;
+
+      try {
+        const fetchOptions = {
+          method: request.method,
+          headers: request.headers,
+          redirect: "manual"
+        };
+        if (request.method !== "GET" && request.method !== "HEAD") {
+          fetchOptions.body = request.body;
+        }
+
+        const response = await fetch(targetUrl, fetchOptions);
+        return response;
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
     // --- ROUTE: Archive.org Proxy (Flash Games) ---
     if (url.pathname.startsWith('/archive-proxy/')) {
       const targetPath = url.pathname.replace('/archive-proxy/', '');

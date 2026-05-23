@@ -96,4 +96,14 @@ const archiveProxyPlugin = () => {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), archiveProxyPlugin()],
+  server: {
+    proxy: {
+      '/supabase': {
+        target: 'https://tmhxysfxsokgisruovsj.supabase.co',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/supabase/, ''),
+        ws: true
+      }
+    }
+  }
 })
