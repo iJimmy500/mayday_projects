@@ -250,7 +250,8 @@ header p.countdown-text {
     margin-top: 60px;
     bottom: auto;
     right: auto;
-    text-align: center;
+    display: flex;
+    justify-content: center;
     padding-bottom: 40px;
   }
 }

@@ -49,6 +49,8 @@ dist-ssr
 # Temporary/Hidden Pages
 src/pages/Stuff.jsx
 src/pages/Stuff.css
+src/pages/Tinder.jsx
+src/pages/Tinder.css
 src/pages/Images.jsx
 src/pages/Images.css
 src/pages/TopFive.jsx
