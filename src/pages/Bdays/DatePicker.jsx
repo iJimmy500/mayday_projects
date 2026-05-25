@@ -1,14 +1,26 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
-export default function DatePicker({ month, day, onMonthChange, onDayChange, onYearChange, maxDay }) {
+export default function DatePicker({ month, day, year, onMonthChange, onDayChange, onYearChange, maxDay }) {
   // Internal display strings — parent receives parsed values via callbacks
   const [mStr, setMStr] = useState(month ? String(month).padStart(2, '0') : '');
   const [dStr, setDStr] = useState(day   ? String(day).padStart(2, '0')   : '');
-  const [yStr, setYStr] = useState('');
+  const [yStr, setYStr] = useState(year  ? String(year) : '');
 
   const monthRef = useRef(null);
   const dayRef   = useRef(null);
   const yearRef  = useRef(null);
+
+  useEffect(() => {
+    setMStr(month ? String(month).padStart(2, '0') : '');
+  }, [month]);
+
+  useEffect(() => {
+    setDStr(day ? String(day).padStart(2, '0') : '');
+  }, [day]);
+
+  useEffect(() => {
+    setYStr(year ? String(year) : '');
+  }, [year]);
 
   function handleMonth(raw) {
     const digits = raw.replace(/\D/g, '').slice(0, 2);

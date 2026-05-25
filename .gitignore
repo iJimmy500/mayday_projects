@@ -95,3 +95,15 @@ public/artifacts/*
 scratch/
 src/scratch/
 
+# Vietnam Draft temporary scripts and data
+538data/
+vietnam_draft.html
+fetch*.js
+fetch*.py
+parse*.js
+inspect*.js
+search*.py
+search*.js
+checkArray.js
+testParse.js
+

@@ -3,6 +3,8 @@ import { getSeason, daysUntilNext, RANK_MAP, artworkUrl } from './utils';
 
 const pad = n => String(n).padStart(2, '0');
 
+import draftData from '../../data/draft1969.json';
+
 // ─── Wikipedia ────────────────────────────────────────────────
 const wikiGet = async (path) => {
   try {
@@ -15,20 +17,32 @@ const wikiGet = async (path) => {
 export async function fetchWikiData(month, day, year) {
   const [sel, birth] = await Promise.all([
     wikiGet(`selected/${month}/${day}`),
-    wikiGet(`births/${month}/${day}`),
+    wikiGet(`births/${month}/${day}`)
   ]);
+  
+  const draftNumber = draftData[`${month}-${day}`] || null;
 
-  const births = (birth.births || []).filter(b => Number(b.year) !== year).slice(0, 8);
+  let births = (birth.births || []).filter(b => Number(b.year) !== year).slice(0, 8);
 
-  const firstNames = births
-    .map(b => (b.pages?.[0]?.normalizedtitle || b.text || '').split(/[ -]/)[0])
-    .filter(n => n && n.length > 1 && /^[A-Z]/.test(n));
-  const counts = {};
-  firstNames.forEach(n => { counts[n] = (counts[n] || 0) + 1; });
-  const topNames = Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([n]) => n);
+  if (month === 5 && day === 23) {
+    const jamesBirth = {
+      year: "2006",
+      text: "james006, The legendary creator and top programmer",
+      pages: [
+        {
+          normalizedtitle: "james006 👑",
+          title: "james006",
+          description: "Legendary developer, visionary creator & top programmer",
+          content_urls: {
+            desktop: {
+              page: "https://github.com/iJimmy500"
+            }
+          }
+        }
+      ]
+    };
+    births = [jamesBirth, ...births];
+  }
 
   const birthDate = new Date(year, month - 1, day);
   const now       = new Date();
@@ -45,7 +59,7 @@ export async function fetchWikiData(month, day, year) {
     rank:      RANK_MAP[`${month}-${day}`] ?? 183,
     events:    (sel.selected || []).slice(0, 5),
     births,
-    topNames,
+    draftNumber,
   };
 }
 

@@ -235,3 +235,47 @@ export function getDerivedStats(daysLived, birthYear, birthDay) {
 
   return stats;
 }
+
+export function getCommonNamesForYear(year, month = 1, day = 1) {
+  const y = parseInt(year, 10);
+  const m = parseInt(month, 10) || 1;
+  const d = parseInt(day, 10) || 1;
+  
+  let pool = [];
+  if (isNaN(y)) {
+    pool = ['Jacob', 'Emily', 'Michael', 'Madison', 'Joshua', 'Ashley', 'Matthew', 'Olivia', 'Daniel', 'Hannah'];
+  } else if (y < 1920) {
+    pool = ['John', 'Mary', 'William', 'Helen', 'James', 'Margaret', 'George', 'Anna', 'Charles', 'Ruth', 'Robert', 'Elizabeth', 'Joseph', 'Dorothy', 'Frank', 'Marie', 'Edward', 'Florence', 'Thomas', 'Mildred'];
+  } else if (y < 1930) {
+    pool = ['John', 'Mary', 'Robert', 'Dorothy', 'James', 'Helen', 'William', 'Margaret', 'Charles', 'Ruth', 'George', 'Virginia', 'Thomas', 'Mildred', 'Joseph', 'Elizabeth', 'Edward', 'Frances', 'Richard', 'Betty'];
+  } else if (y < 1940) {
+    pool = ['Robert', 'Mary', 'James', 'Betty', 'John', 'Barbara', 'William', 'Shirley', 'Richard', 'Patricia', 'Charles', 'Dorothy', 'Donald', 'Joan', 'Thomas', 'Gloria', 'Joseph', 'Nancy', 'Ronald', 'Helen'];
+  } else if (y < 1950) {
+    pool = ['James', 'Mary', 'Robert', 'Linda', 'John', 'Barbara', 'William', 'Patricia', 'Richard', 'Carol', 'David', 'Sandra', 'Charles', 'Nancy', 'Thomas', 'Sharon', 'Michael', 'Judith', 'Ronald', 'Susan'];
+  } else if (y < 1960) {
+    pool = ['James', 'Mary', 'Michael', 'Linda', 'Robert', 'Patricia', 'John', 'Susan', 'David', 'Deborah', 'William', 'Kathleen', 'Thomas', 'Debra', 'Richard', 'Karen', 'Gary', 'Donna', 'Charles', 'Sandra'];
+  } else if (y < 1970) {
+    pool = ['Michael', 'Lisa', 'David', 'Mary', 'John', 'Susan', 'James', 'Karen', 'Robert', 'Kimberly', 'Mark', 'Patricia', 'William', 'Linda', 'Richard', 'Donna', 'Thomas', 'Michelle', 'Jeffrey', 'Laura'];
+  } else if (y < 1980) {
+    pool = ['Michael', 'Jennifer', 'Christopher', 'Amy', 'Jason', 'Melissa', 'David', 'Michelle', 'James', 'Kimberly', 'John', 'Lisa', 'Robert', 'Angela', 'Brian', 'Heather', 'William', 'Stephanie', 'Matthew', 'Rebecca'];
+  } else if (y < 1990) {
+    pool = ['Michael', 'Jessica', 'Christopher', 'Ashley', 'Matthew', 'Amanda', 'Joshua', 'Sarah', 'David', 'Jennifer', 'Daniel', 'Brittany', 'James', 'Stephanie', 'John', 'Elizabeth', 'Robert', 'Emily', 'Joseph', 'Megan'];
+  } else if (y < 2000) {
+    pool = ['Michael', 'Jessica', 'Christopher', 'Ashley', 'Matthew', 'Emily', 'Joshua', 'Sarah', 'Jacob', 'Samantha', 'Nicholas', 'Amanda', 'Andrew', 'Brittany', 'Daniel', 'Elizabeth', 'Tyler', 'Taylor', 'Joseph', 'Megan'];
+  } else if (y < 2010) {
+    pool = ['Jacob', 'Emily', 'Michael', 'Madison', 'Joshua', 'Ashley', 'Matthew', 'Olivia', 'Daniel', 'Hannah', 'Christopher', 'Abigail', 'Andrew', 'Isabella', 'Ethan', 'Samantha', 'Joseph', 'Elizabeth', 'William', 'Alexis'];
+  } else if (y < 2020) {
+    pool = ['Noah', 'Sophia', 'Liam', 'Isabella', 'Jacob', 'Emma', 'William', 'Olivia', 'Mason', 'Ava', 'Ethan', 'Emily', 'Michael', 'Abigail', 'Alexander', 'Madison', 'James', 'Mia', 'Daniel', 'Chloe'];
+  } else {
+    pool = ['Liam', 'Olivia', 'Noah', 'Emma', 'Oliver', 'Charlotte', 'James', 'Amelia', 'Elijah', 'Sophia', 'William', 'Isabella', 'Henry', 'Ava', 'Lucas', 'Mia', 'Benjamin', 'Evelyn', 'Theodore', 'Harper'];
+  }
+
+  // Deterministically select 5 names using month and day
+  const startIndex = (m * 7 + d * 3) % pool.length;
+  const selected = [];
+  for (let i = 0; i < 5; i++) {
+    selected.push(pool[(startIndex + i * 3) % pool.length]);
+  }
+  
+  return [...new Set(selected)].slice(0, 5);
+}

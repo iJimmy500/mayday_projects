@@ -19,9 +19,11 @@
   0% {
     transform: scale(1) translate(0, 0);
   }
+
   50% {
     transform: scale(1.08) translate(-1.5%, -1%);
   }
+
   100% {
     transform: scale(1) translate(0, 0);
   }
@@ -29,14 +31,38 @@
 
 .bday-bg {
   position: fixed;
-  inset: -8%;
+  inset: -12%;
   background-size: cover;
   background-position: center;
-  filter: blur(18px) brightness(0.28) saturate(1.4);
+  filter: blur(48px) brightness(0.16) saturate(1.0);
   z-index: 0;
   pointer-events: none;
   transform-origin: center center;
-  animation: panZoomBackground 20s ease-in-out 2 forwards;
+  animation: panZoomBackground 30s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.bday-bg--still {
+  z-index: -2;
+}
+
+.bday-bg--gif-animate {
+  z-index: -1;
+  animation: panZoomBackground 30s cubic-bezier(0.25, 1, 0.5, 1) forwards,
+    fadeToStill 12s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes fadeToStill {
+  0% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 .bday-inner {
@@ -57,7 +83,7 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #383840;
+  color: #888898;
   margin: 0 0 18px;
 }
 
@@ -80,7 +106,9 @@
   scroll-snap-type: x proximity;
 }
 
-.bday-month-strip::-webkit-scrollbar { display: none; }
+.bday-month-strip::-webkit-scrollbar {
+  display: none;
+}
 
 .bday-month-pill {
   scroll-snap-align: center;
@@ -151,7 +179,7 @@
 
 .bday-stepper-btn:hover {
   color: #888898;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .bday-stepper-val {
@@ -199,7 +227,9 @@
   -webkit-appearance: none;
 }
 
-.bday-year-input::placeholder { color: #242430; }
+.bday-year-input::placeholder {
+  color: #242430;
+}
 
 .bday-year-input:focus {
   border-color: #2e2e3a;
@@ -221,20 +251,33 @@
   transition: background 0.15s, transform 0.1s;
 }
 
-.bday-go-btn:hover:not(:disabled) { background: #fff; }
-.bday-go-btn:active:not(:disabled) { transform: scale(0.94); }
-.bday-go-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.bday-go-btn:hover:not(:disabled) {
+  background: #fff;
+}
+
+.bday-go-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.bday-go-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
 
 /* ──────────────────────────────────────────────────────────────
    SPINNER
    ────────────────────────────────────────────────────────────── */
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .bday-spin {
   display: inline-block;
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(13,13,16,0.15);
+  border: 2px solid rgba(13, 13, 16, 0.15);
   border-top-color: #0d0d10;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -243,7 +286,7 @@
 .bday-spin--lg {
   width: 26px;
   height: 26px;
-  border-color: rgba(255,255,255,0.06);
+  border-color: rgba(255, 255, 255, 0.06);
   border-top-color: #333340;
 }
 
@@ -264,8 +307,15 @@
    RESULTS — cascade animation
    ────────────────────────────────────────────────────────────── */
 @keyframes dropIn {
-  from { opacity: 0; transform: translateY(-18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bday-results {
@@ -281,16 +331,45 @@
 }
 
 /* Staggered section drop-in */
-.bday-results > *:nth-child(1)  { animation: dropIn 0.5s 0.00s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(2)  { animation: dropIn 0.5s 0.06s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(3)  { animation: dropIn 0.5s 0.12s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(4)  { animation: dropIn 0.5s 0.18s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(5)  { animation: dropIn 0.5s 0.24s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(6)  { animation: dropIn 0.5s 0.30s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(7)  { animation: dropIn 0.5s 0.36s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(8)  { animation: dropIn 0.5s 0.42s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(9)  { animation: dropIn 0.5s 0.48s cubic-bezier(0.22,1,0.36,1) both; }
-.bday-results > *:nth-child(10) { animation: dropIn 0.5s 0.54s cubic-bezier(0.22,1,0.36,1) both; }
+.bday-results>*:nth-child(1) {
+  animation: dropIn 0.5s 0.00s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(2) {
+  animation: dropIn 0.5s 0.06s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(3) {
+  animation: dropIn 0.5s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(4) {
+  animation: dropIn 0.5s 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(5) {
+  animation: dropIn 0.5s 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(6) {
+  animation: dropIn 0.5s 0.30s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(7) {
+  animation: dropIn 0.5s 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(8) {
+  animation: dropIn 0.5s 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(9) {
+  animation: dropIn 0.5s 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bday-results>*:nth-child(10) {
+  animation: dropIn 0.5s 0.54s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 /* ──────────────────────────────────────────────────────────────
    HERO
@@ -300,13 +379,66 @@
   border-bottom: 1px solid #14141a;
 }
 
+.bday-hero-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.bday-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  color: #888898;
+  font-family: 'Sora', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.bday-share-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #e0e0e4;
+  transform: translateY(-1px);
+}
+
+.bday-share-btn:active {
+  transform: translateY(1px);
+}
+
+.bday-share-btn--copied {
+  background: rgba(46, 213, 115, 0.08) !important;
+  border-color: rgba(46, 213, 115, 0.2) !important;
+  color: #2ed573 !important;
+}
+
+.bday-share-btn--copied:hover {
+  background: rgba(46, 213, 115, 0.12) !important;
+  border-color: rgba(46, 213, 115, 0.3) !important;
+  color: #2ed573 !important;
+}
+
 .bday-hero-weekday {
   display: block;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: #2e2e38;
+  color: #888898;
   margin-bottom: 6px;
 }
 
@@ -314,7 +446,7 @@
   font-size: 28px;
   font-weight: 700;
   color: #f0f0f2;
-  margin: 0 0 14px;
+  margin: 0;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
@@ -335,7 +467,7 @@
 
 .bday-age-label {
   font-size: 14px;
-  color: #2e2e38;
+  color: #888898;
   font-weight: 300;
 }
 
@@ -357,7 +489,7 @@
 .bday-stat-val {
   font-size: 20px;
   font-weight: 700;
-  color: #aaaaб8;
+  color: #e0e0e4;
   letter-spacing: -0.02em;
   line-height: 1;
 }
@@ -365,7 +497,7 @@
 .bday-stat-key {
   font-size: 11px;
   font-weight: 400;
-  color: #2a2a34;
+  color: #888898;
   letter-spacing: 0.03em;
 }
 
@@ -386,7 +518,7 @@
   font-weight: 600;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: #2a2a34;
+  color: #888898;
   margin-bottom: 10px;
 }
 
@@ -415,13 +547,13 @@
 
 .bday-pop-of {
   font-size: 13px;
-  color: #28282f;
+  color: #555562;
   font-weight: 400;
 }
 
 .bday-pop-desc {
   font-size: 12px;
-  color: #2e2e38;
+  color: #888898;
   margin: 0;
   font-weight: 300;
 }
@@ -538,13 +670,13 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #383840;
+  color: #555562;
 }
 
 .bday-zodiac-dates,
 .bday-zodiac-year {
   font-size: 11px;
-  color: #262630;
+  color: #555562;
   font-weight: 300;
 }
 
@@ -575,12 +707,17 @@
   border-bottom: 1px solid #111118;
   text-decoration: none;
   gap: 12px;
-  animation: dropIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  animation: dropIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   transition: opacity 0.12s;
 }
 
-.bday-birth:last-child { border-bottom: none; }
-.bday-birth:hover { opacity: 0.55; }
+.bday-birth:last-child {
+  border-bottom: none;
+}
+
+.bday-birth:hover {
+  opacity: 0.55;
+}
 
 .bday-birth-info {
   display: flex;
@@ -600,7 +737,7 @@
 
 .bday-birth-desc {
   font-size: 11px;
-  color: #262630;
+  color: #555562;
   font-weight: 300;
   white-space: nowrap;
   overflow: hidden;
@@ -609,7 +746,7 @@
 
 .bday-birth-year {
   font-size: 12px;
-  color: #22222a;
+  color: #888898;
   font-weight: 600;
   flex-shrink: 0;
   letter-spacing: 0.04em;
@@ -630,15 +767,17 @@
   padding: 12px 0;
   border-bottom: 1px solid #111118;
   align-items: baseline;
-  animation: dropIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  animation: dropIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.bday-event:last-child { border-bottom: none; }
+.bday-event:last-child {
+  border-bottom: none;
+}
 
 .bday-event-year {
   font-size: 11px;
   font-weight: 700;
-  color: #22222a;
+  color: #888898;
   width: 36px;
   flex-shrink: 0;
   letter-spacing: 0.04em;
@@ -646,7 +785,7 @@
 
 .bday-event-text {
   font-size: 13px;
-  color: #585868;
+  color: #aaaaae;
   line-height: 1.5;
   font-weight: 300;
 }
@@ -656,7 +795,7 @@
    ────────────────────────────────────────────────────────────── */
 .bday-wiki-link {
   font-size: 11px;
-  color: #22222a;
+  color: #888898;
   text-decoration: none;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -664,7 +803,9 @@
   align-self: flex-start;
 }
 
-.bday-wiki-link:hover { color: #44444e; }
+.bday-wiki-link:hover {
+  color: #f0f0f2;
+}
 
 /* ──────────────────────────────────────────────────────────────
    EMPTY STATE
@@ -706,16 +847,21 @@
    SKELETON SHIMMER
    ────────────────────────────────────────────────────────────── */
 @keyframes skel-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .bday-skel {
   background: linear-gradient(90deg,
-    #111118 0%,
-    #1a1a24 40%,
-    #1a1a24 60%,
-    #111118 100%);
+      #111118 0%,
+      #1a1a24 40%,
+      #1a1a24 60%,
+      #111118 100%);
   background-size: 200% 100%;
   animation: skel-shimmer 1.6s ease infinite;
 }
@@ -732,10 +878,10 @@
   width: 120px;
   height: 158px;
   background: linear-gradient(90deg,
-    #111118 0%,
-    #1a1a24 40%,
-    #1a1a24 60%,
-    #111118 100%);
+      #111118 0%,
+      #1a1a24 40%,
+      #1a1a24 60%,
+      #111118 100%);
   background-size: 200% 100%;
   animation: skel-shimmer 1.6s ease infinite;
   border-radius: 8px;
@@ -753,7 +899,9 @@
   transition: opacity 0.15s;
 }
 
-.bday-apod-card:hover { opacity: 0.85; }
+.bday-apod-card:hover {
+  opacity: 0.85;
+}
 
 .bday-apod-img {
   width: 100%;
@@ -868,7 +1016,9 @@
   transition: color 0.15s;
 }
 
-.bday-music-row:hover .bday-music-badge { color: #555568; }
+.bday-music-row:hover .bday-music-badge {
+  color: #555568;
+}
 
 /* ──────────────────────────────────────────────────────────────
    MEDIA CARDS (movies / TV)
@@ -882,7 +1032,9 @@
   padding-bottom: 2px;
 }
 
-.bday-media-row::-webkit-scrollbar { display: none; }
+.bday-media-row::-webkit-scrollbar {
+  display: none;
+}
 
 .bday-media-card {
   flex-shrink: 0;
@@ -891,11 +1043,13 @@
   flex-direction: column;
   gap: 6px;
   text-decoration: none;
-  animation: dropIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  animation: dropIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   transition: opacity 0.15s;
 }
 
-.bday-media-card:hover { opacity: 0.65; }
+.bday-media-card:hover {
+  opacity: 0.65;
+}
 
 .bday-media-art {
   width: 120px;
@@ -965,9 +1119,13 @@
 }
 
 .bday-dp-seg::-webkit-outer-spin-button,
-.bday-dp-seg::-webkit-inner-spin-button { -webkit-appearance: none; }
+.bday-dp-seg::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
 
-.bday-dp-seg::placeholder { color: #242430; }
+.bday-dp-seg::placeholder {
+  color: #242430;
+}
 
 .bday-dp-seg--year {
   width: 64px;
@@ -1123,11 +1281,16 @@
   border-bottom: 1px solid #111118;
   text-decoration: none;
   transition: opacity 0.12s;
-  animation: dropIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  animation: dropIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.bday-news-item:last-child { border-bottom: none; }
-.bday-news-item:hover { opacity: 0.55; }
+.bday-news-item:last-child {
+  border-bottom: none;
+}
+
+.bday-news-item:hover {
+  opacity: 0.55;
+}
 
 .bday-news-title {
   font-size: 13px;
@@ -1160,12 +1323,125 @@
    RESPONSIVE
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .bday-page { padding: 28px 16px 80px; }
-  .bday-hero-date { font-size: 22px; }
-  .bday-age-num { font-size: 42px; }
-  .bday-stat-rule { margin: 0 14px; }
-  .bday-dp-seg { padding: 0 6px; width: 40px; }
-  .bday-dp-seg--year { width: 56px; }
-  .bday-pop-stat-val { font-size: 15px; }
-  .bday-pop-stat-rule { margin: 0 12px; }
+  .bday-page {
+    padding: 28px 16px 80px;
+  }
+
+  .bday-hero-date {
+    font-size: 22px;
+  }
+
+  .bday-age-num {
+    font-size: 42px;
+  }
+
+  .bday-stat-rule {
+    margin: 0 14px;
+  }
+
+  .bday-dp-seg {
+    padding: 0 6px;
+    width: 40px;
+  }
+
+  .bday-dp-seg--year {
+    width: 56px;
+  }
+
+  .bday-pop-stat-val {
+    font-size: 15px;
+  }
+
+  .bday-pop-stat-rule {
+    margin: 0 12px;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   VIP BIRTHDAY EASTER EGG (james006)
+   ────────────────────────────────────────────────────────────── */
+.bday-birth--vip {
+  border: 1px dashed rgba(255, 215, 0, 0.4) !important;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.05), transparent 80%) !important;
+  border-radius: 8px;
+  padding: 8px 12px !important;
+  margin: 6px 0;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.06);
+  transition: all 0.2s ease-in-out !important;
+}
+
+.bday-birth--vip:hover {
+  opacity: 1 !important;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.02)) !important;
+  border-color: rgba(255, 215, 0, 0.8) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.12);
+}
+
+.bday-birth--vip .bday-birth-name {
+  color: #ffd700 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.bday-birth--vip .bday-birth-desc {
+  color: #d4af37 !important;
+  font-weight: 400 !important;
+}
+
+.bday-birth--vip .bday-birth-year {
+  color: #ffd700 !important;
+  font-family: 'Sora', sans-serif;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SELECTIVE SERVICE DRAFT CARD
+   ────────────────────────────────────────────────────────────── */
+.bday-draft-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.bday-draft-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.bday-draft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.bday-draft-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid;
+  text-transform: uppercase;
+}
+
+.bday-draft-number {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888898;
+  letter-spacing: 0.02em;
+}
+
+.bday-draft-text {
+  font-size: 12px;
+  color: #aaaaae;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 300;
 }

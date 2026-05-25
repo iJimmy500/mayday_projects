@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
-import { Zap, Sun, Dog, Circle, MousePointer2, Rabbit, Flame, Waves, Flower, Flower2 } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Zap, Sun, Dog, Circle, MousePointer2, Rabbit, Flame, Waves, Flower, Flower2, Share2 } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAries, faTaurus, faGemini, faCancer, faLeo, faVirgo, faLibra, faScorpio, faSagittarius, faCapricorn, faAquarius, faPisces } from '@fortawesome/free-solid-svg-icons';
 import './Bdays.css';
@@ -7,6 +7,42 @@ import { MONTHS, TODAY, THIS_YEAR } from './constants';
 import { daysInMonth, popularityLabel, worldPopulationAt, formatPopulation, getDerivedStats, getWesternZodiac, getChineseZodiac, getBirthstone, getBirthFlower } from './utils';
 import { fetchWikiData, fetchMediaData, fetchWeather, fetchNews } from './api';
 import DatePicker from './DatePicker';
+
+function DynamicStat({ statLabel, staticValue, birthDateMs }) {
+  const [now, setNow] = useState(Date.now());
+  
+  const isDynamic = ['Heartbeats', 'Breaths', 'Age in seconds', 'Distance traveled around the sun'].includes(statLabel);
+
+  useEffect(() => {
+    if (!isDynamic) return;
+    let frame;
+    const tick = () => {
+      setNow(Date.now());
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [isDynamic]);
+
+  if (!isDynamic) return <>{staticValue}</>;
+
+  const daysLived = (now - birthDateMs) / (1000 * 60 * 60 * 24);
+
+  if (statLabel === 'Heartbeats') {
+    return <>~{(daysLived * 24 * 60 * 70 / 1e9).toFixed(6)} billion</>;
+  }
+  if (statLabel === 'Breaths') {
+    return <>~{(daysLived * 24 * 60 * 15 / 1e6).toFixed(5)} million</>;
+  }
+  if (statLabel === 'Age in seconds') {
+    return <>{Math.floor(daysLived * 24 * 60 * 60).toLocaleString()}</>;
+  }
+  if (statLabel === 'Distance traveled around the sun') {
+    return <>~{(daysLived * 2_573_000 / 1e6).toFixed(4)} million km</>;
+  }
+
+  return <>{staticValue}</>;
+}
 
 export default function Bdays() {
   const [month,   setMonth]   = useState(TODAY.getMonth() + 1);
@@ -23,6 +59,8 @@ export default function Bdays() {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [newsLoading,    setNewsLoading]    = useState(false);
   const [error, setError] = useState('');
+  const [shareCopied, setShareCopied] = useState(false);
+  const [stillBg, setStillBg] = useState(null);
 
   const wikiReq    = useRef(0);
   const mediaReq   = useRef(0);
@@ -86,6 +124,91 @@ export default function Bdays() {
       if (id === newsReq.current) setNewsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const m = parseInt(params.get('m') || params.get('month'), 10);
+    const d = parseInt(params.get('d') || params.get('day'), 10);
+    const y = parseInt(params.get('y') || params.get('year'), 10);
+
+    if (m && d && y && m >= 1 && m <= 12 && d >= 1 && d <= 31 && y >= 1900 && y <= THIS_YEAR) {
+      setMonth(m);
+      setDay(d);
+      setYearStr(String(y));
+      
+      setWikiResult(null);
+      setMediaResult(null);
+      setWeather(null);
+      setNews(null);
+      
+      loadWiki(m, d, y);
+      loadMedia(y, m, d);
+      loadWeather(y, m, d);
+      loadNews(y, m, d);
+    }
+  }, [loadWiki, loadMedia, loadWeather, loadNews]);
+
+  const handleShare = async () => {
+    if (!wikiResult) return;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?m=${wikiResult.month}&d=${wikiResult.day}&y=${wikiResult.year}`;
+    const shareText = `Check out my birthday facts for ${wikiResult.monthName} ${wikiResult.day}, ${wikiResult.year}! 🎂`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Birthday Facts',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // User cancelled or share failed, ignore
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy', err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!mediaResult?.apod) {
+      setStillBg(null);
+      return;
+    }
+    
+    const url = mediaResult.apod.hdurl || mediaResult.apod.url;
+    const isGif = url.toLowerCase().includes('.gif');
+    
+    if (isGif) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      // Route through a free CORS proxy to prevent the canvas from becoming tainted
+      img.src = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const dataUrl = canvas.toDataURL('image/jpeg');
+          setStillBg(dataUrl);
+        } catch (e) {
+          console.warn('Canvas export tainted or failed:', e);
+          setStillBg(null);
+        }
+      };
+      img.onerror = () => {
+        setStillBg(null);
+      };
+    } else {
+      setStillBg(null);
+    }
+  }, [mediaResult]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -157,10 +280,18 @@ export default function Bdays() {
   return (
     <>
       {mediaResult?.apod && (
-        <div
-          className="bday-bg"
-          style={{ backgroundImage: `url(${mediaResult.apod.hdurl || mediaResult.apod.url})` }}
-        />
+        <>
+          {stillBg && (
+            <div
+              className="bday-bg bday-bg--still"
+              style={{ backgroundImage: `url(${stillBg})` }}
+            />
+          )}
+          <div
+            className={`bday-bg${stillBg ? ' bday-bg--gif-animate' : ''}`}
+            style={{ backgroundImage: `url(${mediaResult.apod.hdurl || mediaResult.apod.url})` }}
+          />
+        </>
       )}
 
       <div className="bday-page">
@@ -174,6 +305,7 @@ export default function Bdays() {
                 <DatePicker
                   month={month}
                   day={day}
+                  year={yearStr}
                   onMonthChange={m => { setMonth(m); if (day > daysInMonth(m, parseInt(yearStr,10)||THIS_YEAR)) setDay(1); }}
                   onDayChange={setDay}
                   onYearChange={setYearStr}
@@ -241,10 +373,22 @@ export default function Bdays() {
             >
               {/* Hero */}
               <section className="bday-hero">
-                <span className="bday-hero-weekday">{wikiResult.dayName}</span>
-                <h2 className="bday-hero-date">
-                  {wikiResult.monthName} {wikiResult.day}, {wikiResult.year}
-                </h2>
+                <div className="bday-hero-meta">
+                  <div>
+                    <span className="bday-hero-weekday">{wikiResult.dayName}</span>
+                    <h2 className="bday-hero-date">
+                      {wikiResult.monthName} {wikiResult.day}, {wikiResult.year}
+                    </h2>
+                  </div>
+                  <button
+                    onClick={handleShare}
+                    className={`bday-share-btn${shareCopied ? ' bday-share-btn--copied' : ''}`}
+                    title="Share this birthday"
+                  >
+                    <Share2 size={14} />
+                    <span>{shareCopied ? 'Link Copied!' : 'Share'}</span>
+                  </button>
+                </div>
                 {wikiResult.age !== null && (
                   <div className="bday-hero-age">
                     <span className="bday-age-num">{wikiResult.age}</span>
@@ -323,14 +467,27 @@ export default function Bdays() {
                 </div>
               )}
 
-              {/* Common names */}
-              {wikiResult.topNames.length > 0 && (
+              {/* Selective Service Draft */}
+              {wikiResult.draftNumber !== undefined && (
                 <div className="bday-section">
-                  <span className="bday-section-label">Common names born on this day</span>
-                  <div className="bday-names">
-                    {wikiResult.topNames.map((n, i) => (
-                      <span key={i} className="bday-name-pill">{n}</span>
-                    ))}
+                  <span className="bday-section-label">Selective Service Draft Status</span>
+                  <div className="bday-draft-card">
+                    <div className="bday-draft-header">
+                      <span className="bday-draft-badge" style={{
+                        backgroundColor: wikiResult.draftNumber <= 195 ? 'rgba(239, 83, 80, 0.1)' : 'rgba(46, 213, 115, 0.1)',
+                        color: wikiResult.draftNumber <= 195 ? '#ef5350' : '#2ed573',
+                        borderColor: wikiResult.draftNumber <= 195 ? 'rgba(239, 83, 80, 0.2)' : 'rgba(46, 213, 115, 0.2)'
+                      }}>
+                        {wikiResult.draftNumber <= 195 ? 'Called Up' : 'Safe'}
+                      </span>
+                      <span className="bday-draft-number">Lottery Number: #{wikiResult.draftNumber}</span>
+                    </div>
+                    <p className="bday-draft-text">
+                      {wikiResult.draftNumber <= 195 
+                        ? `With a lottery number of #${wikiResult.draftNumber} (under the #195 draft cutoff), men born on this day would have been drafted into service during the 1970 Vietnam War Draft Lottery.`
+                        : `With a lottery number of #${wikiResult.draftNumber} (above the #195 draft cutoff), men born on this day would have remained safe from induction during the 1970 Vietnam War Draft Lottery.`
+                      }
+                    </p>
                   </div>
                 </div>
               )}
@@ -343,7 +500,13 @@ export default function Bdays() {
                     {derivedStats.map((s, i) => (
                       <div key={i} className="bday-derived-row">
                         <span className="bday-derived-label">{s.label}</span>
-                        <span className="bday-derived-val">{s.value}</span>
+                        <span className="bday-derived-val">
+                          <DynamicStat 
+                            statLabel={s.label} 
+                            staticValue={s.value} 
+                            birthDateMs={new Date(birthYear, wikiResult.month - 1, wikiResult.day).getTime()} 
+                          />
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -494,10 +657,11 @@ export default function Bdays() {
                       const name = page?.normalizedtitle || page?.title || b.text?.split(',')[0] || '';
                       const desc = page?.description || b.text?.split(',').slice(1).join(',').trim() || '';
                       const url  = page?.content_urls?.desktop?.page;
+                      const isJames = name.toLowerCase().includes('james006');
                       return (
                         <a
                           key={i}
-                          className="bday-birth"
+                          className={`bday-birth ${isJames ? 'bday-birth--vip' : ''}`}
                           href={url || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
