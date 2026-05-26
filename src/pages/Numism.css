@@ -611,6 +611,36 @@
   margin: 0 0 8px 0;
 }
 
+.num-modal-help-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.num-modal-help-list li {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+
+.num-modal-help-list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: #3a3a3a;
+}
+
+.num-modal-help-list em {
+  font-style: normal;
+  color: #999;
+}
+
 .num-modal-close {
   margin-top: 20px;
   background: transparent;

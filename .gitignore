@@ -55,8 +55,6 @@ src/pages/Images.jsx
 src/pages/Images.css
 src/pages/TopFive.jsx
 src/pages/TopFive.css
-src/pages/WembyStats.jsx
-src/pages/WembyStats.css
 
 # Archives
 .day4_archive/
@@ -68,6 +66,8 @@ src/data/quizzes.json
 src/pages/akinator/
 src/data/akinator/
 src/scripts/seedAkinator.js
+src/pages/WembyStats.jsx
+src/pages/WembyStats.css
 
 # Image Harvest Staging
 /images

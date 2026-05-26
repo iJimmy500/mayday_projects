@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Flower, RefreshCw, Timer, AlignLeft, ChevronDown, Check, Skull, Ghost, Trophy, Zap, Hash, Layers, Flame } from 'lucide-react';
+import { Flower, RefreshCw, Timer, AlignLeft, ChevronDown, Check, Skull, Ghost, Trophy, Zap, Hash, Layers, Flame, HelpCircle } from 'lucide-react';
 import './Vowelism.css';
 
 const VOWELS = [
@@ -46,6 +46,7 @@ export default function Vowelism() {
   const [pb, setPb] = useState({ wpm: 0, words: 0 });
   const [isShake, setIsShake] = useState(false);
   const [isPop, setIsPop] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Dropdown States
   const [activeMenu, setActiveMenu] = useState(null); // 'mode', 'vowels', 'time'
@@ -107,18 +108,10 @@ export default function Vowelism() {
         setLoading(false);
       });
 
-    const handleKeyDown = (e) => {
-      if (e.key.toLowerCase() === 's' && e.altKey) {
-        newGame();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-
     const handleClickOutside = () => setActiveMenu(null);
     window.addEventListener('click', handleClickOutside);
     return () => {
       window.removeEventListener('click', handleClickOutside);
-      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -521,6 +514,9 @@ export default function Vowelism() {
             <button className="vow-tool-btn" onClick={newGame} title="New Game (Alt+S)">
               <RefreshCw size={14} />
             </button>
+            <button className="vow-tool-btn" onClick={() => setShowHelp(true)} title="How to play">
+              <HelpCircle size={14} />
+            </button>
           </div>
         </div>
 
@@ -610,6 +606,32 @@ export default function Vowelism() {
           </div>
         )}
       </main>
+
+      {showHelp && (
+        <div className="vow-modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="vow-modal" onClick={e => e.stopPropagation()}>
+            <span className="vow-modal-tag">how to play</span>
+            <h2 className="vow-modal-title">vowelism</h2>
+            <p className="vow-modal-desc">type real words that use the highlighted letters.</p>
+            <ul className="vow-modal-list">
+              <li><em>vowels</em> — include all the given vowels in your word</li>
+              <li><em>anagrams</em> — use only the shown letters, each once</li>
+              <li><em>consonants</em> — your word must contain all given consonants</li>
+              <li><em>avoidance</em> — avoid the forbidden (red) letters entirely</li>
+            </ul>
+            <p className="vow-modal-section">modifiers</p>
+            <ul className="vow-modal-list">
+              <li><em>timer</em> — find as many words as you can before time runs out</li>
+              <li><em>zen</em> — no stats, no pressure, just words</li>
+              <li><Trophy size={11} /> progressive — difficulty increases as you score</li>
+              <li><Flame size={11} /> hardcore — a wrong answer resets everything</li>
+              <li><Ghost size={11} /> ghost — letters vanish after 10 seconds</li>
+              <li><Skull size={11} /> sudden death — wrong costs time, right gains time</li>
+            </ul>
+                    <button className="vow-modal-close" onClick={() => setShowHelp(false)}>got it</button>
+          </div>
+        </div>
+      )}
 
       <footer className="page-footer">
         <a href="https://mayinflight.com" className="footer-link" target="_blank" rel="noopener noreferrer">

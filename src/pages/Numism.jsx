@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-import { 
-  Hash, 
-  Target, 
-  Zap, 
-  Layers, 
-  Percent, 
-  Binary, 
-  RefreshCw, 
-  Timer, 
-  ChevronDown, 
-  Check, 
-  Trophy, 
+import {
+  Hash,
+  Target,
+  Zap,
+  Layers,
+  Percent,
+  Binary,
+  RefreshCw,
+  Timer,
+  ChevronDown,
+  Check,
+  Trophy,
   Flame,
   LayoutGrid,
   Divide,
@@ -19,7 +19,8 @@ import {
   Skull,
   AlignLeft,
   Lightbulb,
-  CornerDownLeft
+  CornerDownLeft,
+  HelpCircle
 } from 'lucide-react';
 import './Numism.css';
 import { FERMI_QUESTIONS } from '../utils/fermiQuestions';
@@ -80,6 +81,7 @@ export default function Numism() {
   const [isPop, setIsPop] = useState(false);
   const [promptVisible, setPromptVisible] = useState(true);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
   const [showFermiModal, setShowFermiModal] = useState(false);
   const [foundItemDetails, setFoundItemDetails] = useState([]);
   const [selectedFermiDetail, setSelectedFermiDetail] = useState(null);
@@ -587,6 +589,9 @@ export default function Numism() {
             <button className="num-tool-btn" onClick={() => newGame()} title="New Game (Alt+S)">
               <RefreshCw size={14} />
             </button>
+            <button className="num-tool-btn" onClick={() => setShowHelp(true)} title="How to play">
+              <HelpCircle size={14} />
+            </button>
           </div>
         </div>
 
@@ -819,6 +824,28 @@ export default function Numism() {
           </div>
         )}
       </main>
+
+      {showHelp && (
+        <div className="num-modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="num-modal" onClick={e => e.stopPropagation()}>
+            <span className="num-modal-tag">how to play</span>
+            <h2 className="num-modal-title" style={{ fontSize: 20, fontWeight: 300, marginBottom: 8 }}>numism</h2>
+            <p className="num-modal-desc">eleven math modes. pick one, solve problems.</p>
+            <ul className="num-modal-help-list">
+              {MODES.map(m => (
+                <li key={m.id}><em>{m.name}</em> — {m.desc.toLowerCase()}</li>
+              ))}
+            </ul>
+            <p className="num-modal-desc" style={{ marginTop: 16, marginBottom: 6, color: '#444', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.15em' }}>modifiers</p>
+            <ul className="num-modal-help-list">
+              <li><Trophy size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /><em>progressive</em> — gets harder as you score</li>
+              <li><Flame size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /><em>hardcore</em> — wrong answer resets your score</li>
+              <li><Skull size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /><em>sudden death</em> — wrong costs time, right gains time</li>
+            </ul>
+            <button className="num-modal-close" onClick={() => setShowHelp(false)}>got it</button>
+          </div>
+        </div>
+      )}
 
       <footer className="page-footer">
         <a href="https://mayinflight.com" className="footer-link" target="_blank" rel="noopener noreferrer">
