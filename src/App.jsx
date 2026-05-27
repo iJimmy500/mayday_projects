@@ -14,7 +14,6 @@ const CanvasBreach = lazy(() => import('./pages/CanvasBreach'));
 const RedDeadLandscapes = lazy(() => import('./pages/RedDeadLandscapes'));
 const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
 const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
-const IOU = lazy(() => import('./pages/IOU'));
 const NWTSWeather = lazy(() => import('./pages/NWTSWeather.jsx'));
 const AuraLayout = lazy(() => import('./pages/Aura'));
 const LuckiExperience = lazy(() => import('./pages/LuckiExperience'));
@@ -30,6 +29,7 @@ const GasStation = lazy(() => import('./pages/GasStation'));
 const Lexica = lazy(() => import('./pages/Lexica'));
 const Bdays = lazy(() => import('./pages/Bdays/index.jsx'));
 const GraphingCalc = lazy(() => import('./pages/GraphingCalc.jsx'));
+const WorldConversion = lazy(() => import('./pages/WorldConversion/index.jsx'));
 
 
 const Loading = () => (
@@ -114,9 +114,10 @@ export default function App() {
           if (path === '/hotpotato/live' || path.startsWith('/hotpotato/live/')) return <HotPotatoLive />;
           if (path === '/day20' || path === '/throwback' || path === '/rewind') return <Throwback />;
           if (path === '/day21' || path === '/gas' || path === '/octane' || path === '/pump') return <GasStation />;
-          if (path === '/day22' || path === '/lexica' || path === '/quiz' || path === '/phonics' || path === '/words') return <Lexica />;
+          if (path === '/day22' || path === '/lexica' || path === '/phonics') return <Lexica />;
           if (path === '/day24' || path === '/bdata') return <Bdays />;
           if (path === '/day25' || path === '/calc' || path === '/graph' || path === '/graphing' || path === '/wemby' || path === '/stats') return <GraphingCalc />;
+          if (path === '/day26' || path === '/convert' || path.startsWith('/convert/')) return <WorldConversion />;
 
 
 

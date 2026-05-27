@@ -332,7 +332,7 @@ export default function Bdays() {
               <div className="bday-empty-glyph">✦</div>
               <p className="bday-empty-head">What's your birthday?</p>
               <p className="bday-empty-sub">
-                Enter a date above — see the weather, news, movies, and history from the day you were born.
+                Enter a date above see the weather, news, movies, and history from the day you were born.
               </p>
             </div>
           )}
