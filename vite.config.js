@@ -103,6 +103,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/supabase/, ''),
         ws: true
+      },
+      '/api/off': {
+        target: 'https://world.openfoodfacts.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/off/, ''),
+        secure: false
       }
     }
   }

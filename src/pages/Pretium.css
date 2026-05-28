@@ -186,20 +186,26 @@
   border-radius: 12px;
   padding: 14px 18px;
   gap: 16px;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, border-color 0.2s;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, border-color 0.2s, box-shadow 0.3s;
   position: relative;
   user-select: none;
-  animation: pretSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: pretSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Stagger animations for sorted cards so they drop down sequence-by-sequence */
+.pret-sort-item:nth-child(1) { animation-delay: 0.04s; }
+.pret-sort-item:nth-child(2) { animation-delay: 0.08s; }
+.pret-sort-item:nth-child(3) { animation-delay: 0.12s; }
+.pret-sort-item:nth-child(4) { animation-delay: 0.16s; }
 
 @keyframes pretSlideDown {
   from {
     opacity: 0;
-    transform: translateY(-16px);
+    transform: translateY(-20px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -207,20 +213,22 @@
   .pret-sort-item {
     background: #ffffff;
     border-color: #e0e0e0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   }
 }
 
 .pret-sort-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-color-scheme: light) {
   .pret-sort-item:hover {
     background: #f8f9fa;
-    border-color: #d0d0d0;
+    border-color: #c0c0c0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
   }
 }
 
