@@ -107,3 +107,9 @@ search*.js
 checkArray.js
 testParse.js
 
+# HumanQuery Game
+src/pages/HumanQuery.jsx
+src/pages/HumanQuery.css
+src/components/HumanQuery/
+src/data/humanqueryData.js
+

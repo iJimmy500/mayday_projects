@@ -30,6 +30,8 @@ const Lexica = lazy(() => import('./pages/Lexica'));
 const Bdays = lazy(() => import('./pages/Bdays/index.jsx'));
 const GraphingCalc = lazy(() => import('./pages/GraphingCalc.jsx'));
 const WorldConversion = lazy(() => import('./pages/WorldConversion/index.jsx'));
+const Pretium = lazy(() => import('./pages/Pretium.jsx'));
+
 
 
 const Loading = () => (
@@ -118,6 +120,8 @@ export default function App() {
           if (path === '/day24' || path === '/bdata') return <Bdays />;
           if (path === '/day25' || path === '/calc' || path === '/graph' || path === '/graphing' || path === '/wemby' || path === '/stats') return <GraphingCalc />;
           if (path === '/day26' || path === '/convert' || path.startsWith('/convert/')) return <WorldConversion />;
+          if (path === '/pretium' || path === '/price' || path === '/day27') return <Pretium />;
+
 
 
 
