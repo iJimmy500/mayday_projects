@@ -33,6 +33,7 @@ const WorldConversion = lazy(() => import('./pages/WorldConversion/index.jsx'));
 const Pretium = lazy(() => import('./pages/Pretium.jsx'));
 const PureGas = lazy(() => import('./pages/PureGas.jsx'));
 const IOU = lazy(() => import('./pages/IOU.jsx'));
+const Brackets = lazy(() => import('./pages/Brackets/index.jsx'));
 
 
 
@@ -123,7 +124,8 @@ export default function App() {
           if (path === '/day25' || path === '/calc' || path === '/graph' || path === '/graphing' || path === '/wemby' || path === '/stats') return <GraphingCalc />;
           if (path === '/day26' || path === '/convert' || path.startsWith('/convert/')) return <WorldConversion />;
           if (path === '/pretium' || path === '/price' || path === '/day27') return <Pretium />;
-          if (path === '/day29' || path === '/puregas' || path === '/pure-gas' || path === '/ethanol-free') return <IOU />;
+          if (path === '/day29' || path === '/brackets' || path === '/bracket' || path === '/bracketlist') return <Brackets />;
+          if (path === '/iou' || path === '/puregas' || path === '/pure-gas' || path === '/ethanol-free') return <IOU />;
 
 
 
