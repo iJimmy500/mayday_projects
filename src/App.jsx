@@ -31,6 +31,7 @@ const Bdays = lazy(() => import('./pages/Bdays/index.jsx'));
 const GraphingCalc = lazy(() => import('./pages/GraphingCalc.jsx'));
 const WorldConversion = lazy(() => import('./pages/WorldConversion/index.jsx'));
 const Pretium = lazy(() => import('./pages/Pretium.jsx'));
+const PureGas = lazy(() => import('./pages/PureGas.jsx'));
 
 
 
@@ -121,6 +122,7 @@ export default function App() {
           if (path === '/day25' || path === '/calc' || path === '/graph' || path === '/graphing' || path === '/wemby' || path === '/stats') return <GraphingCalc />;
           if (path === '/day26' || path === '/convert' || path.startsWith('/convert/')) return <WorldConversion />;
           if (path === '/pretium' || path === '/price' || path === '/day27') return <Pretium />;
+          if (path === '/day29' || path === '/puregas' || path === '/pure-gas' || path === '/ethanol-free') return <PureGas />;
 
 
 
