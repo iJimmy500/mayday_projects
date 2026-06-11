@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import famousSongs from '../data/famousSongs.json';
 import { evaluateGuess } from '../utils/guessChecker';
+import { trackToken } from '../utils/logToken';
 import { fetchLyricsData } from '../services/lyricService';
 import { 
   fetchArtistPlaylistData, 
@@ -21,6 +22,8 @@ export const useLyricGame = (artistName, isGlobal) => {
   const [trackUrl, setTrackUrl] = useState('');
   const [currentTime, setCurrentTime] = useState(0);
   const [parsedLyrics, setParsedLyrics] = useState([]);
+  const [hintLines, setHintLines] = useState([]);
+  const [hintStartTime, setHintStartTime] = useState(null);
   const [score, setScore] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [startIndex, setStartIndex] = useState(0);
@@ -28,8 +31,9 @@ export const useLyricGame = (artistName, isGlobal) => {
   const [sessionHistory, setSessionHistory] = useState([]);
   const [currentGuesses, setCurrentGuesses] = useState([]);
   const [settings, setSettings] = useState(() => {
+    const defaults = { mode: 'both', hintDepth: 1, muted: false, strictMode: false, autoSkip: true };
     const saved = localStorage.getItem('lyric_game_settings');
-    return saved ? JSON.parse(saved) : { mode: 'both', hintDepth: 1, muted: false, strictMode: false };
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
   });
   const [showHistory, setShowHistory] = useState(false);
   const [showRoundGuesses, setShowRoundGuesses] = useState(false);
@@ -95,11 +99,14 @@ export const useLyricGame = (artistName, isGlobal) => {
         setCurrentSong(prev => prev ? { ...prev, previewUrl: trackData.previewUrl } : prev);
       }
     } catch (err) {
-      console.error("Art fetch failed", err);
+      console.error("Art fetch failed", err?.message);
     }
   }, []);
 
   const startNewRound = useCallback(async (forceGlobal = false, initialPool = null) => {
+    // Guard against being used as a raw event handler (a click event is truthy
+    // and would silently switch the game to the global song pool).
+    forceGlobal = forceGlobal === true;
     if (isRoundStarting.current) return;
     isRoundStarting.current = true;
     
@@ -119,6 +126,8 @@ export const useLyricGame = (artistName, isGlobal) => {
     if (albumArt) setPrevAlbumArt(albumArt);
     setAlbumArt('');
     setParsedLyrics([]);
+    setHintLines([]);
+    setHintStartTime(null);
     setCurrentTime(0);
 
     if (initialPool) {
@@ -154,26 +163,28 @@ export const useLyricGame = (artistName, isGlobal) => {
       
       // Use the new local proxy to find the YouTube videoId for the song
       const fetchYoutubeId = async () => {
-        console.log(`[Sync] 🔍 Searching YouTube for: ${randomSong.artist} - ${randomSong.track}`);
+        console.log(`[Sync] 🔍 Searching YouTube for: ${trackToken(randomSong.artist, randomSong.track)}`);
+        setIsYoutubeLoading(true);
         try {
           const res = await fetch(`/yt-search?q=${encodeURIComponent(randomSong.artist + ' ' + randomSong.track + ' official audio')}`);
           const contentType = res.headers.get("content-type");
-          
+
           if (res.ok && contentType && contentType.includes("application/json")) {
             const data = await res.json();
-            if (data && data.length > 0 && rid === lastRequestId.current) {
-              const videoId = data[0].videoId;
-              console.log(`[Sync] ✅ Found Video ID: ${videoId}`);
+            const videoId = Array.isArray(data) && data.length > 0 ? data[0].videoId : null;
+            if (videoId && rid === lastRequestId.current) {
+              console.log(`[Sync] ✅ Found Video ID for ${trackToken(randomSong.artist, randomSong.track)}`);
               setCurrentSong(prev => prev ? { ...prev, youtubeId: videoId } : prev);
             } else {
               console.warn("[Sync] ⚠️ No YouTube results found or invalid data structure");
             }
           } else {
-            const errorText = await res.text();
             console.error(`[Sync] ❌ Search failed. Status: ${res.status}. Type: ${contentType}`);
           }
         } catch (err) {
           console.error("[Sync] ❌ YouTube search exception:", err.message);
+        } finally {
+          if (rid === lastRequestId.current) setIsYoutubeLoading(false);
         }
       };
       fetchYoutubeId();
@@ -184,6 +195,8 @@ export const useLyricGame = (artistName, isGlobal) => {
         if (rid === lastRequestId.current) {
           setLyrics(data.fullLyrics);
           setParsedLyrics(data.parsedLyrics);
+          setHintLines(data.hintLines);
+          setHintStartTime(data.hintStartTime);
           setStartIndex(data.startIndex);
           setSnippet(data.snippet);
           setLoading(false);
@@ -240,14 +253,13 @@ export const useLyricGame = (artistName, isGlobal) => {
         addToHistory(currentSong, false, [...currentGuesses, newGuess]);
       } else {
         setAttempts(prev => prev + 1);
-        const lines = lyrics.split('\n').filter(l => l.trim().length > 10);
-        const visibleLines = lines.slice(startIndex, startIndex + attempts + 2);
+        const visibleLines = hintLines.slice(startIndex, startIndex + attempts + 2);
         setSnippet(visibleLines.join('\n'));
         setGameState('error');
         setTimeout(() => setGameState('playing'), 500);
       }
     }
-  }, [currentSong, guess, settings, playlistInfo, attempts, lyrics, startIndex, addToHistory, currentGuesses, correctParts]);
+  }, [currentSong, guess, settings, playlistInfo, attempts, hintLines, startIndex, addToHistory, currentGuesses, correctParts]);
 
   const giveUp = useCallback(() => {
     setGameState('revealed');
@@ -337,10 +349,15 @@ export const useLyricGame = (artistName, isGlobal) => {
     }
   }, [syncUrl, startNewRound]);
 
+  const handlePlayerReady = useCallback(() => {
+    errorCount.current = 0;
+    setIsPlayerReady(true);
+  }, []);
+
   const handlePlayerError = useCallback((error) => {
     setIsPlayerReady(false);
     errorCount.current++;
-    console.error(`[Flow] ⚠️ Player Error (${errorCount.current}/6):`, error);
+    console.error(`[Flow] ⚠️ Player Error (${errorCount.current}/6):`, error?.message || 'media error');
     
     if (errorCount.current > 6) {
       setCrashReason({
@@ -395,6 +412,14 @@ export const useLyricGame = (artistName, isGlobal) => {
     }
   }, [artistName, isGlobal, fetchArtistPlaylist, handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl, startNewRound]);
 
+  // Auto-advance to the next song shortly after a correct guess (toggleable in settings)
+  useEffect(() => {
+    if (gameState === 'correct' && settings.autoSkip) {
+      const timer = setTimeout(() => startNewRound(), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState, settings.autoSkip, startNewRound]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.altKey && e.shiftKey && e.key === 'C') {
@@ -412,7 +437,7 @@ export const useLyricGame = (artistName, isGlobal) => {
   return {
     state: {
       currentSong, lyrics, snippet, loading, statusMessage, albumArt, prevAlbumArt,
-      guess, gameState, trackUrl, currentTime, parsedLyrics, score, attempts,
+      guess, gameState, trackUrl, currentTime, parsedLyrics, hintLines, hintStartTime, score, attempts,
       startIndex, history, sessionHistory, currentGuesses, settings, showHistory,
       showRoundGuesses, isSearching, isLandingState, customPlaylist, playlistInfo,
       artistImage, isImporting, importUrl, isCrashed, crashReason, isPlaying, isPlayerReady,
@@ -427,7 +452,8 @@ export const useLyricGame = (artistName, isGlobal) => {
       setCustomPlaylist, setPlaylistInfo, setArtistImage, setIsImporting, setImportUrl,
       setIsCrashed, setCrashReason, setIsPlaying, setIsPlayerReady, setIsYoutubeLoading,
       handleGuess, giveUp, startNewRound, resetToRandom, fetchArtistPlaylist,
-      handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl, handlePlayerError
+      handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl,
+      handlePlayerReady, handlePlayerError
     },
     refs: { playerRef }
   };

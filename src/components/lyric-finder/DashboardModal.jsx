@@ -108,6 +108,20 @@ export default function DashboardModal({
 
               <div className="db-row">
                 <div className="db-row-info">
+                  <span className="db-row-label">Auto-Skip</span>
+                  <span className="db-row-sub">Go to the next song after a correct guess</span>
+                </div>
+                <button
+                  className={`db-toggle ${settings.autoSkip ? 'on' : ''}`}
+                  onClick={() => setSettings({ ...settings, autoSkip: !settings.autoSkip })}
+                  aria-label="Toggle auto-skip"
+                />
+              </div>
+
+              <div className="db-row-sep" />
+
+              <div className="db-row">
+                <div className="db-row-info">
                   <span className="db-row-label">Strict Matching</span>
                   <span className="db-row-sub">Requires exact spelling (no fuzzy)</span>
                 </div>

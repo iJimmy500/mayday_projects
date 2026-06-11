@@ -49,45 +49,55 @@ const archiveProxyPlugin = () => {
         }).on('error', err => { res.statusCode = 500; res.end(err.message); });
       });
 
-      // YouTube Search Proxy with Failover
-      server.middlewares.use('/yt-search', (req, res) => {
+      // YouTube Search Proxy (scrapes YouTube results, falls back to Invidious)
+      server.middlewares.use('/yt-search', async (req, res) => {
         const query = new URL(req.url, 'http://localhost').searchParams.get('q');
         if (!query) {
           res.statusCode = 400;
-          return res.end('Missing query');
+          return res.end(JSON.stringify({ error: 'Missing query' }));
         }
 
-        const instances = [
-          'https://inv.vern.cc',
-          'https://invidious.drgns.space',
-          'https://invidious.io.lol',
-          'https://vid.priv.au',
-          'https://invidious.lunar.icu'
-        ];
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Content-Type', 'application/json');
 
-        const tryInstance = (index) => {
-          if (index >= instances.length) {
-            res.statusCode = 503;
-            return res.end(JSON.stringify({ error: 'All search instances failed' }));
-          }
-
-          const targetUrl = `${instances[index]}/api/v1/search?q=${encodeURIComponent(query)}&type=video`;
-          
-          https.get(targetUrl, (apiRes) => {
-            if (apiRes.statusCode === 200) {
-              res.setHeader('Access-Control-Allow-Origin', '*');
-              res.setHeader('Content-Type', 'application/json');
-              apiRes.pipe(res);
-            } else {
-              // Try next instance on failure
-              tryInstance(index + 1);
+        try {
+          const ytRes = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+              'Accept-Language': 'en-US,en;q=0.9',
+              'Cookie': 'CONSENT=YES+1'
             }
-          }).on('error', () => {
-            tryInstance(index + 1);
           });
-        };
+          if (ytRes.ok) {
+            const html = await ytRes.text();
+            const ids = [...new Set([...html.matchAll(/"videoId":"([\w-]{11})"/g)].map(m => m[1]))];
+            if (ids.length > 0) {
+              return res.end(JSON.stringify(ids.slice(0, 5).map(videoId => ({ videoId }))));
+            }
+          }
+        } catch {
+          // fall through to Invidious
+        }
 
-        tryInstance(0);
+        const instances = ['https://inv.nadeko.net', 'https://yewtu.be', 'https://invidious.nerdvpn.de'];
+        for (const base of instances) {
+          try {
+            const r = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
+              headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+            if (r.ok) {
+              const data = await r.json();
+              if (Array.isArray(data) && data.length > 0) {
+                return res.end(JSON.stringify(data));
+              }
+            }
+          } catch {
+            // try next instance
+          }
+        }
+
+        res.statusCode = 503;
+        res.end(JSON.stringify({ error: 'All search instances failed' }));
       });
     }
   }

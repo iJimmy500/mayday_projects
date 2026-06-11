@@ -18,7 +18,7 @@ export default function LyricFinder({ artistName, isGlobal }) {
 
   const {
     currentSong, lyrics, snippet, loading, statusMessage, albumArt, prevAlbumArt,
-    guess, gameState, trackUrl, currentTime, parsedLyrics, score, attempts,
+    guess, gameState, trackUrl, currentTime, parsedLyrics, hintLines, hintStartTime, score, attempts,
     startIndex, history, sessionHistory, currentGuesses, settings, showHistory,
     showRoundGuesses, isSearching, isLandingState, customPlaylist, playlistInfo,
     artistImage, isImporting, importUrl, isCrashed, crashReason, isPlaying, isPlayerReady,
@@ -27,10 +27,13 @@ export default function LyricFinder({ artistName, isGlobal }) {
 
   const {
     setGuess, setSettings, setShowHistory, setShowRoundGuesses, setIsSearching, 
-    setIsImporting, setImportUrl, setIsPlaying, setIsPlayerReady, setCurrentTime,
+    setIsImporting, setImportUrl, setIsPlaying, setCurrentTime,
     handleGuess, giveUp, startNewRound, resetToRandom, fetchArtistPlaylist,
-    handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl, handlePlayerError
+    handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl,
+    handlePlayerReady, handlePlayerError
   } = actions;
+
+  const hasAudio = !!(currentSong?.previewUrl || currentSong?.streamUrl || currentSong?.youtubeId);
 
   const bgBlur = Math.max(8, 120 - (attempts * 28));
   const bgOpacity = Math.max(0.3, 0.8 - (attempts * 0.12));
@@ -80,9 +83,10 @@ export default function LyricFinder({ artistName, isGlobal }) {
         onImport={parsePlaylistUrl} 
       />
 
-      <LyricView 
-        lyrics={lyrics} 
+      <LyricView
+        lyrics={lyrics}
         parsedLyrics={parsedLyrics}
+        hintLines={hintLines}
         currentTime={currentTime}
         attempts={attempts} 
         startIndex={startIndex} 
@@ -93,16 +97,17 @@ export default function LyricFinder({ artistName, isGlobal }) {
       />
 
       <SyncPlayer
-        youtubeId={gameState === 'playing' ? currentSong?.youtubeId : null}
+        youtubeId={currentSong?.youtubeId}
         previewUrl={currentSong?.previewUrl}
         currentSong={currentSong}
         isPlaying={isPlaying}
         playerRef={refs.playerRef}
-        onTimeUpdate={(state) => setCurrentTime(state.playedSeconds)}
-        onReady={() => setIsPlayerReady(true)}
+        onTimeUpdate={setCurrentTime}
+        onReady={handlePlayerReady}
         onEnded={() => setIsPlaying(false)}
         onError={handlePlayerError}
         hasSync={state.hasSync}
+        startAt={(gameState === 'playing' || gameState === 'error') ? hintStartTime : null}
       />
 
       <ControlBar 
@@ -112,11 +117,11 @@ export default function LyricFinder({ artistName, isGlobal }) {
         onGuessChange={setGuess} 
         onGuessSubmit={handleGuess} 
         onSkip={giveUp} 
-        onNext={startNewRound} 
+        onNext={() => startNewRound()}
         onToggleHistory={() => setShowHistory(!showHistory)}
         onToggleSettings={() => setShowHistory(!showHistory)}
         onToggleGuesses={() => setShowRoundGuesses(!showRoundGuesses)} 
-        hasSync={!!(currentSong?.previewUrl)}
+        hasSync={hasAudio}
         isPlaying={isPlaying}
         onTogglePlay={() => setIsPlaying(!isPlaying)}
         isYoutubeLoading={isYoutubeLoading}

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function LyricView({ 
-  lyrics, 
+export default function LyricView({
+  lyrics,
   parsedLyrics = [],
+  hintLines = [],
   currentTime = 0,
   attempts, 
   startIndex, 
@@ -18,9 +19,7 @@ export default function LyricView({
   const hasSync = parsedLyrics && parsedLyrics.length > 0;
   
   const hintDepth = settings?.hintDepth || 1;
-  const revealedLines = lyrics ? lyrics.split('\n')
-    .filter(line => line.trim().length > 10)
-    .slice(startIndex, startIndex + (attempts + 1) * hintDepth) : [];
+  const revealedLines = hintLines.slice(startIndex, startIndex + (attempts + 1) * hintDepth);
 
   
   const activeIndex = hasSync 

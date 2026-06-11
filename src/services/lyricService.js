@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { trackToken } from '../utils/logToken';
 
 export const parseLrc = (lrc) => {
   if (!lrc) return [];
@@ -21,7 +22,7 @@ export const fetchLyricsData = async (artist, track, signal) => {
   let plain = null;
 
   try {
-    console.log(`[Lyrics] 🔍 Fetching from LRCLIB: ${artist} - ${track}`);
+    console.log(`[Lyrics] 🔍 Fetching from LRCLIB: ${trackToken(artist, track)}`);
     const { data } = await axios.get(
       `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(track)}`,
       { signal }
@@ -67,26 +68,38 @@ export const fetchLyricsData = async (artist, track, signal) => {
     .replace(/[^a-z0-9\s]/g, '')
     .trim();
 
-  const lines = fullLyrics.split('\n').filter(l => {
-    const cleanL = l.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-    const isSpoiler = cleanL.includes(coreTitle);
-    return l.trim().length > 10 && !isSpoiler;
-  });
+  const isSpoilerLine = (text) => {
+    const cleanL = text.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+    return !!coreTitle && cleanL.includes(coreTitle);
+  };
 
-  let snippet = '';
-  let startIndex = 0;
+  let hintLines = [];
+  let hintTimes = null;
 
-  if (lines.length > 1) {
-    startIndex = Math.floor(Math.random() * Math.max(1, lines.length - 5));
-    snippet = lines[startIndex];
-  } else {
-    const fallbackLines = fullLyrics.split('\n').filter(l => l.trim().length > 10);
-    if (fallbackLines.length < 1) {
-      throw new Error('No usable snippet lines');
+  // Prefer building hints from the timestamped lines so the playback hint
+  // can seek the player to the exact moment the snippet is sung.
+  if (parsedLyrics.length > 0) {
+    let pool = parsedLyrics.filter(l => l.text.length > 10 && !isSpoilerLine(l.text));
+    if (pool.length < 2) pool = parsedLyrics.filter(l => l.text.length > 10);
+    if (pool.length > 0) {
+      hintLines = pool.map(l => l.text);
+      hintTimes = pool.map(l => l.time);
     }
-    startIndex = Math.floor(Math.random() * Math.max(1, fallbackLines.length - 5));
-    snippet = fallbackLines[startIndex];
   }
 
-  return { fullLyrics, parsedLyrics, snippet, startIndex };
+  if (hintLines.length === 0) {
+    hintLines = fullLyrics.split('\n').map(l => l.trim()).filter(l => l.length > 10 && !isSpoilerLine(l));
+    if (hintLines.length < 2) {
+      hintLines = fullLyrics.split('\n').map(l => l.trim()).filter(l => l.length > 10);
+    }
+    if (hintLines.length < 1) {
+      throw new Error('No usable snippet lines');
+    }
+  }
+
+  const startIndex = Math.floor(Math.random() * Math.max(1, hintLines.length - 5));
+  const snippet = hintLines[startIndex];
+  const hintStartTime = hintTimes ? hintTimes[startIndex] : null;
+
+  return { fullLyrics, parsedLyrics, snippet, startIndex, hintLines, hintStartTime };
 };

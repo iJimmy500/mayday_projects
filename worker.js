@@ -105,6 +105,57 @@ export default {
       }
     }
 
+    // --- ROUTE: YouTube Search (used by Lyricly/day11 for synced playback) ---
+    if (url.pathname === '/yt-search') {
+      const jsonHeaders = { ...corsHeaders, 'Content-Type': 'application/json' };
+      const query = url.searchParams.get('q');
+      if (!query) {
+        return new Response(JSON.stringify({ error: 'Missing query' }), { status: 400, headers: jsonHeaders });
+      }
+
+      // Primary: scrape YouTube's results page for video IDs (no API key needed)
+      try {
+        const ytRes = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cookie': 'CONSENT=YES+1'
+          }
+        });
+        if (ytRes.ok) {
+          const html = await ytRes.text();
+          const ids = [...new Set([...html.matchAll(/"videoId":"([\w-]{11})"/g)].map(m => m[1]))];
+          if (ids.length > 0) {
+            return new Response(JSON.stringify(ids.slice(0, 5).map(videoId => ({ videoId }))), {
+              headers: jsonHeaders
+            });
+          }
+        }
+      } catch {
+        // fall through to Invidious
+      }
+
+      // Fallback: public Invidious instances
+      const instances = ['https://inv.nadeko.net', 'https://yewtu.be', 'https://invidious.nerdvpn.de'];
+      for (const base of instances) {
+        try {
+          const r = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+          });
+          if (r.ok) {
+            const data = await r.json();
+            if (Array.isArray(data) && data.length > 0) {
+              return new Response(JSON.stringify(data), { headers: jsonHeaders });
+            }
+          }
+        } catch {
+          // try next instance
+        }
+      }
+
+      return new Response(JSON.stringify({ error: 'All search instances failed' }), { status: 503, headers: jsonHeaders });
+    }
+
     // --- ROUTE: Audio Stream Proxy (Fallback) ---
     if (url.pathname.startsWith('/api/get-audio')) {
       // Temporary fallback while we move audio extraction to a compatible service

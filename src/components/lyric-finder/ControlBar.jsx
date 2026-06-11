@@ -76,12 +76,12 @@ export default function ControlBar({
             <div className="am-actions-group">
               {hasSync && (
                 <button
-                  className={`am-play-btn ${isPlaying ? 'playing' : ''} ${((isYoutubeLoading || !isPlayerReady) && hasSync) ? 'loading' : ''}`}
+                  className={`am-play-btn ${isPlaying ? 'playing' : ''} ${!isPlayerReady ? 'loading' : ''}`}
                   onClick={onTogglePlay}
-                  disabled={!isPlayerReady || isYoutubeLoading}
-                  title={isYoutubeLoading ? "Searching for audio..." : isPlaying ? "Pause" : "Play Synced Audio"}
+                  disabled={!isPlayerReady}
+                  title={isYoutubeLoading ? "Searching for audio..." : isPlaying ? "Pause" : "Play Audio"}
                 >
-                  {((isYoutubeLoading || !isPlayerReady)) ? (
+                  {!isPlayerReady ? (
                     <div className="am-play-loading-ring" />
                   ) : isPlaying ? (
                     <Pause size={20} fill="currentColor" />
@@ -114,13 +114,15 @@ export default function ControlBar({
               </div>
             </div>
             <div className="am-actions-group">
-              <button
-                className={`am-platform-link ${isPlaying ? 'playing' : ''}`}
-                onClick={onTogglePlay}
-                title={isPlaying ? "Pause Preview" : "Play Preview"}
-              >
-                {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
-              </button>
+              {hasSync && (
+                <button
+                  className={`am-platform-link ${isPlaying ? 'playing' : ''}`}
+                  onClick={onTogglePlay}
+                  title={isPlaying ? "Pause Preview" : "Play Preview"}
+                >
+                  {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
+                </button>
+              )}
               {trackUrl && (
                 <a href={trackUrl} target="_blank" rel="noopener noreferrer" className="am-platform-link apple" title="Open on Apple Music">
                   <ExternalLink size={18} strokeWidth={2.5} />
