@@ -2,12 +2,13 @@ import { useState } from 'react';
 import {
   MODES, DIFFICULTY_OPTIONS, CATEGORY_OPTIONS,
 } from './gameEngine';
+import Fermi       from './Fermi';
 import HigherLower from './HigherLower';
 import OrderEm     from './OrderEm';
 import './Game.css';
 
 export default function GameHub() {
-  const [mode,       setMode]       = useState('higher_lower');
+  const [mode,       setMode]       = useState('fermi');
   const [categoryId, setCategoryId] = useState('all');
   const [difficulty, setDifficulty] = useState('normal');
   const [playing,    setPlaying]    = useState(false);
@@ -16,6 +17,7 @@ export default function GameHub() {
 
   if (playing) {
     const config = { categoryId, difficulty };
+    if (mode === 'fermi')        return <Fermi       config={config} onBack={handleBack} />;
     if (mode === 'higher_lower') return <HigherLower config={config} onBack={handleBack} />;
     if (mode === 'order_em')     return <OrderEm     config={config} onBack={handleBack} />;
   }

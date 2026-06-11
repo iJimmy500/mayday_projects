@@ -15,6 +15,7 @@ export const CATEGORY_META = {
 };
 
 export const MODES = [
+  { id: 'fermi',        label: 'Fermi',           desc: 'How many X fit in one Y? Estimate the number — closeness counts.' },
   { id: 'higher_lower', label: 'Higher or Lower', desc: 'Which is bigger? Build streaks, spend lives.' },
   { id: 'order_em',     label: "Order 'em",       desc: 'Rank 4 things from smallest to largest.' },
 ];
@@ -32,6 +33,7 @@ export const CATEGORY_OPTIONS = [
 
 export const HL_LIVES    = 3;
 export const OE_ROUNDS   = 8;
+export const FE_ROUNDS   = 8;
 
 // ── Pool builder ──────────────────────────────────────────────────────────────
 
@@ -113,6 +115,102 @@ export function pickFour(pool, recentIds = []) {
     }
   }
   return null;
+}
+
+// ── Fermi mode ────────────────────────────────────────────────────────────────
+
+// Ratios outside this window are either trivial or impossible to reason about.
+const FERMI_MIN_RATIO = 5;
+const FERMI_MAX_RATIO = 1e7;
+
+export function pickFermiPair(pool, recentIds = []) {
+  const byCat = {};
+  pool.forEach(u => {
+    (byCat[u.categoryId] ??= []).push(u);
+  });
+
+  const cats = Object.keys(byCat).sort(() => Math.random() - 0.5);
+
+  for (const catId of cats) {
+    const units = byCat[catId].filter(u => !recentIds.includes(u.id));
+    if (units.length < 2) continue;
+
+    for (let attempt = 0; attempt < 150; attempt++) {
+      const i = Math.floor(Math.random() * units.length);
+      let j = Math.floor(Math.random() * units.length);
+      while (j === i) j = Math.floor(Math.random() * units.length);
+      const small = units[i].value <= units[j].value ? units[i] : units[j];
+      const big   = units[i].value <= units[j].value ? units[j] : units[i];
+      const answer = big.value / small.value;
+      if (answer >= FERMI_MIN_RATIO && answer <= FERMI_MAX_RATIO) {
+        return { small, big, answer, categoryId: catId };
+      }
+    }
+  }
+  return null;
+}
+
+// Score on log distance: full marks for nailing it, zero at 100x off.
+// err 0 → 100, 2x off → ~85, 10x off → 50, 100x off → 0.
+export function fermiScore(guess, answer) {
+  const err = Math.abs(Math.log10(guess / answer));
+  return Math.round(100 * Math.max(0, 1 - err / 2));
+}
+
+export function isBullseye(guess, answer) {
+  return Math.abs(Math.log10(guess / answer)) <= Math.log10(1.25);
+}
+
+// Accepts "2,500", "2.5k", "3m", "1.2b", "4e6"
+export function parseGuess(raw) {
+  const str = raw.trim().toLowerCase().replace(/,/g, '');
+  const m = str.match(/^([\d.]+(?:e[+-]?\d+)?)\s*(k|m|b|t)?$/);
+  if (!m) return null;
+  const mult = { k: 1e3, m: 1e6, b: 1e9, t: 1e12 }[m[2]] ?? 1;
+  const n = parseFloat(m[1]) * mult;
+  return isFinite(n) && n > 0 ? n : null;
+}
+
+export function fermiRating(avg) {
+  if (avg >= 85) return 'human calculator';
+  if (avg >= 70) return 'fermi master';
+  if (avg >= 50) return 'solid estimator';
+  if (avg >= 30) return 'right ballpark, roughly';
+  return 'bold guesser';
+}
+
+// "Statues of Liberty" → "Statue of Liberty", "Texases" → "Texas".
+// Quantity-style phrases ("time since...", "age of Earth") pass through as-is.
+const SINGULAR_EXCEPTIONS = { 'United States': 'United States' };
+
+export function singularizeUnit(label) {
+  if (SINGULAR_EXCEPTIONS[label]) return SINGULAR_EXCEPTIONS[label];
+  if (/^(time since|age of|speed of|all |daily )|'s /i.test(label)) return label;
+
+  const depluralize = (w) => {
+    if (/[^aeiou]ies$/.test(w)) return w.replace(/ies$/, 'y');
+    if (/(ses|xes|zes|ches|shes)$/.test(w)) return w.replace(/es$/, '');
+    if (/s$/.test(w) && !/ss$/.test(w)) return w.replace(/s$/, '');
+    return w;
+  };
+
+  const parenIdx = label.indexOf(' (');
+  let paren = parenIdx >= 0 ? label.slice(parenIdx) : '';
+  let head = parenIdx >= 0 ? label.slice(0, parenIdx) : label;
+
+  if (paren) paren = paren.replace(/([A-Za-z]+)\)/, (_, w) => depluralize(w) + ')');
+
+  const ofIdx = head.indexOf(' of ');
+  if (ofIdx >= 0) {
+    // Plural is usually on the head ("Statues of Liberty"), occasionally on
+    // the tail ("City of Los Angeleses")
+    const first = head.slice(0, ofIdx);
+    const sing = depluralize(first);
+    head = sing !== first ? sing + head.slice(ofIdx) : depluralize(head);
+  } else {
+    head = depluralize(head);
+  }
+  return head + paren;
 }
 
 // ── Scoring helpers ───────────────────────────────────────────────────────────

@@ -12,7 +12,11 @@ const COUNTDOWN_SECONDS = 3;
 const LS_NAME_KEY = 'hp-name';
 
 function genRoomCode() {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  // Unambiguous characters only (no 0/O, 1/I/L), always 6 chars
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
 }
 function genId() {
   return (crypto.randomUUID?.() ?? Math.random().toString(36).substring(2, 18));
@@ -35,9 +39,10 @@ export function sendAnswerBroadcast(channelRef, myIdRef, liveState, answerIndex)
 
 export default function useLiveGame() {
   const path = window.location.pathname;
-  const pathCode = path.startsWith('/hotpotato/live/')
-    ? path.split('/hotpotato/live/')[1].toUpperCase()
-    : null;
+  const rawPathCode = path.startsWith('/hotpotato/live/')
+    ? path.split('/hotpotato/live/')[1].split('/')[0].replace(/[^a-z0-9]/gi, '').toUpperCase()
+    : '';
+  const pathCode = rawPathCode || null;
   const [isHost] = useState(!pathCode);
 
   const myIdRef = useRef(genId());
@@ -89,8 +94,13 @@ export default function useLiveGame() {
   const passTimeoutRef = useRef(null);
   const inactivityTimerRef = useRef(null);
   const warnCountdownRef = useRef(null);
+  const pendingJoinRef = useRef(null); // name of a setup-screen joiner awaiting room validation
+  const myNameRef = useRef('');
+  const phaseRef = useRef(phase);
+  const pruneTimerRef = useRef(null);
 
   useEffect(() => { connectedPlayersRef.current = connectedPlayers; }, [connectedPlayers]);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
   useEffect(() => () => doCleanup(), []);
 
   // URL joiners: validate room on mount
@@ -107,7 +117,18 @@ export default function useLiveGame() {
   // ── Presence helpers ──────────────────────────────────────
 
   function parsePresenceList(raw) {
-    return Object.values(raw).flat().map(p => ({ id: p.id, name: p.name, isHost: p.isHost, gamePhase: p.gamePhase }));
+    return Object.values(raw).flat()
+      .filter(p => p && p.name)
+      .map(p => ({ id: p.id, name: p.name, isHost: p.isHost, gamePhase: p.gamePhase }));
+  }
+
+  // Setup-screen join failed — return to the form with an inline error
+  function failSetupJoin(msg) {
+    pendingJoinRef.current = null;
+    doCleanup();
+    setError(msg);
+    setTab('join');
+    setPhase('setup');
   }
 
   function checkHostLeft(list) {
@@ -121,7 +142,7 @@ export default function useLiveGame() {
     return false;
   }
 
-  // ── Room validation (URL joiners only) ───────────────────
+  // ── Room validation (URL joiners + setup-screen joiners) ─
 
   function validateRoom(code) {
     if (channelRef.current) return;
@@ -132,6 +153,10 @@ export default function useLiveGame() {
 
     validateTimerRef.current = setTimeout(() => {
       if (!hasJoinedRef.current) {
+        if (pendingJoinRef.current) {
+          failSetupJoin("Room not found. Double-check the code.");
+          return;
+        }
         setPhase('not_found');
         ch.unsubscribe();
         channelRef.current = null;
@@ -156,7 +181,27 @@ export default function useLiveGame() {
       hadHostRef.current = true;
 
       if (hostEntry.gamePhase && hostEntry.gamePhase !== 'lobby') {
+        if (pendingJoinRef.current) {
+          failSetupJoin('That game has already started.');
+          return;
+        }
         setPhase('already_started');
+        return;
+      }
+
+      // Setup-screen joiner: we already have their name, join as soon as validated
+      const pendingName = pendingJoinRef.current;
+      if (pendingName) {
+        pendingJoinRef.current = null;
+        if (list.length >= MAX_PLAYERS) {
+          failSetupJoin('Room is full (8 players max).');
+          return;
+        }
+        if (list.some(p => p.name.toLowerCase() === pendingName.toLowerCase())) {
+          failSetupJoin('That name is already taken. Choose another.');
+          return;
+        }
+        doJoinRoom(pendingName, code, ch);
         return;
       }
 
@@ -171,7 +216,9 @@ export default function useLiveGame() {
             return;
           }
         }
-      } catch (_) {}
+      } catch {
+        // corrupt session data — fall through to the join form
+      }
 
       setPhase('join');
     });
@@ -206,6 +253,7 @@ export default function useLiveGame() {
     });
     ch.on('broadcast', { event: 'kick_player' }, ({ payload }) => {
       if (payload.playerId === myIdRef.current) {
+        sessionStorage.removeItem(sessionKey(code)); // don't auto-rejoin after a kick
         doCleanup();
         setPhase('kicked');
       }
@@ -213,15 +261,20 @@ export default function useLiveGame() {
 
     ch.subscribe((status) => {
       setConnected(status === 'SUBSCRIBED');
+      if (status === 'CHANNEL_ERROR' && !hasJoinedRef.current) {
+        clearTimeout(validateTimerRef.current);
+        if (pendingJoinRef.current) failSetupJoin('Connection failed. Try again.');
+        else setPhase('not_found');
+      }
     });
 
     channelRef.current = ch;
     setRoomCode(code);
   }
 
-  // ── Shared channel setup (host + setup-screen joiners) ───
+  // ── Host channel setup ────────────────────────────────────
 
-  function subscribeToChannel(code, name, host) {
+  function subscribeAsHost(code, name) {
     if (channelRef.current) return;
 
     const ch = supabase.channel(`hotpotato-${code}`, {
@@ -232,67 +285,83 @@ export default function useLiveGame() {
       const raw = ch.presenceState();
       const list = parsePresenceList(raw);
       setConnectedPlayers(list);
-      if (host) {
-        resetInactivity();
-      } else if (checkHostLeft(list)) {
-        return;
-      }
+      resetInactivity();
+      watchForDepartures(list);
     });
 
-    if (host) {
-      ch.on('broadcast', { event: 'submit_answer' }, ({ payload }) => handlePlayerAnswer(payload));
-    } else {
-      ch.on('broadcast', { event: 'sync_state' }, ({ payload }) => {
-        setLiveState(payload);
-        setPhase(payload.phase);
-        if (payload.wasWrong) {
-          setShake(true);
-          setTimeout(() => setShake(false), 300);
-        }
-      });
-      ch.on('broadcast', { event: 'tick' }, ({ payload }) => setUrgency(payload.urgency));
-      ch.on('broadcast', { event: 'game_ended' }, ({ payload }) => {
-        setPhase(payload?.reason === 'timeout' ? 'timed_out' : 'ended');
-      });
-      ch.on('broadcast', { event: 'inactivity_warning' }, ({ payload }) => setTimeoutCountdown(payload.seconds));
-      ch.on('broadcast', { event: 'inactivity_clear' }, () => setTimeoutCountdown(null));
-      ch.on('broadcast', { event: 'kick_player' }, ({ payload }) => {
-        if (payload.playerId === myIdRef.current) {
-          doCleanup();
-          setPhase('kicked');
-        }
-      });
-    }
+    ch.on('broadcast', { event: 'submit_answer' }, ({ payload }) => handlePlayerAnswer(payload));
 
     ch.subscribe(async (status) => {
       setConnected(status === 'SUBSCRIBED');
       if (status === 'SUBSCRIBED') {
-        if (!host) {
-          const existing = Object.values(ch.presenceState()).flat();
-          if (existing.length >= MAX_PLAYERS) {
-            ch.unsubscribe();
-            channelRef.current = null;
-            setConnected(false);
-            setError('Room is full (8 players max).');
-            setPhase('setup');
-            return;
-          }
-          if (existing.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-            ch.unsubscribe();
-            channelRef.current = null;
-            setConnected(false);
-            setError('That name is already taken. Choose another.');
-            setPhase('setup');
-            return;
-          }
-          persistSession(name, code);
-        }
-        await ch.track({ id: myIdRef.current, name, isHost: host, gamePhase: 'lobby' });
-        if (!host) hasJoinedRef.current = true;
+        await ch.track({ id: myIdRef.current, name, isHost: true, gamePhase: 'lobby' });
       }
     });
 
     channelRef.current = ch;
+  }
+
+  // ── Mid-game departures (host only) ───────────────────────
+  // If a player disconnects during a game, give them a short grace period to
+  // reconnect, then remove them from the rotation so the potato isn't stuck
+  // in a ghost's hands.
+
+  function watchForDepartures(list) {
+    if (!['playing', 'passing'].includes(phaseRef.current)) return;
+    const present = new Set(list.map(p => p.name));
+    present.add(myNameRef.current);
+    const missing = playerNamesRef.current.some(n => !present.has(n));
+    if (!missing) {
+      clearTimeout(pruneTimerRef.current);
+      pruneTimerRef.current = null;
+      return;
+    }
+    if (pruneTimerRef.current) return;
+    pruneTimerRef.current = setTimeout(() => {
+      pruneTimerRef.current = null;
+      pruneDepartedPlayers();
+    }, 4000);
+  }
+
+  function pruneDepartedPlayers() {
+    if (!['playing', 'passing'].includes(phaseRef.current)) return;
+    const present = new Set(connectedPlayersRef.current.map(p => p.name));
+    present.add(myNameRef.current);
+
+    const names = playerNamesRef.current;
+    if (!names.some(n => !present.has(n))) return; // everyone came back
+
+    const activeName = names[pIdxRef.current];
+    const newNames = names.filter(n => present.has(n));
+
+    if (newNames.length < 2) {
+      channelRef.current?.send({ type: 'broadcast', event: 'game_ended', payload: { reason: 'players_left' } });
+      clearInterval(tickIntervalRef.current);
+      clearTimeout(passTimeoutRef.current);
+      playerNamesRef.current = newNames;
+      setPhase('ended');
+      return;
+    }
+
+    playerNamesRef.current = newNames;
+
+    if (present.has(activeName)) {
+      // A waiting player left — fix the index and refresh everyone's roster
+      pIdxRef.current = newNames.indexOf(activeName);
+      if (phaseRef.current === 'playing') broadcastState('playing');
+    } else {
+      // The player holding the potato left — pass to the next survivor
+      clearInterval(tickIntervalRef.current);
+      clearTimeout(passTimeoutRef.current);
+      let nextName = null;
+      for (let i = 1; i <= names.length; i++) {
+        const cand = names[(pIdxRef.current + i) % names.length];
+        if (present.has(cand)) { nextName = cand; break; }
+      }
+      pIdxRef.current = Math.max(0, newNames.indexOf(nextName));
+      qIdxRef.current += 1;
+      beginRound();
+    }
   }
 
   function doCleanup() {
@@ -301,6 +370,7 @@ export default function useLiveGame() {
     clearTimeout(passTimeoutRef.current);
     clearTimeout(inactivityTimerRef.current);
     clearInterval(warnCountdownRef.current);
+    clearTimeout(pruneTimerRef.current);
     setConnected(false);
     if (channelRef.current) {
       channelRef.current.unsubscribe();
@@ -350,24 +420,27 @@ export default function useLiveGame() {
     const code = genRoomCode();
     localStorage.setItem(LS_NAME_KEY, name);
     setMyName(name);
+    myNameRef.current = name;
     setRoomCode(code);
-    window.history.pushState({}, '', `/hotpotato/live/${code}`);
-    subscribeToChannel(code, name, true);
+    // Note: the host's URL is NOT changed to the room URL — if it were, a
+    // host refresh would reload them as a joiner of their own (now dead) room.
+    subscribeAsHost(code, name);
     setPhase('lobby');
     setTimeout(resetInactivity, 0);
   }
 
+  // Setup-screen joiners go through the same validation as URL joiners:
+  // the room must exist, have a host in the lobby, a free slot, and no name clash.
   function handleJoinFromSetup(e) {
     e.preventDefault();
     const name = nameInput.trim();
     const code = codeInput.trim().toUpperCase();
     if (!name || !code) return;
     localStorage.setItem(LS_NAME_KEY, name);
-    setMyName(name);
-    setRoomCode(code);
-    window.history.pushState({}, '', `/hotpotato/live/${code}`);
-    subscribeToChannel(code, name, false);
-    setPhase('lobby');
+    setError('');
+    pendingJoinRef.current = name;
+    setPhase('validating');
+    validateRoom(code);
   }
 
   // URL joiners: channel already open from validateRoom, just track now
@@ -380,7 +453,7 @@ export default function useLiveGame() {
 
   function doJoinRoom(name, code, ch) {
     if (!ch) return;
-    const existing = Object.values(ch.presenceState()).flat();
+    const existing = parsePresenceList(ch.presenceState());
     if (existing.length >= MAX_PLAYERS) {
       setError('Room is full (8 players max).');
       return;
@@ -391,8 +464,11 @@ export default function useLiveGame() {
     }
     persistSession(name, code);
     setMyName(name);
+    myNameRef.current = name;
     setNameInput(name);
     hasJoinedRef.current = true;
+    const target = `/hotpotato/live/${code}`;
+    if (window.location.pathname !== target) window.history.pushState({}, '', target);
     ch.track({ id: myIdRef.current, name, isHost: false, gamePhase: 'lobby' });
     setPhase('lobby');
   }
@@ -542,10 +618,13 @@ export default function useLiveGame() {
     if (isCorrect) {
       clearInterval(tickIntervalRef.current);
       const nextIdx = (pIdxRef.current + 1) % playerNamesRef.current.length;
+      const nextName = playerNamesRef.current[nextIdx];
       broadcastState('passing', { nextPlayerIndex: nextIdx });
       setPhase('passing');
       passTimeoutRef.current = setTimeout(() => {
-        pIdxRef.current = nextIdx;
+        // Resolve by name — the roster may have changed during the pass delay
+        const idx = playerNamesRef.current.indexOf(nextName);
+        pIdxRef.current = idx >= 0 ? idx : nextIdx % playerNamesRef.current.length;
         qIdxRef.current += 1;
         if (qIdxRef.current >= Math.floor(questionBankRef.current.length * 0.75)) fetchMoreQuestions();
         beginRound();
@@ -574,6 +653,8 @@ export default function useLiveGame() {
   function quitGame() {
     if (isHost) {
       channelRef.current?.send({ type: 'broadcast', event: 'game_ended', payload: {} });
+    } else if (roomCode) {
+      sessionStorage.removeItem(sessionKey(roomCode)); // quitting is deliberate — don't auto-rejoin
     }
     doCleanup();
     window.location.href = '/hotpotato';

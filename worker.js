@@ -23,6 +23,12 @@ export default {
       const targetPath = url.pathname.replace('/supabase/', '');
       const targetUrl = `https://tmhxysfxsokgisruovsj.supabase.co/${targetPath}${url.search}`;
 
+      // WebSocket upgrades (Supabase Realtime) must be forwarded as-is —
+      // rebuilding the request manually drops the upgrade and breaks multiplayer.
+      if (request.headers.get('Upgrade')?.toLowerCase() === 'websocket') {
+        return fetch(new Request(targetUrl, request));
+      }
+
       try {
         const fetchOptions = {
           method: request.method,
