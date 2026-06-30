@@ -443,12 +443,15 @@
 .ms-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  /* Sit above the search/landing overlay (z-index 200) so its content is
+     reliably covered — stacked backdrop-filters don't blur each other, so we
+     also use a heavier tint to obscure the home page behind the card. */
+  z-index: 300;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(28px) saturate(160%);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   animation: ms-fade 0.3s ease;

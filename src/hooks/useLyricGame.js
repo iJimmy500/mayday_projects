@@ -47,6 +47,8 @@ export const useLyricGame = (artistName, isGlobal, initialMode) => {
   const [isCrashed, setIsCrashed] = useState(false);
   const [crashReason, setCrashReason] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  // Once the user has played anything (which satisfies the browser's autoplay
+  // gesture requirement), remember it so later rounds can start playing on their own.
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isYoutubeLoading, setIsYoutubeLoading] = useState(false);
   const [correctParts, setCorrectParts] = useState({ title: false, artist: false });
@@ -69,6 +71,13 @@ export const useLyricGame = (artistName, isGlobal, initialMode) => {
   const playerRef = useRef(null);
   const hasInitialized = useRef(false);
   const errorCount = useRef(0);
+  // Browsers block autoplay until the user interacts. We require a manual play
+  // on the very first round, then autoplay every round after that.
+  const hasAutoplayUnlocked = useRef(false);
+
+  useEffect(() => {
+    if (isPlaying) hasAutoplayUnlocked.current = true;
+  }, [isPlaying]);
 
   useEffect(() => {
     localStorage.setItem('lyric_game_settings', JSON.stringify(settings));
@@ -278,6 +287,9 @@ export const useLyricGame = (artistName, isGlobal, initialMode) => {
           }
 
           setLoading(false);
+          // First round stays paused (waiting for the user's first tap); every
+          // round after that autoplays since the gesture requirement is met.
+          if (hasAutoplayUnlocked.current) setIsPlaying(true);
         }
       } catch (err) {
         if (rid === lastRequestId.current) {
