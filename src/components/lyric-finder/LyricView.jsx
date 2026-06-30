@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 export default function LyricView({
   lyrics,
   parsedLyrics = [],
+  finishChallenge = null,
   hintLines = [],
   currentTime = 0,
   attempts, 
@@ -10,7 +11,8 @@ export default function LyricView({
   gameState, 
   loading,
   settings,
-  statusMessage
+  statusMessage,
+  isPlaying = false
 }) {
   const containerRef = useRef(null);
   const activeLineRef = useRef(null);
@@ -19,6 +21,8 @@ export default function LyricView({
   const hasSync = parsedLyrics && parsedLyrics.length > 0;
   
   const hintDepth = settings?.hintDepth || 1;
+  const isClipMode = settings?.challengeMode === 'clip';
+  const isFinishMode = settings?.challengeMode === 'finish';
   const revealedLines = hintLines.slice(startIndex, startIndex + (attempts + 1) * hintDepth);
 
   
@@ -60,8 +64,32 @@ export default function LyricView({
   return (
     <main className="am-main-content">
       <div className="am-lyrics-container" ref={containerRef}>
-        {!isRevealed ? (
-          
+        {isFinishMode && finishChallenge ? (
+
+          <div className="am-finish-block">
+            <div className="am-finish-prompt-line">{finishChallenge.prompt}</div>
+            <div className={`am-finish-answer-line ${isRevealed ? 'revealed' : ''}`}>
+              {isRevealed ? finishChallenge.answer : '. . .'}
+            </div>
+            {!isRevealed && (
+              <div className="am-finish-hint">What's the next line?</div>
+            )}
+          </div>
+        ) : !isRevealed && isClipMode ? (
+
+          <div className="am-clip-prompt">
+            <div className={`am-clip-equalizer ${isPlaying ? '' : 'paused'}`}>
+              <span /><span /><span /><span /><span />
+            </div>
+            <div className="am-clip-title">{isPlaying ? 'Playing' : 'Paused'}</div>
+            <div className="am-clip-sub">
+              {isPlaying
+                ? 'Name the song from the clip.'
+                : 'To start playback, tap the play button below.'}
+            </div>
+          </div>
+        ) : !isRevealed ? (
+
           <div className="am-progressive-hints">
             {revealedLines.map((line, i) => {
               const isLastGroup = i >= attempts * hintDepth;

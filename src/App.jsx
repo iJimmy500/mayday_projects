@@ -13,7 +13,7 @@ const OneHitWonder = lazy(() => import('./pages/OneHitWonder'));
 const CanvasBreach = lazy(() => import('./pages/CanvasBreach'));
 const RedDeadLandscapes = lazy(() => import('./pages/RedDeadLandscapes'));
 const SortingVisualizer = lazy(() => import('./pages/SortingVisualizer'));
-const LyricFinder = lazy(() => import('./pages/LyricFinder.jsx'));
+const SongSong = lazy(() => import('./pages/SongSong.jsx'));
 const NWTSWeather = lazy(() => import('./pages/NWTSWeather.jsx'));
 const AuraLayout = lazy(() => import('./pages/Aura'));
 const LuckiExperience = lazy(() => import('./pages/LuckiExperience'));
@@ -133,7 +133,20 @@ export default function App() {
 
 
 
-          if (path.startsWith('/lyrics') || path.startsWith('/day11')) {
+          // Mode-flag shortcuts: /find = name-by-lyrics, /finish = finish-the-lyrics,
+          // /hear = name-by-clip. These open SongSong with the mode pre-selected.
+          {
+            const modeFlags = { '/find': 'lyrics', '/finish': 'finish', '/hear': 'clip' };
+            if (modeFlags[path]) {
+              return (
+                <ErrorBoundary>
+                  <SongSong initialMode={modeFlags[path]} />
+                </ErrorBoundary>
+              );
+            }
+          }
+
+          if (path.startsWith('/lyrics') || path.startsWith('/day11') || path.startsWith('/songsong')) {
             const parts = path.split('/').filter(p => p.length > 0);
             const isGlobal = parts.includes('globalsongs');
             let artist = null;
@@ -142,12 +155,12 @@ export default function App() {
               artist = parts[parts.indexOf('artist') + 1];
             } else if (parts.length > 1 && !['custom', 'genre', 'mixtape'].includes(parts[parts.length - 2])) {
               const last = parts[parts.length - 1];
-              if (last !== 'lyrics' && last !== 'day11') artist = last;
+              if (last !== 'lyrics' && last !== 'day11' && last !== 'songsong') artist = last;
             }
 
             return (
               <ErrorBoundary>
-                <LyricFinder isGlobal={isGlobal} artistName={artist ? decodeURIComponent(artist) : undefined} />
+                <SongSong isGlobal={isGlobal} artistName={artist ? decodeURIComponent(artist) : undefined} />
               </ErrorBoundary>
             );
           }

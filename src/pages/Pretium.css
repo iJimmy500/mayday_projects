@@ -140,6 +140,19 @@
   line-height: 1.5;
 }
 
+.pret-level-category {
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.pret-level-blurb {
+  font-size: 13px;
+  color: #80868b;
+  margin: 0 auto;
+  max-width: 440px;
+  line-height: 1.4;
+}
+
 /* Stat bar */
 .pret-stats-bar {
   display: flex;

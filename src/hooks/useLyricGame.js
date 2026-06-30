@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import famousSongs from '../data/famousSongs.json';
-import { evaluateGuess } from '../utils/guessChecker';
+import { evaluateGuess, isCloseEnough } from '../utils/guessChecker';
 import { trackToken } from '../utils/logToken';
 import { fetchLyricsData } from '../services/lyricService';
 import { 
@@ -9,7 +9,7 @@ import {
   parsePlaylistUrlData 
 } from '../services/playlistService';
 
-export const useLyricGame = (artistName, isGlobal) => {
+export const useLyricGame = (artistName, isGlobal, initialMode) => {
   const [currentSong, setCurrentSong] = useState(null);
   const [lyrics, setLyrics] = useState('');
   const [snippet, setSnippet] = useState('');
@@ -31,7 +31,7 @@ export const useLyricGame = (artistName, isGlobal) => {
   const [sessionHistory, setSessionHistory] = useState([]);
   const [currentGuesses, setCurrentGuesses] = useState([]);
   const [settings, setSettings] = useState(() => {
-    const defaults = { mode: 'both', hintDepth: 1, muted: false, strictMode: false, autoSkip: true };
+    const defaults = { mode: 'both', challengeMode: 'lyrics', clipLength: 10, hintDepth: 1, muted: false, strictMode: false, autoSkip: true };
     const saved = localStorage.getItem('lyric_game_settings');
     return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
   });
@@ -50,6 +50,16 @@ export const useLyricGame = (artistName, isGlobal) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isYoutubeLoading, setIsYoutubeLoading] = useState(false);
   const [correctParts, setCorrectParts] = useState({ title: false, artist: false });
+  // For the "finish the lyrics" challenge: show one line, the player types the next.
+  const [finishChallenge, setFinishChallenge] = useState(null);
+  // Whether the player has settled on a challenge mode. A URL flag (/find,
+  // /finish, /hear) sets it instantly; once a player has picked a mode it's
+  // remembered, so we only prompt on the very first visit.
+  const [modeChosen, setModeChosen] = useState(() => {
+    if (initialMode) return true;
+    try { return localStorage.getItem('lyric_game_mode_chosen') === '1'; }
+    catch { return false; }
+  });
 
   const masteredIds = useRef(new Set());
   const playlistRef = useRef([]);
@@ -63,6 +73,21 @@ export const useLyricGame = (artistName, isGlobal) => {
   useEffect(() => {
     localStorage.setItem('lyric_game_settings', JSON.stringify(settings));
   }, [settings]);
+
+  // Apply a mode forced by the URL flag (/find → lyrics, /finish → finish,
+  // /hear → clip) exactly once on mount.
+  useEffect(() => {
+    if (initialMode) {
+      setSettings(prev => ({ ...prev, challengeMode: initialMode }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const chooseMode = useCallback((m) => {
+    setSettings(prev => ({ ...prev, challengeMode: m }));
+    try { localStorage.setItem('lyric_game_mode_chosen', '1'); } catch { /* ignore */ }
+    setModeChosen(true);
+  }, []);
 
   const syncUrl = useCallback((id, type) => {
     const base = window.location.pathname.split('/')[1] || 'day11';
@@ -84,15 +109,48 @@ export const useLyricGame = (artistName, isGlobal) => {
   }, [albumArt, trackUrl]);
 
   const fetchAlbumArt = useCallback(async (artist, track, rid) => {
-    const cleanTerm = (str) => str.replace(/\(.*\)/g, '').replace(/feat\..*/gi, '').replace(/ft\..*/gi, '').trim();
+    const norm = (str) => (str || '')
+      .toLowerCase()
+      .replace(/\(.*?\)/g, '')
+      .replace(/\[.*?\]/g, '')
+      .replace(/feat\..*/gi, '')
+      .replace(/ft\..*/gi, '')
+      .replace(/[^a-z0-9 ]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     const { fetchITunesJSONP } = await import('../utils/itunesJSONP');
-    
+
+    const wantArtist = norm(artist);
+    const wantTrack = norm(track);
+
     try {
-      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(artist + ' ' + track)}&entity=musicTrack&limit=1`);
+      // Pull several candidates and pick the one whose artist + track actually
+      // match, so reveals don't show a cover from an unrelated remix/cover/single.
+      const { data } = await fetchITunesJSONP(`https://itunes.apple.com/search?term=${encodeURIComponent(artist + ' ' + track)}&entity=musicTrack&limit=10`);
       if (rid !== lastRequestId.current) return;
 
-      if (data.results && data.results[0]) {
-        const trackData = data.results[0];
+      const results = data.results || [];
+      if (results.length === 0) return;
+
+      const score = (r) => {
+        const a = norm(r.artistName);
+        const t = norm(r.trackName);
+        let s = 0;
+        if (a === wantArtist) s += 4;
+        else if (a.includes(wantArtist) || wantArtist.includes(a)) s += 2;
+        if (t === wantTrack) s += 4;
+        else if (t.includes(wantTrack) || wantTrack.includes(t)) s += 2;
+        return s;
+      };
+
+      const best = results
+        .map(r => ({ r, s: score(r) }))
+        .sort((x, y) => y.s - x.s)[0];
+
+      // Require at least a partial match on both fields; otherwise leave the
+      // YouTube thumbnail fallback in place rather than show a wrong cover.
+      const trackData = best && best.s >= 4 ? best.r : null;
+      if (trackData && trackData.artworkUrl100) {
         const art = trackData.artworkUrl100.replace('100x100bb', '1000x1000bb');
         setAlbumArt(art);
         setTrackUrl(trackData.trackViewUrl);
@@ -118,6 +176,7 @@ export const useLyricGame = (artistName, isGlobal) => {
     setGameState('playing');
     setGuess({ title: '', artist: '' });
     setCorrectParts({ title: false, artist: false });
+    setFinishChallenge(null);
     setAttempts(0);
     setCurrentGuesses([]);
     setShowRoundGuesses(false);
@@ -199,6 +258,25 @@ export const useLyricGame = (artistName, isGlobal) => {
           setHintStartTime(data.hintStartTime);
           setStartIndex(data.startIndex);
           setSnippet(data.snippet);
+
+          // Build the "finish the lyrics" challenge from consecutive lines.
+          // Prefer the synced lyrics so playback can lead up to the answer line.
+          const seq = data.parsedLyrics?.length
+            ? data.parsedLyrics
+            : data.fullLyrics.split('\n').map(t => ({ text: t.trim(), time: null })).filter(l => l.text.length > 2);
+          const candidates = [];
+          for (let k = 0; k < seq.length - 1; k++) {
+            if (seq[k].text.length > 6 && seq[k + 1].text.length > 6) candidates.push(k);
+          }
+          if (candidates.length > 0) {
+            const i = candidates[Math.floor(Math.random() * candidates.length)];
+            setFinishChallenge({
+              prompt: seq[i].text,
+              answer: seq[i + 1].text,
+              answerTime: seq[i + 1].time ?? null
+            });
+          }
+
           setLoading(false);
         }
       } catch (err) {
@@ -218,6 +296,34 @@ export const useLyricGame = (artistName, isGlobal) => {
 
   const handleGuess = useCallback(() => {
     if (!currentSong) return;
+
+    // "Finish the lyrics" mode: the typed line is checked against the next line.
+    if (settings.challengeMode === 'finish') {
+      if (!finishChallenge) return;
+      const correct = isCloseEnough(guess.title, finishChallenge.answer, settings.strictMode, false);
+      if (correct) {
+        setGameState('correct');
+        setIsPlaying(true);
+        setScore(s => s + 1);
+        setCorrectParts({ title: true, artist: true });
+        addToHistory(currentSong, true, currentGuesses);
+      } else {
+        const newGuess = { title: guess.title, artist: '', id: attempts };
+        setCurrentGuesses(prev => [...prev, newGuess]);
+        setGuess({ title: '', artist: '' });
+        if (attempts >= 4) {
+          setGameState('failed');
+          setIsPlaying(true); // play the answer line they missed
+          addToHistory(currentSong, false, [...currentGuesses, newGuess]);
+        } else {
+          setAttempts(prev => prev + 1);
+          setGameState('error');
+          setTimeout(() => setGameState('playing'), 500);
+        }
+      }
+      return;
+    }
+
     const { isWin, isTitleCorrect, isArtistCorrect } = evaluateGuess(guess, currentSong, settings, playlistInfo);
 
     if (isWin) {
@@ -259,7 +365,7 @@ export const useLyricGame = (artistName, isGlobal) => {
         setTimeout(() => setGameState('playing'), 500);
       }
     }
-  }, [currentSong, guess, settings, playlistInfo, attempts, hintLines, startIndex, addToHistory, currentGuesses, correctParts]);
+  }, [currentSong, guess, settings, playlistInfo, attempts, hintLines, startIndex, addToHistory, currentGuesses, correctParts, finishChallenge]);
 
   const giveUp = useCallback(() => {
     setGameState('revealed');
@@ -312,8 +418,14 @@ export const useLyricGame = (artistName, isGlobal) => {
   const handleSelectLocalPlaylist = useCallback(async (id, name) => {
     setLoading(true);
     setIsLandingState(false);
-    if (id === 'home') {
-      resetToRandom();
+    if (id === 'home' || id === 'globalsongs') {
+      // "Global Hits" pulls from the bundled famous-songs pool rather than a
+      // local playlist JSON file (which doesn't exist for this id).
+      setCustomPlaylist([]);
+      setPlaylistInfo(null);
+      setArtistImage('');
+      syncUrl(null, 'global');
+      startNewRound(true);
       return;
     }
     syncUrl(id, 'mixtape');
@@ -412,13 +524,37 @@ export const useLyricGame = (artistName, isGlobal) => {
     }
   }, [artistName, isGlobal, fetchArtistPlaylist, handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl, startNewRound]);
 
-  // Auto-advance to the next song shortly after a correct guess (toggleable in settings)
+  // We intentionally do NOT auto-start playback during the guessing phase.
+  // Browsers (especially on the very first round, before any user gesture) block
+  // autoplay, which left the UI claiming "Playing" while nothing actually played.
+  // Instead the round starts paused and the player taps the play button to begin —
+  // that gesture also unlocks audio for the rest of the session. Reveal-phase
+  // playback is still started explicitly from handleGuess/giveUp after a click.
+
+  const isRoundOver = gameState === 'correct' || gameState === 'revealed' || gameState === 'failed';
+
+  // When a revealed song finishes playing, advance (if auto-skip is on). This is
+  // what carries the user forward when they let the song play out — regardless of
+  // whether playback was auto-started or they pressed play themselves.
+  const handlePlaybackEnded = useCallback(() => {
+    setIsPlaying(false);
+    // Only advance at the end of a round; during the guessing phase the snippet
+    // window also ends here and should just stop, not skip.
+    if (settings.autoSkip && isRoundOver) {
+      startNewRound();
+    }
+  }, [settings.autoSkip, isRoundOver, startNewRound]);
+
+  // Fallback auto-advance: if the round is over and nothing is playing (user
+  // didn't start the song, or paused it), move on after a short beat. While the
+  // song is actively playing we instead wait for it to end (handlePlaybackEnded).
   useEffect(() => {
-    if (gameState === 'correct' && settings.autoSkip) {
-      const timer = setTimeout(() => startNewRound(), 6000);
+    if (isRoundOver && settings.autoSkip && !isPlaying) {
+      const delay = gameState === 'correct' ? 6000 : 8000;
+      const timer = setTimeout(() => startNewRound(), delay);
       return () => clearTimeout(timer);
     }
-  }, [gameState, settings.autoSkip, startNewRound]);
+  }, [isRoundOver, gameState, settings.autoSkip, isPlaying, startNewRound]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -441,7 +577,7 @@ export const useLyricGame = (artistName, isGlobal) => {
       startIndex, history, sessionHistory, currentGuesses, settings, showHistory,
       showRoundGuesses, isSearching, isLandingState, customPlaylist, playlistInfo,
       artistImage, isImporting, importUrl, isCrashed, crashReason, isPlaying, isPlayerReady,
-      isYoutubeLoading, correctParts,
+      isYoutubeLoading, correctParts, finishChallenge, modeChosen,
       hasSync: !!(parsedLyrics?.length > 1 && currentSong?.youtubeId) // Require full song (YouTube) + at least 2 synced lines
     },
     actions: {
@@ -453,7 +589,7 @@ export const useLyricGame = (artistName, isGlobal) => {
       setIsCrashed, setCrashReason, setIsPlaying, setIsPlayerReady, setIsYoutubeLoading,
       handleGuess, giveUp, startNewRound, resetToRandom, fetchArtistPlaylist,
       handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl,
-      handlePlayerReady, handlePlayerError
+      handlePlayerReady, handlePlayerError, chooseMode, handlePlaybackEnded
     },
     refs: { playerRef }
   };

@@ -66,9 +66,50 @@ export default function DashboardModal({
             </div>
           </div>
 
-          {playlistInfo?.type !== 'artist' && (
+          <div className="db-section">
+            <p className="db-section-label">Challenge</p>
+            <div className="db-chip-row">
+              {[
+                { id: 'finish', label: 'Finish the Lyrics' },
+                { id: 'lyrics', label: 'Song by Lyrics' },
+                { id: 'clip', label: 'Song by Clip' }
+              ].map(c => (
+                <button
+                  key={c.id}
+                  className={`db-chip ${(settings.challengeMode || 'lyrics') === c.id ? 'active' : ''}`}
+                  onClick={() => setSettings({ ...settings, challengeMode: c.id })}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {settings.challengeMode !== 'finish' && (
             <div className="db-section">
-              <p className="db-section-label">Game Mode</p>
+              <p className="db-section-label">Clip Length</p>
+              <div className="db-chip-row">
+                {[
+                  { id: 5, label: '5s' },
+                  { id: 10, label: '10s' },
+                  { id: 15, label: '15s' },
+                  { id: 'full', label: 'Full' }
+                ].map(c => (
+                  <button
+                    key={c.id}
+                    className={`db-chip ${(settings.clipLength ?? 10) === c.id ? 'active' : ''}`}
+                    onClick={() => setSettings({ ...settings, clipLength: c.id })}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {playlistInfo?.type !== 'artist' && settings.challengeMode !== 'finish' && (
+            <div className="db-section">
+              <p className="db-section-label">Guess Target</p>
               <div className="db-chip-row">
                 {['title', 'artist', 'both'].map(m => (
                   <button

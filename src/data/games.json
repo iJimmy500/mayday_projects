@@ -1,48 +1,506 @@
 [
-  { "id": "annoyingorange", "title": "Annoying Orange", "image": "https://archive.org/services/img/annoying-orange-escape-from-dr.-fruitenstein", "type": "swf", "url": "/archive-proxy/download/annoying-orange-escape-from-dr.-fruitenstein/annoying-orange-games-escape-from-dr-fruitenstein.swf" },
-  { "id": "tawog", "title": "TAWOG Water Sons", "image": "https://archive.org/services/img/tawog-water-sons", "type": "swf", "url": "/archive-proxy/download/tawog-water-sons/WaterSons.swf" },
-  { "id": "regularshow", "title": "Regular Show", "image": "https://archive.org/services/img/regular-show-all-nighter", "type": "swf", "url": "/archive-proxy/download/regular-show-all-nighter/AllNighterGMC2.swf" },
-  { "id": "victorious", "title": "Victorious Quiz", "image": "https://archive.org/services/img/victorious_quiz", "type": "swf", "url": "/archive-proxy/download/victorious_quiz/hollywoodarts.swf" },
-  { "id": "superbrawl", "title": "Super Brawl", "image": "https://archive.org/services/img/super-brawl", "type": "swf", "url": "/archive-proxy/download/super-brawl/aang.swf" },
-  { "id": "gofish", "title": "Go Fish", "image": "https://archive.org/services/img/gofish_swf", "type": "swf", "url": "/archive-proxy/download/gofish_swf/gofish.swf" },
-  { "id": "minions", "title": "Minions", "image": "https://archive.org/services/img/minionsflashgamespackk", "type": "swf", "url": "/archive-proxy/download/minionsflashgamespackk/cde_minions.swf" },
-  { "id": "doom-flash", "title": "Doom Flash", "image": "https://archive.org/services/img/doom_20210610", "type": "swf", "url": "/archive-proxy/download/doom_20210610/Doom.swf" },
-  { "id": "dragon-fist", "title": "Dragon Fist 3", "image": "https://archive.org/services/img/dragon_fist_3_age_of_the_warrior", "type": "swf", "url": "/archive-proxy/download/dragon_fist_3_age_of_the_warrior/dragon_fist_3_age_of_the_warrior.swf" },
-  { "id": "lego-racers", "title": "Lego Racers", "image": "https://archive.org/services/img/lego-racers-tiny-turbos-game", "type": "swf", "url": "/archive-proxy/download/lego-racers-tiny-turbos-game/game.swf" },
-  { "id": "fireboy-ice", "title": "F&W Ice Temple", "image": "https://archive.org/services/img/fireboy-and-watergirl-3-in-the-ice-temple", "type": "swf", "url": "/archive-proxy/download/fireboy-and-watergirl-3-in-the-ice-temple/FireBoyAndWaterGirl.swf" },
-  { "id": "mahjong", "title": "Mahjong", "image": "https://archive.org/services/img/mahjong_202011", "type": "swf", "url": "/archive-proxy/download/mahjong_202011/mahjong.swf" },
-  { "id": "sky", "title": "Sky", "image": "https://archive.org/services/img/sky_20230204", "type": "swf", "url": "/archive-proxy/download/sky_20230204/sky.swf" },
-  { "id": "mii-maker", "title": "Mii Maker", "image": "https://archive.org/services/img/mii_20210121", "type": "swf", "url": "/archive-proxy/download/mii_20210121/mii.swf" },
-  { "id": "mario-flash", "title": "Super Mario Flash", "image": "https://archive.org/services/img/adobeflash-supermarioflash", "type": "swf", "url": "/archive-proxy/download/adobeflash-supermarioflash/super-mario-flash.swf" },
-  { "id": "quagmire", "title": "Quagmire", "image": "https://archive.org/services/img/quagmire_202111", "type": "swf", "url": "/archive-proxy/download/quagmire_202111/quagmire.swf" },
-  { "id": "dont-whack-boss", "title": "Whack Your Boss", "image": "https://archive.org/services/img/dont_whack_your_boss_202012", "type": "swf", "url": "/archive-proxy/download/dont_whack_your_boss_202012/dont_whack_your_boss.swf" },
-  { "id": "unfair-mario", "title": "Unfair Mario", "image": "https://archive.org/services/img/unfair_mario", "type": "swf", "url": "/archive-proxy/download/unfair_mario/unfair_mario.swf" },
-  { "id": "angry-birds", "title": "Angry Birds", "image": "https://archive.org/services/img/angry-birds-online_202312", "type": "swf", "url": "/archive-proxy/download/angry-birds-online_202312/AngryBirdsOnline.swf" },
-  { "id": "super-why", "title": "Super Why", "image": "https://archive.org/services/img/Super-Why-The-Power-To-Read-Intro", "type": "swf", "url": "/archive-proxy/download/Super-Why-The-Power-To-Read-Intro/intro.swf" },
-  { "id": "bloxors", "title": "Bloxorz", "image": "https://archive.org/services/img/bloxors", "type": "swf", "url": "/archive-proxy/download/bloxors/bloxors.swf" },
-  { "id": "talking-tom", "title": "Talking Tom 2", "image": "https://archive.org/services/img/talking-tom-cat-2-flash", "type": "swf", "url": "/archive-proxy/download/talking-tom-cat-2-flash/talking_tom_cat_2_in_flash___by_adreamyhead0_d4x9xp2.swf" },
-  { "id": "duck-life-alt", "title": "Duck Life", "image": "https://archive.org/services/img/duck-life", "type": "swf", "url": "/archive-proxy/download/duck-life/duck-life.swf" },
-  { "id": "gravity", "title": "Gravity Guy", "image": "https://archive.org/services/img/gravity-guy-750879f9", "type": "swf", "url": "/archive-proxy/download/gravity-guy-750879f9/FLIP-MAN-GAME.swf" },
-  { "id": "raft-wars", "title": "Raft Wars", "image": "https://archive.org/services/img/raft-wars_202207", "type": "swf", "url": "/archive-proxy/download/raft-wars_202207/raft-wars.swf" },
-  { "id": "ageofwar", "title": "Age of War", "image": "https://archive.org/services/img/age-of-war_202102", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/age-of-war.swf" },
-  { "id": "learntofly", "title": "Learn to Fly 2", "image": "https://archive.org/services/img/learn-to-fly-2_202102", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/learn-to-fly.swf" },
-  { "id": "fancypants", "title": "Fancy Pants", "image": "https://archive.org/services/img/fancy-pants-adventures-world-1_202102", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/the-fancy-pants-adventure-1.swf" },
-  { "id": "ducklife", "title": "Duck Life 4", "image": "https://archive.org/services/img/duck-life-4_202102", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/duck-life-4.swf" },
-  { "id": "sandwichstacker", "title": "Sandwich Stacker", "image": "https://archive.org/services/img/flash_625-sandwich-stacker", "type": "swf", "url": "/archive-proxy/download/flash_625-sandwich-stacker/625-sandwich-stacker.swf" },
-  { "id": "happy", "title": "Happy Wheels", "image": "https://archive.org/services/img/happy-wheels_202012", "type": "iframe", "url": "https://www.totaljerkface.com/happy_wheels.tjf" },
-  { "id": "fireboy", "title": "Fireboy & Watergirl", "image": "https://archive.org/services/img/fireboy-and-watergirl-in-the-forest-temple", "type": "swf", "url": "/archive-proxy/download/fireboy-and-watergirl-in-the-forest-temple/Fireboy%20%26%20Watergirl%20in%20The%20Forest%20Temple.swf" },
-  { "id": "papas", "title": "Papa's Pizzeria", "image": "https://archive.org/services/img/papa-pizzeria_202102", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/papas-pizzeria.swf" },
-  { "id": "run3", "title": "Run 3", "image": "https://archive.org/services/img/run-3_202107", "type": "swf", "url": "/archive-proxy/download/run-3_202107/Run3.swf" },
-  { "id": "btd", "title": "Bloons TD", "image": "https://archive.org/services/img/bloons-tower-defence-4", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/bloons-tower-defence-4.swf" },
-  { "id": "ssf", "title": "Super Smash Flash", "image": "https://archive.org/services/img/super-smash-flash-1-v-1.1", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/super-smash-flash.swf" },
-  { "id": "gunblood", "title": "Gunblood", "image": "https://archive.org/services/img/gun-blood-flash-game", "type": "swf", "url": "/archive-proxy/download/gun-blood-flash-game/gunblood.swf" },
-  { "id": "divine-intervention", "title": "Divine Intervention", "image": "https://archive.org/services/img/divineintervention_flash", "type": "swf", "url": "/archive-proxy/download/divineintervention_flash/1055.swf" },
-  { "id": "operation-stat", "title": "Operation S.T.A.T", "image": "https://archive.org/services/img/operation-stat", "type": "swf", "url": "/archive-proxy/download/operation-stat/operation-stat.swf" },
-  { "id": "impossible-quiz", "title": "Impossible Quiz", "image": "https://archive.org/services/img/impossible-quiz_202011", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/the-impossible-quiz.swf" },
-  { "id": "interactive-buddy", "title": "Interactive Buddy", "image": "https://archive.org/services/img/flash_interactive-buddy", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/interactive-buddy.swf" },
-  { "id": "snail-bob-1", "title": "Snail Bob 1", "image": "https://archive.org/services/img/snail_bob_flash", "type": "swf", "url": "/archive-proxy/download/snail-bob-collection/snail-bob.swf" },
-  { "id": "snail-bob-2", "title": "Snail Bob 2", "image": "https://archive.org/services/img/snail_bob_2_flash", "type": "swf", "url": "/archive-proxy/download/snail-bob-collection/snail-bob-2.swf" },
-  { "id": "snail-bob-3", "title": "Snail Bob 3", "image": "https://archive.org/services/img/snail_bob_3_flash", "type": "swf", "url": "/archive-proxy/download/snail-bob-collection/snail-bob-3.swf" },
-  { "id": "obama-alien", "title": "Obama Alien Defense", "image": "https://archive.org/services/img/obama-alien-defense", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/skylake-org/flash-games@master/games/obama-alien-defense.swf" },
-  { "id": "kick-buddy", "title": "Kick the Buddy", "image": "https://archive.org/services/img/flash_kick-the-buddy", "type": "swf", "url": "https://cdn.jsdelivr.net/gh/skylake-org/flash-games@master/games/kick-the-buddy.swf" }
+  {
+    "id": "annoyingorange",
+    "title": "Annoying Orange",
+    "image": "https://archive.org/services/img/annoying-orange-escape-from-dr.-fruitenstein",
+    "type": "swf",
+    "url": "/archive-proxy/download/annoying-orange-escape-from-dr.-fruitenstein/annoying-orange-games-escape-from-dr-fruitenstein.swf"
+  },
+  {
+    "id": "tawog",
+    "title": "TAWOG Water Sons",
+    "image": "https://archive.org/services/img/tawog-water-sons",
+    "type": "swf",
+    "url": "/archive-proxy/download/tawog-water-sons/WaterSons.swf"
+  },
+  {
+    "id": "regularshow",
+    "title": "Regular Show",
+    "image": "https://archive.org/services/img/regular-show-all-nighter",
+    "type": "swf",
+    "url": "/archive-proxy/download/regular-show-all-nighter/AllNighterGMC2.swf"
+  },
+  {
+    "id": "victorious",
+    "title": "Victorious Quiz",
+    "image": "https://archive.org/services/img/victorious_quiz",
+    "type": "swf",
+    "url": "/archive-proxy/download/victorious_quiz/hollywoodarts.swf"
+  },
+  {
+    "id": "superbrawl",
+    "title": "Super Brawl",
+    "image": "https://archive.org/services/img/super-brawl",
+    "type": "swf",
+    "url": "/archive-proxy/download/super-brawl/aang.swf"
+  },
+  {
+    "id": "gofish",
+    "title": "Go Fish",
+    "image": "https://archive.org/services/img/gofish_swf",
+    "type": "swf",
+    "url": "/archive-proxy/download/gofish_swf/gofish.swf"
+  },
+  {
+    "id": "minions",
+    "title": "Minions",
+    "image": "https://archive.org/services/img/minionsflashgamespackk",
+    "type": "swf",
+    "url": "/archive-proxy/download/minionsflashgamespackk/cde_minions.swf"
+  },
+  {
+    "id": "doom-flash",
+    "title": "Doom Flash",
+    "image": "https://archive.org/services/img/doom_20210610",
+    "type": "swf",
+    "url": "/archive-proxy/download/doom_20210610/Doom.swf"
+  },
+  {
+    "id": "dragon-fist",
+    "title": "Dragon Fist 3",
+    "image": "https://archive.org/services/img/dragon_fist_3_age_of_the_warrior",
+    "type": "swf",
+    "url": "/archive-proxy/download/dragon_fist_3_age_of_the_warrior/dragon_fist_3_age_of_the_warrior.swf"
+  },
+  {
+    "id": "lego-racers",
+    "title": "Lego Racers",
+    "image": "https://archive.org/services/img/lego-racers-tiny-turbos-game",
+    "type": "swf",
+    "url": "/archive-proxy/download/lego-racers-tiny-turbos-game/game.swf"
+  },
+  {
+    "id": "fireboy-ice",
+    "title": "F&W Ice Temple",
+    "image": "https://archive.org/services/img/fireboy-and-watergirl-3-in-the-ice-temple",
+    "type": "swf",
+    "url": "/archive-proxy/download/fireboy-and-watergirl-3-in-the-ice-temple/FireBoyAndWaterGirl.swf"
+  },
+  {
+    "id": "mahjong",
+    "title": "Mahjong",
+    "image": "https://archive.org/services/img/mahjong_202011",
+    "type": "swf",
+    "url": "/archive-proxy/download/mahjong_202011/mahjong.swf"
+  },
+  {
+    "id": "sky",
+    "title": "Sky",
+    "image": "https://archive.org/services/img/sky_20230204",
+    "type": "swf",
+    "url": "/archive-proxy/download/sky_20230204/sky.swf"
+  },
+  {
+    "id": "mii-maker",
+    "title": "Mii Maker",
+    "image": "https://archive.org/services/img/mii_20210121",
+    "type": "swf",
+    "url": "/archive-proxy/download/mii_20210121/mii.swf"
+  },
+  {
+    "id": "mario-flash",
+    "title": "Super Mario Flash",
+    "image": "https://archive.org/services/img/adobeflash-supermarioflash",
+    "type": "swf",
+    "url": "/archive-proxy/download/adobeflash-supermarioflash/super-mario-flash.swf"
+  },
+  {
+    "id": "quagmire",
+    "title": "Quagmire",
+    "image": "https://archive.org/services/img/quagmire_202111",
+    "type": "swf",
+    "url": "/archive-proxy/download/quagmire_202111/quagmire.swf"
+  },
+  {
+    "id": "dont-whack-boss",
+    "title": "Whack Your Boss",
+    "image": "https://archive.org/services/img/dont_whack_your_boss_202012",
+    "type": "swf",
+    "url": "/archive-proxy/download/dont_whack_your_boss_202012/dont_whack_your_boss.swf"
+  },
+  {
+    "id": "unfair-mario",
+    "title": "Unfair Mario",
+    "image": "https://archive.org/services/img/unfair_mario",
+    "type": "swf",
+    "url": "/archive-proxy/download/unfair_mario/unfair_mario.swf"
+  },
+  {
+    "id": "angry-birds",
+    "title": "Angry Birds",
+    "image": "https://archive.org/services/img/angry-birds-online_202312",
+    "type": "swf",
+    "url": "/archive-proxy/download/angry-birds-online_202312/AngryBirdsOnline.swf"
+  },
+  {
+    "id": "super-why",
+    "title": "Super Why",
+    "image": "https://archive.org/services/img/Super-Why-The-Power-To-Read-Intro",
+    "type": "swf",
+    "url": "/archive-proxy/download/Super-Why-The-Power-To-Read-Intro/intro.swf"
+  },
+  {
+    "id": "bloxors",
+    "title": "Bloxorz",
+    "image": "https://archive.org/services/img/bloxors",
+    "type": "swf",
+    "url": "/archive-proxy/download/bloxors/bloxors.swf"
+  },
+  {
+    "id": "talking-tom",
+    "title": "Talking Tom 2",
+    "image": "https://archive.org/services/img/talking-tom-cat-2-flash",
+    "type": "swf",
+    "url": "/archive-proxy/download/talking-tom-cat-2-flash/talking_tom_cat_2_in_flash___by_adreamyhead0_d4x9xp2.swf"
+  },
+  {
+    "id": "duck-life-alt",
+    "title": "Duck Life",
+    "image": "https://archive.org/services/img/duck-life",
+    "type": "swf",
+    "url": "/archive-proxy/download/duck-life/duck-life.swf"
+  },
+  {
+    "id": "gravity",
+    "title": "Gravity Guy",
+    "image": "https://archive.org/services/img/gravity-guy-750879f9",
+    "type": "swf",
+    "url": "/archive-proxy/download/gravity-guy-750879f9/FLIP-MAN-GAME.swf"
+  },
+  {
+    "id": "raft-wars",
+    "title": "Raft Wars",
+    "image": "https://archive.org/services/img/raft-wars_202207",
+    "type": "swf",
+    "url": "/archive-proxy/download/raft-wars_202207/raft-wars.swf"
+  },
+  {
+    "id": "ageofwar",
+    "title": "Age of War",
+    "image": "https://archive.org/services/img/age-of-war_202102",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/age-of-war.swf"
+  },
+  {
+    "id": "learntofly",
+    "title": "Learn to Fly 2",
+    "image": "https://archive.org/services/img/learn-to-fly-2_202102",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/learn-to-fly.swf"
+  },
+  {
+    "id": "fancypants",
+    "title": "Fancy Pants",
+    "image": "https://archive.org/services/img/fancy-pants-adventures-world-1_202102",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/the-fancy-pants-adventure-1.swf"
+  },
+  {
+    "id": "ducklife",
+    "title": "Duck Life 4",
+    "image": "https://archive.org/services/img/duck-life-4_202102",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/duck-life-4.swf"
+  },
+  {
+    "id": "sandwichstacker",
+    "title": "Sandwich Stacker",
+    "image": "https://archive.org/services/img/flash_625-sandwich-stacker",
+    "type": "swf",
+    "url": "/archive-proxy/download/flash_625-sandwich-stacker/625-sandwich-stacker.swf"
+  },
+  {
+    "id": "happy",
+    "title": "Happy Wheels",
+    "image": "https://archive.org/services/img/happy-wheels_202012",
+    "type": "iframe",
+    "url": "https://www.totaljerkface.com/happy_wheels.tjf"
+  },
+  {
+    "id": "fireboy",
+    "title": "Fireboy & Watergirl",
+    "image": "https://archive.org/services/img/fireboy-and-watergirl-in-the-forest-temple",
+    "type": "swf",
+    "url": "/archive-proxy/download/fireboy-and-watergirl-in-the-forest-temple/Fireboy%20%26%20Watergirl%20in%20The%20Forest%20Temple.swf"
+  },
+  {
+    "id": "papas",
+    "title": "Papa's Pizzeria",
+    "image": "https://archive.org/services/img/papa-pizzeria_202102",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/papas-pizzeria.swf"
+  },
+  {
+    "id": "run3",
+    "title": "Run 3",
+    "image": "https://archive.org/services/img/run-3_202107",
+    "type": "swf",
+    "url": "/archive-proxy/download/run-3_202107/Run3.swf"
+  },
+  {
+    "id": "btd",
+    "title": "Bloons TD",
+    "image": "https://archive.org/services/img/bloons-tower-defence-4",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/bloons-tower-defence-4.swf"
+  },
+  {
+    "id": "ssf",
+    "title": "Super Smash Flash",
+    "image": "https://archive.org/services/img/super-smash-flash-1-v-1.1",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/super-smash-flash.swf"
+  },
+  {
+    "id": "gunblood",
+    "title": "Gunblood",
+    "image": "https://archive.org/services/img/gun-blood-flash-game",
+    "type": "swf",
+    "url": "/archive-proxy/download/gun-blood-flash-game/gunblood.swf"
+  },
+  {
+    "id": "divine-intervention",
+    "title": "Divine Intervention",
+    "image": "https://archive.org/services/img/divineintervention_flash",
+    "type": "swf",
+    "url": "/archive-proxy/download/divineintervention_flash/1055.swf"
+  },
+  {
+    "id": "operation-stat",
+    "title": "Operation S.T.A.T",
+    "image": "https://archive.org/services/img/operation-stat",
+    "type": "swf",
+    "url": "/archive-proxy/download/operation-stat/operation-stat.swf"
+  },
+  {
+    "id": "impossible-quiz",
+    "title": "Impossible Quiz",
+    "image": "https://archive.org/services/img/impossible-quiz_202011",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/the-impossible-quiz.swf"
+  },
+  {
+    "id": "interactive-buddy",
+    "title": "Interactive Buddy",
+    "image": "https://archive.org/services/img/flash_interactive-buddy",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/interactive-buddy.swf"
+  },
+  {
+    "id": "snail-bob-1",
+    "title": "Snail Bob 1",
+    "image": "https://archive.org/services/img/snail_bob_flash",
+    "type": "swf",
+    "url": "/archive-proxy/download/snail-bob-collection/snail-bob.swf"
+  },
+  {
+    "id": "snail-bob-2",
+    "title": "Snail Bob 2",
+    "image": "https://archive.org/services/img/snail_bob_2_flash",
+    "type": "swf",
+    "url": "/archive-proxy/download/snail-bob-collection/snail-bob-2.swf"
+  },
+  {
+    "id": "snail-bob-3",
+    "title": "Snail Bob 3",
+    "image": "https://archive.org/services/img/snail_bob_3_flash",
+    "type": "swf",
+    "url": "/archive-proxy/download/snail-bob-collection/snail-bob-3.swf"
+  },
+  {
+    "id": "obama-alien",
+    "title": "Obama Alien Defense",
+    "image": "https://archive.org/services/img/obama-alien-defense",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/skylake-org/flash-games@master/games/obama-alien-defense.swf"
+  },
+  {
+    "id": "kick-buddy",
+    "title": "Kick the Buddy",
+    "image": "https://archive.org/services/img/flash_kick-the-buddy",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/skylake-org/flash-games@master/games/kick-the-buddy.swf"
+  },
+  {
+    "id": "commando-2",
+    "title": "Commando 2",
+    "image": "",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/commando-2-by-miniclip.swf"
+  },
+  {
+    "id": "commando-1",
+    "title": "Commando",
+    "image": "https://archive.org/services/img/mini-commando-flash-game",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/commando.swf"
+  },
+  {
+    "id": "bob-the-robber",
+    "title": "Bob the Robber",
+    "image": "https://archive.org/services/img/coolmathgames-bob_the_robber",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/bob-the-robber.swf"
+  },
+  {
+    "id": "hs-prison",
+    "title": "Escaping the Prison",
+    "image": "https://archive.org/services/img/escapingtheprisongame_202604",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/henry-stickmin-escaping-the-prison.swf"
+  },
+  {
+    "id": "hs-diamond",
+    "title": "Stealing the Diamond",
+    "image": "https://archive.org/services/img/stealingthediamondgame_202604",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/henry-stickmin-stealing-the-diamond.swf"
+  },
+  {
+    "id": "hs-bank",
+    "title": "Breaking the Bank",
+    "image": "https://archive.org/services/img/breakingthebank_202604",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/henry-stickmin-breaking-the-bank.swf"
+  },
+  {
+    "id": "riddle-school",
+    "title": "Riddle School",
+    "image": "https://archive.org/services/img/riddle-school-2",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/riddle-school.swf"
+  },
+  {
+    "id": "worlds-hardest",
+    "title": "World's Hardest Game",
+    "image": "https://archive.org/services/img/worlds-hardest-game",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/the-world%27s-hardest-game.swf"
+  },
+  {
+    "id": "motherload",
+    "title": "Motherload",
+    "image": "https://archive.org/services/img/motherload-of-dumps_202503",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/motherload.swf"
+  },
+  {
+    "id": "stick-rpg",
+    "title": "Stick RPG",
+    "image": "https://archive.org/services/img/stick-rpg-complete",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/stick-rpg.swf"
+  },
+  {
+    "id": "shopping-cart-hero",
+    "title": "Shopping Cart Hero",
+    "image": "https://archive.org/services/img/shoppingcarthero3_202207",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/shopping-cart-hero.swf"
+  },
+  {
+    "id": "storm-house-2",
+    "title": "Storm the House 2",
+    "image": "https://archive.org/services/img/stormthehouse",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/storm-the-house-2.swf"
+  },
+  {
+    "id": "mario-63",
+    "title": "Super Mario 63",
+    "image": "https://archive.org/services/img/super-mario-63-2009",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/super-mario-63.swf"
+  },
+  {
+    "id": "penguin-diner",
+    "title": "Penguin Diner",
+    "image": "https://archive.org/services/img/penguin_diner_2",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/penguin-diner.swf"
+  },
+  {
+    "id": "extreme-pamplona",
+    "title": "Extreme Pamplona",
+    "image": "https://archive.org/services/img/extreme-pamplona",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/extreme-pamplona.swf"
+  },
+  {
+    "id": "sf-kitty",
+    "title": "StrikeForce Kitty",
+    "image": "",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/strikeforce-kitty.swf"
+  },
+  {
+    "id": "truck-loader",
+    "title": "Truck Loader",
+    "image": "https://archive.org/services/img/truck-loader-3",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/truck-loader.swf"
+  },
+  {
+    "id": "sugar-sugar",
+    "title": "Sugar, Sugar",
+    "image": "https://archive.org/services/img/sugar-live-1.39.82.-com_202205",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/sugar-sugar.swf"
+  },
+  {
+    "id": "pacman-flash",
+    "title": "Pac-Man",
+    "image": "https://archive.org/services/img/pacman-flash",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/pacman.swf"
+  },
+  {
+    "id": "tetris-flash",
+    "title": "Tetris",
+    "image": "https://archive.org/services/img/flash-tetris",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/tetris.swf"
+  },
+  {
+    "id": "flash-sonic",
+    "title": "Flash Sonic",
+    "image": "https://archive.org/services/img/sonic-jump-flash-game",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/flash-sonic.swf"
+  },
+  {
+    "id": "achievement-unlocked",
+    "title": "Achievement Unlocked",
+    "image": "https://archive.org/services/img/achievementflash",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/achievement-unlocked.swf"
+  },
+  {
+    "id": "dad-n-me",
+    "title": "Dad 'n Me",
+    "image": "https://archive.org/services/img/dadnme",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/dad-n-me.swf"
+  },
+  {
+    "id": "bad-ice-cream-3",
+    "title": "Bad Ice Cream 3",
+    "image": "https://archive.org/services/img/bad_ice_cream_3",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/bad-ice-cream-3-www-boysplaygame-com.swf"
+  },
+  {
+    "id": "fancy-pants-2",
+    "title": "Fancy Pants 2",
+    "image": "https://archive.org/services/img/1933-fancy-pants-adventure-2-beta",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/the-fancy-pants-adventure-2.swf"
+  },
+  {
+    "id": "portal-flash",
+    "title": "Portal Flash",
+    "image": "https://archive.org/services/img/portal-the-flash-version-flash-game.",
+    "type": "swf",
+    "url": "https://cdn.jsdelivr.net/gh/AmmarSAA/Flash-Games-Directory@main/portal-flash.swf"
+  }
 ]

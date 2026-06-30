@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 
 /**
  * TopNav
- * The fixed top navigation bar for LyricFinder.
+ * The fixed top navigation bar for SongSong.
  * Displays the active playlist info on the left and the search trigger on the right.
  */
 export default function TopNav({ playlistInfo, customPlaylist, artistImage, onOpenSearch }) {

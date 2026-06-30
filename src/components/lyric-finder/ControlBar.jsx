@@ -27,8 +27,10 @@ export default function ControlBar({
   isPlayerReady,
   youtubeStatus,
   onManualSearch,
-  correctParts
+  correctParts,
+  finishChallenge
 }) {
+  const isFinishMode = settings.challengeMode === 'finish';
   
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -44,6 +46,16 @@ export default function ControlBar({
         ) : gameState === 'playing' || gameState === 'error' ? (
           <div className="am-guess-flow">
             <div className="am-inputs">
+              {isFinishMode ? (
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Type the next line…"
+                  value={guess.title}
+                  onChange={e => onGuessChange({ ...guess, title: e.target.value })}
+                  onKeyDown={handleKeyDown}
+                />
+              ) : (<>
               {(settings.mode === 'title' || settings.mode === 'both' || playlistInfo?.type === 'artist') && (
                 <input
                   autoFocus={settings.mode === 'title' || settings.mode === 'both' || playlistInfo?.type === 'artist'}
@@ -71,6 +83,7 @@ export default function ControlBar({
                   disabled={correctParts?.artist}
                 />
               )}
+              </>)}
             </div>
             
             <div className="am-actions-group">

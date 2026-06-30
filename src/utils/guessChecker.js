@@ -42,13 +42,15 @@ const levenshtein = (a, b) => {
  * @param {string} targetStr - The correct answer.
  * @param {boolean} strictMode - If true, only exact matches (after cleaning) are accepted.
  */
-export const isCloseEnough = (guessStr, targetStr, strictMode = false) => {
+export const isCloseEnough = (guessStr, targetStr, strictMode = false, allowSubstring = true) => {
   const g = clean(guessStr);
   const t = clean(targetStr);
   if (!g) return false;
   if (t === g) return true;
   if (strictMode) return false;
-  if ((t.includes(g) || g.includes(t)) && g.length > 2) return true;
+  // Substring matching is great for titles ("hello" ≈ "hello world") but wrong
+  // for finishing a full line, where a single word shouldn't count as the line.
+  if (allowSubstring && (t.includes(g) || g.includes(t)) && g.length > 2) return true;
   const distance = levenshtein(g, t);
   const threshold = Math.floor(t.length * 0.25);
   return distance <= Math.max(1, threshold);

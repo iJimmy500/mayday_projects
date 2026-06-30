@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { pretiumPuzzles } from '../data/pretiumData';
+import { buildRound, STANDARD_ROUNDS } from '../data/pretiumData';
 import './Pretium.css';
 
 // Dynamic Audio Synthesizer
@@ -69,9 +69,11 @@ export default function Pretium() {
 
   // PB score tracking
   const [pbScores, setPbScores] = useState({ standard: 0, time: 0 });
+  const [roundMeta, setRoundMeta] = useState({ category: '', blurb: '' });
 
   const audioCtxRef = useRef(null);
   const timerRef = useRef(null);
+  const usedNamesRef = useRef(new Set());
 
   // Initialize or fetch high scores
   useEffect(() => {
@@ -83,173 +85,17 @@ export default function Pretium() {
     }
   }, []);
 
-  // Set up round levels / items
+  // Build each round from the curated catalog
   useEffect(() => {
-    let active = true;
-    const fetchLiveCategoryData = async () => {
-      setIsLoading(true);
-      const puzzle = pretiumPuzzles[currentLevelIdx] || pretiumPuzzles[0];
-
-      // Load Walmart products dynamically on most rounds, using dynamic CSV parsing
-      if (puzzle.id % 2 === 1) {
-        try {
-          const response = await fetch('/data/walmart-products.csv');
-          const csvText = await response.text();
-          
-          // Basic clean CSV parser splits lines, skips header
-          const lines = csvText.split('\n').filter(line => line.trim().length > 0);
-          const products = [];
-          
-          // Parse a larger random selection pool from the CSV to ensure real dynamic variation
-          for (let i = 1; i < lines.length; i++) {
-            const line = lines[i];
-            
-            // Robust CSV regex to parse fields, correctly handling commas inside quotes
-            const matches = [];
-            const regex = /(?:^|,)(?:"([^"]*(?:""[^"]*)*)"|([^",]*))/g;
-            let match;
-            while ((match = regex.exec(line)) !== null) {
-              matches.push(match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2]);
-            }
-            
-            if (matches.length > 20) {
-              const priceRaw = parseFloat(matches[2]); // final_price index
-              const brand = matches[13] || "Walmart"; // brand index
-              const name = matches[19]; // product_name index
-              const detail = matches[22] || "Retail Product"; // category_name index
-              
-              if (name && name.length > 3 && name !== "product_name" && !isNaN(priceRaw) && priceRaw > 0) {
-                products.push({
-                  name: name.replace(/["']/g, "").trim(),
-                  price: priceRaw,
-                  detail: `Brand: ${brand.replace(/["']/g, "").trim()} | ${detail.replace(/["']/g, "").trim()}`
-                });
-              }
-            }
-          }
-          
-          if (active && products.length >= 4) {
-            // Shuffle the complete parsed list first and select a random set of 4 unique products
-            const selection = products
-              .sort(() => Math.random() - 0.5)
-              .slice(0, 4)
-              .map((p, idx) => {
-                // Dynamically offset catalog prices slightly to ensure highly random pricing ranks
-                const randomOffset = parseFloat((Math.random() * 4.0 - 2.0).toFixed(2));
-                const finalPrice = Math.max(0.99, parseFloat((p.price + randomOffset).toFixed(2)));
-                return {
-                  ...p,
-                  price: finalPrice
-                };
-              });
-              
-            setItems(selection.sort(() => Math.random() - 0.5));
-            setIsRevealed(false);
-            setIsLoading(false);
-            return;
-          }
-        } catch (csvErr) {
-          console.warn("Parsing local Walmart CSV failed, falling back to network queries:", csvErr);
-        }
-      }
-
-      // Round 4 & 8: Data.gov Agriculture & Commodity Index (Mock API lookup / live catalog indicators)
-      if (puzzle.id === 4 || puzzle.id === 8 || puzzle.id === 10) {
-        try {
-          // Fetch US wholesale commodity indexes (using public government data indicators)
-          const govResponse = await fetch(
-            'https://api.data.gov/discovery/v1/datasets?size=15&q=commodity+price',
-            { headers: { 'Accept': 'application/json' } }
-          );
-          // Standard government pricing catalog indices
-          const commodityOptions = [
-            { name: "US Grade A Large Eggs (Dozen)", price: 3.89, detail: "Data.gov Agricultural Index" },
-            { name: "USDA Choice Beef Chuck Roast (Per lb)", price: 7.49, detail: "Data.gov Agricultural Index" },
-            { name: "US Natural Gas Commodity (Million BTUs)", price: 2.15, detail: "Data.gov Energy Index" },
-            { name: "US Regular Unleaded Gasoline (Gallon)", price: 3.45, detail: "Data.gov Fuel Index" },
-            { name: "USDA Premium Honey (16oz)", price: 8.99, detail: "Data.gov Food Index" },
-            { name: "US Soft Red Winter Wheat (Bushel)", price: 5.60, detail: "Data.gov Grain Index" }
-          ];
-
-          if (active) {
-            const selection = commodityOptions
-              .sort(() => Math.random() - 0.5)
-              .slice(0, 4);
-            setItems(selection);
-            setIsRevealed(false);
-            setIsLoading(false);
-            return;
-          }
-        } catch (govErr) {
-          console.warn("Data.gov lookup failed, falling back:", govErr);
-        }
-      }
-
-      // Default: Dynamic Open Food Facts Live US Grocery category tagging
-      const categoryMap = {
-        2: "beverages",
-        3: "cereals",
-        6: "cheeses",
-        9: "soups"
-      };
-      
-      const targetCategory = categoryMap[puzzle.id] || "chocolates";
-      const randomPage = Math.floor(Math.random() * 4) + 1;
-      
-      try {
-        const response = await fetch(
-          `/api/off/api/v2/search?categories_tags_en=${targetCategory}&countries_tags=united-states&fields=product_name,brands,price,completeness&page_size=24&page=${randomPage}`,
-          {
-            headers: {
-              'User-Agent': 'PretiumSortingGame/1.0 (James/Mayday Projects)'
-            }
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error(`API returned status code: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (active && data.products && data.products.length >= 6) {
-          const cleanProducts = data.products
-            .filter(p => p.product_name && p.product_name.length > 3 && p.brands && p.brands.trim().length > 0);
-
-          if (cleanProducts.length >= 4) {
-            const selectedSet = cleanProducts
-              .sort(() => Math.random() - 0.5)
-              .slice(0, 4)
-              .map((p, index) => {
-                const basePrice = 1.49 + (index * 1.80) + (p.product_name.length % 4) * 0.60;
-                return {
-                  name: p.product_name,
-                  price: parseFloat(basePrice.toFixed(2)),
-                  detail: `Brand: ${p.brands}`
-                };
-              });
-
-            setItems(selectedSet.sort(() => Math.random() - 0.5));
-            setIsRevealed(false);
-            setIsLoading(false);
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn("OpenFoodFacts live query failed, falling back to static database:", err);
-      }
-      
-      // Fallback
-      if (active) {
-        const shuffled = [...puzzle.items].sort(() => Math.random() - 0.5);
-        setItems(shuffled);
-        setIsRevealed(false);
-        setIsLoading(false);
-      }
-    };
-
-    fetchLiveCategoryData();
-    return () => { active = false; };
+    setIsLoading(true);
+    const round = buildRound(currentLevelIdx + 1, usedNamesRef.current);
+    if (round) {
+      round.items.forEach(i => usedNamesRef.current.add(i.name));
+      setRoundMeta({ category: round.category, blurb: round.blurb });
+      setItems(round.items);
+    }
+    setIsRevealed(false);
+    setIsLoading(false);
   }, [currentLevelIdx, gameMode, reloadTrigger]);
 
   // Timer configuration for Time Attack Mode
@@ -319,15 +165,15 @@ export default function Pretium() {
       // Progressive level increment or round looping
       setTimeout(() => {
         if (gameMode === 'standard') {
-          if (currentLevelIdx < pretiumPuzzles.length - 1) {
+          if (currentLevelIdx < STANDARD_ROUNDS - 1) {
             setCurrentLevelIdx((prev) => prev + 1);
           } else {
             setIsFinished(true);
             triggerPBCheck();
           }
         } else {
-          // Time attack / Zen modes keep looping packages infinitely
-          setCurrentLevelIdx((prev) => (prev + 1) % pretiumPuzzles.length);
+          // Time attack / Zen modes keep generating fresh rounds infinitely
+          setCurrentLevelIdx((prev) => prev + 1);
         }
       }, 1800);
     } else {
@@ -373,14 +219,13 @@ export default function Pretium() {
 
   const handleRestart = () => {
     playSynthSound('click', audioCtxRef);
+    usedNamesRef.current = new Set();
     setScore(0);
     setCurrentLevelIdx(0);
     setIsFinished(false);
     setIsRevealed(false);
-    resetRound();
+    setReloadTrigger(prev => prev + 1);
   };
-
-  const activePuzzle = pretiumPuzzles[currentLevelIdx] || pretiumPuzzles[0];
 
   return (
     <div className="pret-theme">
@@ -395,11 +240,13 @@ export default function Pretium() {
                 className={`pret-mode-btn ${gameMode === m ? 'active' : ''}`}
                 onClick={() => {
                   playSynthSound('click', audioCtxRef);
+                  usedNamesRef.current = new Set();
                   setGameMode(m);
                   setScore(0);
                   setCurrentLevelIdx(0);
                   setIsFinished(false);
                   setIsRevealed(false);
+                  setReloadTrigger(prev => prev + 1);
                 }}
               >
                 {m}
@@ -410,7 +257,12 @@ export default function Pretium() {
 
         {/* Live level details card */}
         <section className="pret-level-card">
-          <h1 className="pret-level-title">Round {currentLevelIdx + 1}</h1>
+          <h1 className="pret-level-title">
+            Round {currentLevelIdx + 1}
+            {gameMode === 'standard' && ` / ${STANDARD_ROUNDS}`}
+            {roundMeta.category && <span className="pret-level-category"> — {roundMeta.category}</span>}
+          </h1>
+          {roundMeta.blurb && <p className="pret-level-blurb">{roundMeta.blurb}</p>}
         </section>
 
         {/* Dynamic statistics indicators */}
@@ -531,7 +383,7 @@ export default function Pretium() {
           <div className="pret-result-dialog">
             <span className="pret-dialog-category">Game Over</span>
             <h2 className="pret-dialog-title">
-              {gameMode === 'standard' && currentLevelIdx === pretiumPuzzles.length - 1 && score > 0
+              {gameMode === 'standard' && currentLevelIdx === STANDARD_ROUNDS - 1 && score > 0
                 ? "Perfect Win!"
                 : "Round Finished!"}
             </h2>

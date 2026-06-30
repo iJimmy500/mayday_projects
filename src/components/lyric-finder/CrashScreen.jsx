@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flower } from 'lucide-react';
-import '../../pages/LyricFinder.css';
+import '../../pages/SongSong.css';
 
 export default function CrashScreen({ reason }) {
   const errorCode = reason?.code || 'UNEXPECTED_KERNEL_MODE_TRAP';

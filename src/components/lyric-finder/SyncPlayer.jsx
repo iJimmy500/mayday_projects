@@ -12,10 +12,9 @@ export default function SyncPlayer({
   onEnded,
   onError,
   hasSync,
-  startAt
+  startAt,
+  capSeconds
 }) {
-  const HINT_PLAY_SECONDS = 10;
-
   const audioRef = useRef(null);
   const hintWindowEndRef = useRef(null);
   const wasPlayingRef = useRef(false);
@@ -32,29 +31,38 @@ export default function SyncPlayer({
     else if (useNativeAudio) console.log('[SyncPlayer] 🔊 Using Native Audio');
   }, [useYouTube, useNativeAudio]);
 
-  // Each time hint playback starts, jump to the moment the lyric snippet is
-  // sung and arm a window so it stops after a few seconds instead of playing
-  // the rest of the song.
+  // Each time snippet playback starts, jump to the relevant moment (if known)
+  // and arm a window so it stops after `capSeconds` instead of playing the rest
+  // of the song. The cap applies even when there's no synced timestamp, so
+  // "Name the Clip" never plays the full track.
   useEffect(() => {
     const startedPlaying = isPlaying && !wasPlayingRef.current;
     wasPlayingRef.current = isPlaying;
 
-    if (useYouTube && startedPlaying && startAt != null && playerRef?.current) {
-      const target = Math.max(0, startAt - 0.4);
+    if (useYouTube && startedPlaying && (startAt != null || capSeconds != null) && playerRef?.current) {
       try {
-        playerRef.current.currentTime = target;
-        hintWindowEndRef.current = target + HINT_PLAY_SECONDS;
-        console.log(`[SyncPlayer] ⏩ Playing snippet hint: ${target.toFixed(1)}s – ${hintWindowEndRef.current.toFixed(1)}s`);
+        let target;
+        if (startAt != null) {
+          target = Math.max(0, startAt - 0.4);
+          playerRef.current.currentTime = target;
+        } else {
+          // No timestamp to seek to — cap from wherever playback currently is.
+          target = playerRef.current.currentTime || 0;
+        }
+        // capSeconds == null means play uncapped from the seek point (e.g. the
+        // reveal, where we play from the answer line onward).
+        hintWindowEndRef.current = capSeconds != null ? target + capSeconds : null;
+        console.log(`[SyncPlayer] ⏩ Seek to ${target.toFixed(1)}s${capSeconds != null ? ` (cap ${capSeconds}s)` : ' (uncapped)'}`);
       } catch (err) {
         console.warn('[SyncPlayer] Seek failed:', err);
       }
     }
-  }, [useYouTube, isPlaying, startAt, ytUrl, playerRef]);
+  }, [useYouTube, isPlaying, startAt, capSeconds, ytUrl, playerRef]);
 
-  // Once the song is revealed (startAt cleared), playback is no longer capped.
+  // Once the song is revealed (cap cleared), playback is no longer capped.
   useEffect(() => {
-    if (startAt == null) hintWindowEndRef.current = null;
-  }, [startAt]);
+    if (capSeconds == null) hintWindowEndRef.current = null;
+  }, [capSeconds]);
 
   useEffect(() => {
     if (useNativeAudio && audioRef.current) {

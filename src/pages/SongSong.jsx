@@ -10,11 +10,12 @@ import TopNav from '../components/lyric-finder/TopNav';
 import ImportBox from '../components/lyric-finder/ImportBox';
 import CongratsOverlay from '../components/lyric-finder/CongratsOverlay';
 import CrashScreen from '../components/lyric-finder/CrashScreen';
+import ModeSelect from '../components/lyric-finder/ModeSelect';
 
-import './LyricFinder.css';
+import './SongSong.css';
 
-export default function LyricFinder({ artistName, isGlobal }) {
-  const { state, actions, refs } = useLyricGame(artistName, isGlobal);
+export default function SongSong({ artistName, isGlobal, initialMode }) {
+  const { state, actions, refs } = useLyricGame(artistName, isGlobal, initialMode);
 
   const {
     currentSong, lyrics, snippet, loading, statusMessage, albumArt, prevAlbumArt,
@@ -22,18 +23,46 @@ export default function LyricFinder({ artistName, isGlobal }) {
     startIndex, history, sessionHistory, currentGuesses, settings, showHistory,
     showRoundGuesses, isSearching, isLandingState, customPlaylist, playlistInfo,
     artistImage, isImporting, importUrl, isCrashed, crashReason, isPlaying, isPlayerReady,
-    isYoutubeLoading, correctParts
+    isYoutubeLoading, correctParts, finishChallenge, modeChosen
   } = state;
 
   const {
-    setGuess, setSettings, setShowHistory, setShowRoundGuesses, setIsSearching, 
+    setGuess, setSettings, setShowHistory, setShowRoundGuesses, setIsSearching,
     setIsImporting, setImportUrl, setIsPlaying, setCurrentTime,
     handleGuess, giveUp, startNewRound, resetToRandom, fetchArtistPlaylist,
     handleSelectGenre, handleSelectLocalPlaylist, parsePlaylistUrl,
-    handlePlayerReady, handlePlayerError
+    handlePlayerReady, handlePlayerError, chooseMode, handlePlaybackEnded
   } = actions;
 
   const hasAudio = !!(currentSong?.previewUrl || currentSong?.streamUrl || currentSong?.youtubeId);
+
+  const isPlayable = gameState === 'playing' || gameState === 'error';
+  const isFinishMode = settings.challengeMode === 'finish';
+  const FINISH_LEADIN = 10;
+  const answerTime = finishChallenge?.answerTime;
+
+  // Where playback seeks and how long it's capped, by phase + mode:
+  //  - Finish, guessing: lead up to the answer line, capped (stops at the line).
+  //  - Other modes, guessing: the lyric snippet moment, capped to clip length.
+  //  - Finish, revealed: play FROM the answer line (the line they had to guess).
+  //  - Other modes, revealed: uncapped from wherever (full song).
+  let playbackStartAt = null;
+  let capSeconds = null;
+  if (isPlayable) {
+    if (isFinishMode) {
+      playbackStartAt = answerTime != null ? Math.max(0, answerTime - FINISH_LEADIN) : null;
+      capSeconds = FINISH_LEADIN;
+    } else {
+      playbackStartAt = hintStartTime;
+      capSeconds = settings.clipLength === 'full' ? null : (settings.clipLength || 10);
+    }
+  } else if (isFinishMode && answerTime != null) {
+    // Reveal: play from the line they had to guess. With auto-skip on, cap it to
+    // a short window so it plays the line and a beat more, then advances; with
+    // auto-skip off, let it keep playing.
+    playbackStartAt = answerTime;
+    capSeconds = settings.autoSkip ? 8 : null;
+  }
 
   const bgBlur = Math.max(8, 120 - (attempts * 28));
   const bgOpacity = Math.max(0.3, 0.8 - (attempts * 0.12));
@@ -86,14 +115,16 @@ export default function LyricFinder({ artistName, isGlobal }) {
       <LyricView
         lyrics={lyrics}
         parsedLyrics={parsedLyrics}
+        finishChallenge={finishChallenge}
         hintLines={hintLines}
         currentTime={currentTime}
         attempts={attempts} 
         startIndex={startIndex} 
         gameState={gameState} 
         loading={loading} 
-        settings={settings} 
-        statusMessage={statusMessage} 
+        settings={settings}
+        statusMessage={statusMessage}
+        isPlaying={isPlaying}
       />
 
       <SyncPlayer
@@ -104,10 +135,11 @@ export default function LyricFinder({ artistName, isGlobal }) {
         playerRef={refs.playerRef}
         onTimeUpdate={setCurrentTime}
         onReady={handlePlayerReady}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={handlePlaybackEnded}
         onError={handlePlayerError}
         hasSync={state.hasSync}
-        startAt={(gameState === 'playing' || gameState === 'error') ? hintStartTime : null}
+        startAt={playbackStartAt}
+        capSeconds={capSeconds}
       />
 
       <ControlBar 
@@ -133,8 +165,9 @@ export default function LyricFinder({ artistName, isGlobal }) {
         currentSong={currentSong} 
         albumArt={albumArt} 
         trackUrl={trackUrl} 
-        currentGuesses={currentGuesses} 
+        currentGuesses={currentGuesses}
         correctParts={correctParts}
+        finishChallenge={finishChallenge}
       />
 
       <DashboardModal 
@@ -153,6 +186,10 @@ export default function LyricFinder({ artistName, isGlobal }) {
           score={score} 
           onReturnHome={resetToRandom} 
         />
+      )}
+
+      {!modeChosen && (
+        <ModeSelect current={settings.challengeMode} onSelect={chooseMode} />
       )}
 
       {isCrashed && <CrashScreen reason={crashReason} />}

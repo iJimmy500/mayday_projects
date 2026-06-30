@@ -57,8 +57,8 @@ export default function SearchHub({ isOpen, onClose, onSelectArtist, onSelectGen
         <div className={`am-search-header-transition ${isActuallySearching ? 'searching' : ''}`}>
           {isLanding && (
             <div className="am-welcome-header">
-              <h1>Welcome to Lyric Finder</h1>
-              <p>Select a collection or search for an artist to begin.</p>
+              <h1>SongSong</h1>
+              <p>Pick a collection or search an artist to start.</p>
             </div>
           )}
         </div>
